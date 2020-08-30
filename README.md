@@ -26,7 +26,7 @@ Liquibase turned to be the most feasible tool to extend as it allows to define c
 <a name="implemented-changes"></a>
 ## Implemented Changes:
 
-A couple of Changes were implemented until identified that majority of of the operations can be achieved using `db.runCommand()` and `db.adminCommand()`
+A couple of Changes were implemented until identified that majority of the operations can be achieved using `db.runCommand()` and `db.adminCommand()`
 
 * [createCollection](https://docs.mongodb.com/manual/reference/method/db.createCollection/#db.createCollection) - 
 Creates a collection with validator
@@ -64,6 +64,8 @@ mongo-java-driver:3.10.2
  
 Connection url can be adjusted here: [`db.connection.uri`](./src/test/resources/application-test.properties)
 Integration tests are run by enabling `run-its` profile 
+
+The tests require Mongo 4.0 to execute successfully.
 
 ### Run integration tests
 
@@ -108,6 +110,20 @@ ExecutorService.getInstance().setExecutor(database, mongoExecutor);
 ``` 
 
 <a name="contributing"></a>
+## Liquibase CLI
+
+To use with the liquibase CLI, all changesets must use the runWith attribute of `mongodb`, this is only compatible with Liquibase 4.0.0
+
+## Docker
+
+Included is a docker-compose file that will start Mongo up as well as run the test liquibase migrations against a mongo server. Instructions:
+
+1. `docker-compose up -d mongo`
+2. Edit `src/test/resources/application-test.properties` and change the port for mongo to 37017 (e.g., `sed -i -E "s/27017/37017/" src/test/resources/application-test.properties`)
+  * Note sporadically tests may fail because short timeouts.
+3. `mvn clean install -Prun-its`
+4. `docker-compose up --build liquibase-cli-1`
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.

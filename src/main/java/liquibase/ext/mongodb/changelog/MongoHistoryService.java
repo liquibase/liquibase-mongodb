@@ -99,7 +99,7 @@ public class MongoHistoryService extends AbstractChangeLogHistoryService {
     public boolean hasDatabaseChangeLogTable() {
         if (hasDatabaseChangeLogTable == null) {
             try {
-                final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("jdbc", getDatabase());
+                final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("mongodb", getDatabase());
                 hasDatabaseChangeLogTable =
                         executor.queryForLong(new CountCollectionByNameStatement(getDatabase().getDatabaseChangeLogTableName())) == 1L;
             } catch (LiquibaseException e) {
@@ -114,7 +114,7 @@ public class MongoHistoryService extends AbstractChangeLogHistoryService {
             return;
         }
 
-        final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("jdbc", getDatabase());
+        final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("mongodb", getDatabase());
 
         final boolean createdTable = hasDatabaseChangeLogTable();
 
@@ -168,7 +168,7 @@ public class MongoHistoryService extends AbstractChangeLogHistoryService {
         ((MongoLiquibaseDatabase) getDatabase()).getConnection().getDb().getCollection(getDatabaseChangeLogTableName())
                 .updateOne(filter, update);
 
-        Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("jdbc", getDatabase())
+        Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("mongodb", getDatabase())
             .comment(String.format("Replace checksum executed. Changeset: [filename: %s, id: %s, author: %s]",
                 changeSet.getFilePath(), changeSet.getId(), changeSet.getAuthor()));
 
@@ -278,14 +278,14 @@ public class MongoHistoryService extends AbstractChangeLogHistoryService {
         ((MongoLiquibaseDatabase) getDatabase()).getConnection().getDb().getCollection(getDatabaseChangeLogTableName())
                 .updateMany(CLEAR_CHECKSUM_FILTER, CLEAR_CHECKSUM_UPDATE);
 
-        Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("jdbc", getDatabase()).comment("Clear all checksums executed");
+        Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("mongodb", getDatabase()).comment("Clear all checksums executed");
     }
 
     @Override
     public void destroy() {
 
         try {
-            final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("jdbc", getDatabase());
+            final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("mongodb", getDatabase());
 
             executor.comment("Dropping Collection Database Change Log: " + getDatabaseChangeLogTableName());
             {

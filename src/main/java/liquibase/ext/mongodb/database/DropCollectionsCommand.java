@@ -50,7 +50,7 @@ public class DropCollectionsCommand extends DropAllCommand {
         LockService lockService = LockServiceFactory.getInstance().getLockService(database);
         try {
             lockService.waitForLock();
-            final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("jdbc", database);
+            final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("mongodb", database);
             executor.execute(new DropAllCollectionsStatement());
 
         } catch (DatabaseException e) {

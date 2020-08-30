@@ -83,7 +83,7 @@ public class MongoLockService implements LockService {
 
         if (!hasDatabaseChangeLogLockTable()) {
             try {
-                final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("jdbc", Scope.getCurrentScope().getDatabase());
+                final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("mongodb", Scope.getCurrentScope().getDatabase());
                 executor.comment("Create Database Lock Collection");
 
                 final CreateChangelogLockCollectionStatement createChangeLogLockCollectionStatement =
@@ -149,7 +149,7 @@ public class MongoLockService implements LockService {
     public boolean acquireLock() throws LockException {
 
         try {
-            final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("jdbc", Scope.getCurrentScope().getDatabase());
+            final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("mongodb", Scope.getCurrentScope().getDatabase());
             database.rollback();
             this.init();
 
@@ -197,7 +197,7 @@ public class MongoLockService implements LockService {
         try {
             if (this.hasDatabaseChangeLogLockTable()) {
 
-                final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("jdbc", getDatabase());
+                final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("mongodb", getDatabase());
                 executor.comment("Release Database Lock");
 
                 database.rollback();
@@ -241,7 +241,7 @@ public class MongoLockService implements LockService {
                     getDatabaseChangeLogLockTableName()
             );
 
-            final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("jdbc", getDatabase());
+            final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("mongodb", getDatabase());
             @SuppressWarnings("unchecked")
             List<MongoChangeLogLock> rows = (List<MongoChangeLogLock>) executor.queryForList(stmt, Document.class).stream()
                     .map(d -> MongoChangeLogLock.from((Document)d)).collect(Collectors.toList());
@@ -268,7 +268,7 @@ public class MongoLockService implements LockService {
     @Override
     public void destroy() {
         try {
-            final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("jdbc", getDatabase());
+            final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("mongodb", getDatabase());
 
             executor.comment("Dropping Collection Database Change Log Lock: " + getDatabaseChangeLogLockTableName());
             {
@@ -320,7 +320,7 @@ public class MongoLockService implements LockService {
     private boolean hasDatabaseChangeLogLockTable() throws DatabaseException {
         if (hasDatabaseChangeLogLockTable == null) {
             try {
-                final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("jdbc", getDatabase());
+                final Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor("mongodb", getDatabase());
                 hasDatabaseChangeLogLockTable =
                         executor.queryForLong(new CountDocumentsInCollectionStatement(getDatabase().getDatabaseChangeLogLockTableName())) == 1L;
             } catch (Exception e) {

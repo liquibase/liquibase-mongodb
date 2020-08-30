@@ -20,6 +20,7 @@ package liquibase.ext.mongodb.lockservice;
  * #L%
  */
 
+import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.LockException;
 import liquibase.ext.AbstractMongoIntegrationTest;
@@ -53,31 +54,37 @@ class MongoLockServiceIT extends AbstractMongoIntegrationTest {
     }
 
     @Test
-    void testInit() throws DatabaseException {
-        mongoLockService.reset();
-        assertThat(mongoLockService.hasChangeLogLock(), equalTo(false));
-        assertThat(mongoLockService.getHasDatabaseChangeLogLockTable(), nullValue());
-        mongoLockService.init();
-        assertThat(mongoLockService.hasChangeLogLock(), equalTo(false));
-        assertThat(mongoLockService.getHasDatabaseChangeLogLockTable(), equalTo(true));
+    void testInit() throws Exception {
+        Scope.child(Scope.Attr.database, database, () -> {
+            mongoLockService.reset();
+            assertThat(mongoLockService.hasChangeLogLock(), equalTo(false));
+            assertThat(mongoLockService.getHasDatabaseChangeLogLockTable(), nullValue());
+            mongoLockService.init();
+            assertThat(mongoLockService.hasChangeLogLock(), equalTo(false));
+            assertThat(mongoLockService.getHasDatabaseChangeLogLockTable(), equalTo(true));
+        });
     }
 
     @Test
-    void testAcquireLock() throws DatabaseException, LockException {
-        mongoLockService.reset();
-        assertThat(mongoLockService.hasChangeLogLock(), equalTo(false));
-        mongoLockService.init();
-        assertThat(mongoLockService.hasChangeLogLock(), equalTo(false));
-        final boolean acquiredLock = mongoLockService.acquireLock();
-        assertThat(acquiredLock, equalTo(true));
-        assertThat(mongoLockService.hasChangeLogLock(), equalTo(true));
-        final DatabaseChangeLogLock[] locks = mongoLockService.listLocks();
-        assertThat(locks.length, equalTo(1));
+    void testAcquireLock() throws Exception {
+        Scope.child(Scope.Attr.database, database, () -> {
+            mongoLockService.reset();
+            assertThat(mongoLockService.hasChangeLogLock(), equalTo(false));
+            mongoLockService.init();
+            assertThat(mongoLockService.hasChangeLogLock(), equalTo(false));
+            final boolean acquiredLock = mongoLockService.acquireLock();
+            assertThat(acquiredLock, equalTo(true));
+            assertThat(mongoLockService.hasChangeLogLock(), equalTo(true));
+            final DatabaseChangeLogLock[] locks = mongoLockService.listLocks();
+            assertThat(locks.length, equalTo(1));
+        });
     }
 
     @Test
-    void waitForLock() throws LockException {
-        mongoLockService.waitForLock();
+    void waitForLock() throws Exception {
+        Scope.child(Scope.Attr.database, database, () -> {
+            mongoLockService.waitForLock();
+        });
     }
 
     @Test

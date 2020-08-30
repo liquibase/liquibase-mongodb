@@ -481,7 +481,7 @@ public class MongoLiquibaseDatabase extends AbstractJdbcDatabase {
 
     public String getDefaultDriver(String url) {
         if (url.startsWith("mongodb://")) {
-            return "MongoClientDriver";
+            return "liquibase.ext.mongodb.database.adapters.MongoDriver";
         }
         return null;
     }

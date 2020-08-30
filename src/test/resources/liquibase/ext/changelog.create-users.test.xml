@@ -21,10 +21,10 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.0.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet id="1" author="alex">
+    <changeSet id="1" author="alex" runWith="mongodb">
 
         <ext:runCommand>
             <ext:command>
@@ -76,7 +76,7 @@
 
     </changeSet>
 
-    <changeSet id="2" author="alex">
+    <changeSet id="2" author="alex" runWith="mongodb">
 
         <ext:runCommand>
             <ext:command>

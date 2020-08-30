@@ -48,11 +48,21 @@ public class MongoConnection implements DatabaseConnection {
 
     public final String MONGO_CONNECTION_STRING_PATTERN = "%s/%s";
 
-    private final MongoClient con;
-    private final com.mongodb.client.MongoDatabase db;
-    private final ConnectionString connectionString;
+    private MongoClient con;
+    private com.mongodb.client.MongoDatabase db;
+    private ConnectionString connectionString;
+
+    public MongoConnection() {
+        con = null;
+        db = null;
+        connectionString = null;
+    }
 
     public MongoConnection(final String connectionString) {
+        initialize(connectionString);
+    }
+
+    private void initialize(String connectionString) {
         this.connectionString = new ConnectionString(connectionString);
         this.con = MongoClients.create(this.connectionString);
         this.db = this.con.getDatabase(Objects.requireNonNull(this.connectionString.getDatabase()))
@@ -144,14 +154,13 @@ public class MongoConnection implements DatabaseConnection {
 
 	@Override
 	public int getPriority() {
-		// TODO Auto-generated method stub
-		return 0;
+		// If this is set to low, liquibase cli won't work.
+		return 102;
 	}
 
 	@Override
 	public void open(String url, Driver driverObject, Properties driverProperties) throws DatabaseException {
-		// TODO Auto-generated method stub
-		
+		this.initialize(url);
 	}
 
 }
