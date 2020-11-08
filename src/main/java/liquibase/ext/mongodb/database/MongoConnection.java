@@ -21,12 +21,13 @@ package liquibase.ext.mongodb.database;
  */
 
 import com.mongodb.ConnectionString;
+import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
+import liquibase.exception.DatabaseException;
 import liquibase.ext.mongodb.statement.BsonUtils;
 import liquibase.nosql.database.AbstractNoSqlConnection;
-import liquibase.exception.DatabaseException;
+import liquibase.util.StringUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,8 +35,10 @@ import lombok.Setter;
 import java.sql.Driver;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 
+import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 
 @Getter
@@ -45,7 +48,7 @@ public class MongoConnection extends AbstractNoSqlConnection {
 
     public static final int DEFAULT_PORT = 27017;
     public static final String MONGO_PREFIX = MongoLiquibaseDatabase.MONGODB_PRODUCT_SHORT_NAME + "://";
-    public final String MONGO_CONNECTION_STRING_PATTERN = "%s/%s";
+    public static final String MONGO_CONNECTION_STRING_PATTERN = "%s/%s";
 
     private ConnectionString connectionString;
 
@@ -72,15 +75,39 @@ public class MongoConnection extends AbstractNoSqlConnection {
     }
 
     @Override
+    public String getConnectionUserName() {
+        return ofNullable(this.connectionString).map(ConnectionString::getCredential)
+                .map(MongoCredential::getUserName).orElse("");
+    }
+
+    @Override
     public void open(final String url, final Driver driverObject, final Properties driverProperties) throws DatabaseException {
 
         try {
-            this.connectionString = new ConnectionString(url);
-            this.client = MongoClients.create(this.connectionString);
+
+            String urlWithCredentials = url;
+
+            if (nonNull(driverProperties)) {
+
+                final Optional<String> user = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("user")));
+                final Optional<String> password = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("password")));
+
+                if (user.isPresent() && password.isPresent()) {
+                    // injects credentials
+                    // mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database.collection][?options]]
+                    urlWithCredentials = MONGO_PREFIX + user.get() + ":" + password.get() + "@" + StringUtil.trimToEmpty(url).replaceFirst(MONGO_PREFIX, "");
+                }
+            }
+
+            this.connectionString = new ConnectionString(urlWithCredentials);
+
+            this.client = ((MongoClientDriver) driverObject).connect(connectionString);
+
             this.database = this.client.getDatabase(Objects.requireNonNull(this.connectionString.getDatabase()))
                     .withCodecRegistry(BsonUtils.uuidCodecRegistry());
         } catch (final Exception e) {
-            throw new DatabaseException("Could not open connection to database: " + connectionString.getDatabase(), e);
+            throw new DatabaseException("Could not open connection to database: "
+                    + ofNullable(connectionString).map(ConnectionString::getDatabase).orElse("UNKNOWN"), e);
         }
     }
 

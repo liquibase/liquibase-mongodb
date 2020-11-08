@@ -41,8 +41,8 @@ import liquibase.ext.mongodb.statement.UpdateManyStatement;
 import liquibase.logging.Logger;
 import liquibase.nosql.changelog.AbstractNoSqlHistoryService;
 import liquibase.util.LiquibaseUtil;
+import liquibase.util.StringUtil;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -192,7 +192,7 @@ public class MongoHistoryService extends AbstractNoSqlHistoryService {
         for (Change change : changeSet.getChanges()) {
             if (change instanceof TagDatabaseChange) {
                 TagDatabaseChange tagChange = (TagDatabaseChange) change;
-                tag = StringUtils.trimToNull(tagChange.getTag());
+                tag = StringUtil.trimToNull(tagChange.getTag());
             }
         }
         return tag;

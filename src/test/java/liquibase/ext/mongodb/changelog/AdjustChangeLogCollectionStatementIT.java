@@ -6,7 +6,6 @@ import com.mongodb.client.model.Filters;
 import liquibase.ext.AbstractMongoIntegrationTest;
 import liquibase.ext.mongodb.statement.FindAllStatement;
 import liquibase.ext.mongodb.statement.InsertOneStatement;
-import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
@@ -26,8 +25,6 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
     public static final String LOG_COLLECTION_NAME = "historyLogCollection";
 
     protected FindAllStatement findAllStatement = new FindAllStatement(LOG_COLLECTION_NAME);
-
-    protected MongoRanChangeSetToDocumentConverter converter = new MongoRanChangeSetToDocumentConverter();
 
     @Test
     void executeToJSTest() {
@@ -67,8 +64,8 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         adjustChangeLogCollectionStatement.execute(connection);
 
         Optional<Document> options = ofNullable(connection.getDatabase().listCollections().first()).map(c -> (Document) c.get("options"));
-        assertThat(StringUtils.deleteWhitespace(options.map(Document::toJson).orElse(null)))
-                .isEqualTo(StringUtils.deleteWhitespace(CreateChangeLogCollectionStatement.OPTIONS));
+        assertThat(options.map(Document::toJson).orElse(""))
+                .isEqualToIgnoringWhitespace(CreateChangeLogCollectionStatement.OPTIONS);
     }
 
     @Test

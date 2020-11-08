@@ -51,11 +51,6 @@ public abstract class AbstractNoSqlDatabase extends AbstractJdbcDatabase impleme
     }
 
     @Override
-    public Integer getDefaultScaleForNativeDataType(final String nativeDataType) {
-        return null;
-    }
-
-    @Override
     public boolean supportsInitiallyDeferrableColumns() {
         return false;
     }
@@ -170,16 +165,6 @@ public abstract class AbstractNoSqlDatabase extends AbstractJdbcDatabase impleme
     @Override
     public String escapeViewName(final String catalogName, final String schemaName, final String viewName) {
         return null;
-    }
-
-    @Override
-    public void commit() throws DatabaseException {
-        //TODO: implementation
-    }
-
-    @Override
-    public void rollback() throws DatabaseException {
-        //TODO: implementation
     }
 
     @Override

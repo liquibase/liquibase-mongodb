@@ -7,8 +7,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -17,6 +18,7 @@ import static liquibase.ext.mongodb.configuration.MongoConfiguration.SUPPORTS_VA
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class MongoConfigurationTest {
 
@@ -27,7 +29,6 @@ class MongoConfigurationTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.initMocks(this);
         LiquibaseConfiguration.getInstance().reset();
         configuration = LiquibaseConfiguration.getInstance()
                 .getConfiguration(MongoConfiguration.class);

@@ -104,13 +104,13 @@ public abstract class AbstractNoSqlHistoryService extends AbstractChangeLogHisto
         }
 
         if (!hasDatabaseChangeLogTable()) {
-            getLogger().info("Create Database Change Log Container");
+            getLogger().info("Create Database Change Log Collection");
 
             // If there is no table in the database for recording change history create one.
-            this.getLogger().info("Creating database history container with name: "
+            this.getLogger().info("Creating database history collection with name: "
                     + getDatabase().getConnection().getCatalog() + "." + this.getDatabaseChangeLogTableName());
             createRepository();
-            getLogger().info("Created database history container : "
+            getLogger().info("Created database history collection : "
                     + getDatabase().getConnection().getCatalog() + "." + this.getDatabaseChangeLogTableName());
             this.hasDatabaseChangeLogTable = TRUE;
         }
@@ -249,7 +249,7 @@ public abstract class AbstractNoSqlHistoryService extends AbstractChangeLogHisto
 
             if (existsRepository()) {
                 dropRepository();
-                getLogger().info("Dropped Container Database Change Log: " + getDatabaseChangeLogTableName());
+                getLogger().info("Dropped Collection Database Change Log: " + getDatabaseChangeLogTableName());
             } else {
                 getLogger().warning("Cannot Drop Collection Database Change Log as not found: " + getDatabaseChangeLogTableName());
             }

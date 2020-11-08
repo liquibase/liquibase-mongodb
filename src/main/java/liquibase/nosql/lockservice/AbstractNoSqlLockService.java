@@ -94,7 +94,7 @@ public abstract class AbstractNoSqlLockService implements LockService {
                     + (getDatabase().getConnection()).getCatalog() + "." + getDatabaseChangeLogLockTableName());
             createRepository();
             database.commit();
-            getLogger().info("Created database lock Container: " + getDatabaseChangeLogLockTableName());
+            getLogger().info("Created database lock Collection: " + getDatabaseChangeLogLockTableName());
             this.hasDatabaseChangeLogLockTable = true;
         }
         if (!adjustedChangeLogLockTable) {
@@ -253,8 +253,9 @@ public abstract class AbstractNoSqlLockService implements LockService {
     @Override
     public void destroy() {
         try {
-            getLogger().info("Dropping Container Database Change Log Lock: " + getDatabaseChangeLogLockTableName());
+            getLogger().info("Dropping Collection Database Change Log Lock: " + getDatabaseChangeLogLockTableName());
             dropRepository();
+            getLogger().info("Dropped Collection Database Change Log Lock: " + getDatabaseChangeLogLockTableName());
             database.commit();
             reset();
         } catch (final DatabaseException e) {

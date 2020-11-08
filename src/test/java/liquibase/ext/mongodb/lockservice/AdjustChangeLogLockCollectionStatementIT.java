@@ -7,7 +7,6 @@ import liquibase.ext.AbstractMongoIntegrationTest;
 import liquibase.ext.mongodb.statement.FindAllStatement;
 import liquibase.ext.mongodb.statement.InsertOneStatement;
 import liquibase.lockservice.DatabaseChangeLogLock;
-import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
@@ -54,8 +53,8 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
         adjustChangeLogLockCollectionStatement.execute(connection);
 
         Optional<Document> options = ofNullable(connection.getDatabase().listCollections().first()).map(c -> (Document)c.get("options"));
-        assertThat(StringUtils.deleteWhitespace(options.map(Document::toJson).orElse(null)))
-                .isEqualTo(StringUtils.deleteWhitespace(CreateChangeLogLockCollectionStatement.OPTIONS));
+        assertThat(options.map(Document::toJson).orElse(""))
+                .isEqualToIgnoringWhitespace(CreateChangeLogLockCollectionStatement.OPTIONS);
 
     }
 

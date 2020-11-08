@@ -72,11 +72,6 @@ public abstract class AbstractNoSqlConnection implements DatabaseConnection {
     }
 
     @Override
-    public String getConnectionUserName() {
-        return null;
-    }
-
-    @Override
     public void attached(final Database database) {
         // Do nothing
     }

@@ -28,7 +28,6 @@ import lombok.Getter;
 import java.util.Date;
 
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 public class MongoChangeLogLock extends DatabaseChangeLogLock{
 
@@ -59,7 +58,7 @@ public class MongoChangeLogLock extends DatabaseChangeLogLock{
     public static String formLockedBy() {
         try {
             final String HOST_NAME = NetUtil.getLocalHostName();
-            final String HOST_DESCRIPTION = ofNullable(System.getProperty("liquibase.hostDescription")).map(v -> "#" + v).orElse(EMPTY);
+            final String HOST_DESCRIPTION = ofNullable(System.getProperty("liquibase.hostDescription")).map(v -> "#" + v).orElse("");
             final String HOST_ADDRESS = NetUtil.getLocalHostAddress();
             return HOST_NAME + HOST_DESCRIPTION + " (" + HOST_ADDRESS + ")";
         } catch (Exception e) {

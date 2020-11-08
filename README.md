@@ -39,6 +39,9 @@ Liquibase turned to be the most feasible tool to extend as it allows to define c
         }
 }
 ```
+For the command line is required to copy to `[liquibase]/lib` 
+libraries : `jackson-annotations-2.11.3.jar, jackson-core-2.11.3.jar, jackson-databind-2.11.3.jar`
+
 * New properties added
 ```properties
 # If disabled can be used on API which do not support validators (Azure Cosmos DB with Mongo API, Amazon DocumentDB)
@@ -109,6 +112,7 @@ mongo-java-driver:3.12.7
 ### Adjust connection string
  
 Connection url can be adjusted here: [`url`](./src/test/resources/liquibase.properties)
+[Connection String Format](https://docs.mongodb.com/manual/reference/connection-string/)
 Run Integration tests by enabling `run-its` profile 
 
 ### Run integration tests
