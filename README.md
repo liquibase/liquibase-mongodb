@@ -121,6 +121,10 @@ Run Integration tests by enabling `run-its` profile
 mvn clean install -Prun-its
 ```
 
+### Quick Start Examples
+
+[Quick start Application for NoSql liquibase extensions](https://github.com/alexandru-slobodcicov/liquibase-nosql-quickstart)
+
 <a name="integration"></a>
 ## Integration
 

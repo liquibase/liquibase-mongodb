@@ -72,6 +72,7 @@ class MongoLockServiceTest {
     protected void resetServices() {
         LockServiceFactory.reset();
         Scope.getCurrentScope().getSingleton(ExecutorService.class).reset();
+        LiquibaseConfiguration.getInstance().init();
     }
 
     @AfterEach
@@ -138,7 +139,7 @@ class MongoLockServiceTest {
 
         lockService.init();
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).execute(any(CreateChangeLogLockCollectionStatement.class));
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
         assertThat(adjustChangeLogLockCollectionStatementArgumentCaptor.getValue().getSupportsValidator()).isTrue();
@@ -172,7 +173,7 @@ class MongoLockServiceTest {
 
         lockService.init();
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
         verifyNoMoreInteractions(executorMock);
 
@@ -205,7 +206,7 @@ class MongoLockServiceTest {
         database.setAdjustTrackingTablesOnStartup(FALSE);
         lockService.init();
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).execute(any(CreateChangeLogLockCollectionStatement.class));
         verifyNoMoreInteractions(executorMock);
 
@@ -229,7 +230,7 @@ class MongoLockServiceTest {
         database.setAdjustTrackingTablesOnStartup(FALSE);
         lockService.init();
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verifyNoMoreInteractions(executorMock);
 
         assertThat(lockService.getHasDatabaseChangeLogLockTable()).isTrue();
@@ -249,7 +250,7 @@ class MongoLockServiceTest {
         assertThatExceptionOfType(DatabaseException.class).isThrownBy(lockService::init);
         assertThat(lockService.getHasDatabaseChangeLogLockTable()).isNull();
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verifyNoMoreInteractions(executorMock);
 
         // Exception in CreateChangeLogLockCollectionStatement
@@ -305,7 +306,7 @@ class MongoLockServiceTest {
         assertThatExceptionOfType(LockException.class).isThrownBy(lockService::waitForLock)
                 .withMessageStartingWith("Could not acquire change log lock.  Currently locked by lockedByMock since");
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
         verify(executorMock, times(2)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verify(executorMock, times(1)).queryForList(any(FindAllStatement.class), eq(Document.class));
@@ -334,7 +335,7 @@ class MongoLockServiceTest {
         assertThat(lockService.acquireLock()).isTrue();
         assertThat(replaceLockChangeLogStatementArgumentCaptor.getValue().isLocked()).isTrue();
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
         verifyNoMoreInteractions(executorMock);
@@ -366,7 +367,7 @@ class MongoLockServiceTest {
         assertThat(lockService.hasChangeLogLock()).isFalse();
         assertThat(lockService.acquireLock()).isFalse();
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
         verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verifyNoMoreInteractions(executorMock);
@@ -399,7 +400,7 @@ class MongoLockServiceTest {
         assertThat(lockService.hasChangeLogLock()).isFalse();
         assertThat(lockService.acquireLock()).isFalse();
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
         verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
@@ -425,7 +426,7 @@ class MongoLockServiceTest {
         assertThat(lockService.hasChangeLogLock()).isFalse();
         assertThatExceptionOfType(LockException.class).isThrownBy(lockService::acquireLock);
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
         verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
@@ -451,7 +452,7 @@ class MongoLockServiceTest {
         assertThat(lockService.hasChangeLogLock()).isFalse();
         assertThatExceptionOfType(LockException.class).isThrownBy(lockService::acquireLock);
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
         verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
@@ -477,7 +478,7 @@ class MongoLockServiceTest {
         lockService.releaseLock();
         assertThat(replaceLockChangeLogStatementArgumentCaptor.getValue().isLocked()).isFalse();
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
         verifyNoMoreInteractions(executorMock);
 
@@ -501,7 +502,7 @@ class MongoLockServiceTest {
         assertThatExceptionOfType(LockException.class).isThrownBy(lockService::releaseLock);
         assertThat(replaceLockChangeLogStatementArgumentCaptor.getValue().isLocked()).isFalse();
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
         verifyNoMoreInteractions(executorMock);
 
@@ -527,7 +528,7 @@ class MongoLockServiceTest {
         DatabaseChangeLogLock[] databaseChangeLogLocks = lockService.listLocks();
         assertThat(databaseChangeLogLocks).hasSize(1).allMatch(l -> ((MongoChangeLogLock) l).getLocked());
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).queryForList(any(FindAllStatement.class), eq(Document.class));
         verifyNoMoreInteractions(executorMock);
 
@@ -547,7 +548,7 @@ class MongoLockServiceTest {
 
         assertThat(lockService.listLocks()).isEmpty();
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verifyNoMoreInteractions(executorMock);
 
         assertThat(lockService.getHasDatabaseChangeLogLockTable()).isFalse();
@@ -572,7 +573,7 @@ class MongoLockServiceTest {
         lockService.forceReleaseLock();
         assertThat(replaceLockChangeLogStatementArgumentCaptor.getValue().isLocked()).isFalse();
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
         verifyNoMoreInteractions(executorMock);
@@ -600,7 +601,7 @@ class MongoLockServiceTest {
 
         assertThat(lockService.acquireLock()).isTrue();
 
-        verify(executorMock, times(1)).queryForLong(any());
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
         verifyNoMoreInteractions(executorMock);

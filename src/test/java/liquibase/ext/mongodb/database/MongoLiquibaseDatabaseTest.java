@@ -6,7 +6,10 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.ObjectQuotingStrategy;
 import liquibase.ext.mongodb.configuration.MongoConfiguration;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
 import static java.lang.Boolean.FALSE;
 import static liquibase.servicelocator.PrioritizedService.PRIORITY_DATABASE;

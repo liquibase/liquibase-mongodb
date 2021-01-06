@@ -5,6 +5,7 @@ import liquibase.configuration.ConfigurationValueProvider;
 import liquibase.configuration.LiquibaseConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +37,7 @@ class MongoConfigurationTest {
 
     @AfterEach
     void tearDown() {
-        LiquibaseConfiguration.getInstance().reset();
+        LiquibaseConfiguration.getInstance().init();
     }
 
     @Test
