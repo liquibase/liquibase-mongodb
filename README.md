@@ -27,7 +27,17 @@ Liquibase turned to be the most feasible tool to extend as it allows to define c
 <a name="release-notes"></a>
 ## Release Notes
 
-#### 4.1.2
+#### 4.2.2.1
+* Fixed [Does it support preconditions](https://github.com/liquibase/liquibase-mongodb/issues/69)
+* Added documentExistsPrecondition
+
+#### 4.2.2
+* Support for Liquibase 4.2.2
+
+#### 4.2.1
+* Support for Liquibase 4.2.1
+
+#### 4.1.1.2
 * Fixed [Rollback doesn't work with liquibase-mongodb-4.0.0.2 extension](https://github.com/liquibase/liquibase-mongodb/issues/38)
 * Added dropCollection and dropIndex Changes
 * Added NoSql JSON Parser which can pass raw JSON for a property like this:

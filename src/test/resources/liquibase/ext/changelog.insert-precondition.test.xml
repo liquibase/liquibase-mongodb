@@ -1,0 +1,169 @@
+<!--
+  #%L
+  Liquibase MongoDB Extension
+  %%
+  Copyright (C) 2019 Mastercard
+  %%
+  Licensed under the Apache License, Version 2.0 (the "License").
+  You may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #L%
+  -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.2.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="1" author="alex">
+
+        <preConditions onFail="CONTINUE" onError="HALT">
+            <ext:documentExists collectionName="collection1"/>
+        </preConditions>
+        <comment>Will be SKIPPED due to precondition</comment>
+
+        <ext:documentExists collectionName="collection1">
+
+        </ext:documentExists>
+        <ext:insertOne collectionName="results">
+
+            <ext:document>
+                <!--@formatter:off-->
+                {
+                    info: "notExistsAnyDocumentInCollection1"
+                }
+                <!--@formatter:on-->
+            </ext:document>
+
+        </ext:insertOne>
+
+    </changeSet>
+
+    <changeSet id="2" author="alex">
+
+        <ext:insertOne collectionName="collection1">
+
+            <ext:document>
+                <!--@formatter:off-->
+                {
+                    id: 1
+                }
+                <!--@formatter:on-->
+            </ext:document>
+
+        </ext:insertOne>
+
+    </changeSet>
+
+    <changeSet id="3" author="alex">
+        <preConditions onFail="CONTINUE" onError="HALT">
+            <ext:documentExists collectionName="collection1"/>
+        </preConditions>
+        <comment>Will be inserted due to existing documents</comment>
+
+        <ext:insertOne collectionName="results">
+
+            <ext:document>
+                <!--@formatter:off-->
+                {
+                    info: "existsAnyDocumentInCollection1"
+                }
+                <!--@formatter:on-->
+            </ext:document>
+
+        </ext:insertOne>
+
+    </changeSet>
+
+    <changeSet id="4" author="alex">
+        <preConditions onFail="CONTINUE" onError="HALT">
+            <ext:documentExists collectionName="collection1">
+                <ext:filter>
+                    <!--@formatter:off-->
+                    {
+                        "$or" :
+                            [
+                                {"id": 3}, {"id": {"$gt": 10}}
+                            ]
+                    }
+                    <!--@formatter:on-->
+                </ext:filter>
+            </ext:documentExists>
+        </preConditions>
+        <comment>Will be SKIPPED due to not matching filter</comment>
+
+        <ext:insertOne collectionName="results">
+
+            <ext:document>
+                <!--@formatter:off-->
+                {
+                info: "notMatchingFilterInCollection1"
+                }
+                <!--@formatter:on-->
+            </ext:document>
+
+        </ext:insertOne>
+
+    </changeSet>
+
+    <changeSet id="5" author="alex">
+        <preConditions onFail="CONTINUE" onError="HALT">
+            <ext:documentExists collectionName="collection1">
+                <ext:filter>
+                    <!--@formatter:off-->
+                    {
+                        "$or" :
+                            [
+                                {"id": 100}, {"id": {"$lt": 10}}
+                            ]
+                    }
+                    <!--@formatter:on-->
+                </ext:filter>
+            </ext:documentExists>
+        </preConditions>
+        <comment>Will be inserted as filter matches</comment>
+
+        <ext:insertOne collectionName="results">
+
+            <ext:document>
+                <!--@formatter:off-->
+                {
+                    info: "filterMatchedInCollection1"
+                }
+                <!--@formatter:on-->
+            </ext:document>
+
+        </ext:insertOne>
+
+    </changeSet>
+
+    <changeSet id="6" author="alex">
+        <preConditions onFail="HALT" onError="HALT">
+            <changeSetExecuted id="2" author="alex" changeLogFile="liquibase/ext/changelog.insert-precondition.test.xml"/>
+        </preConditions>
+        <comment>Will be inserted as out of the box precondition met</comment>
+
+        <ext:insertOne collectionName="results">
+
+            <ext:document>
+                <!--@formatter:off-->
+                {
+                    info: "changeSetExecutedMatch"
+                }
+                <!--@formatter:on-->
+            </ext:document>
+
+        </ext:insertOne>
+
+    </changeSet>
+
+</databaseChangeLog>

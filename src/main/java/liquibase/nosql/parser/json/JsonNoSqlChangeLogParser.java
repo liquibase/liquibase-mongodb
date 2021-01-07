@@ -152,7 +152,7 @@ public class JsonNoSqlChangeLogParser implements ChangeLogParser {
                 InputStream propertiesStream = resourceAccessor.openStream(null, property.get("file").asText())) {
 
             if (propertiesStream == null) {
-                log.info("Could not open properties file " + property.get("file"));
+                getLogger().info("Could not open properties file " + property.get("file"));
             } else {
                 props.load(propertiesStream);
                 for (Map.Entry<Object, Object> entry : props.entrySet()) {

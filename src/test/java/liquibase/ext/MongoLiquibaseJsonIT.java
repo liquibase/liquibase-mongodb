@@ -38,27 +38,30 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
+import static liquibase.changelog.ChangeSet.ExecType.EXECUTED;
+import static liquibase.changelog.ChangeSet.ExecType.SKIPPED;
+import static liquibase.ext.mongodb.TestUtils.getCollections;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
 
-    protected FindAllStatement findAll;
+    protected FindAllStatement findAllRanChangeSets;
     protected MongoRanChangeSetToDocumentConverter converter = new MongoRanChangeSetToDocumentConverter();
 
     @BeforeEach
     protected void setUpEach() {
         super.setUpEach();
-        findAll = new FindAllStatement(database.getDatabaseChangeLogTableName());
+        findAllRanChangeSets = new FindAllStatement(database.getDatabaseChangeLogTableName());
     }
 
     @SneakyThrows
     @Test
-    void testMongoLiquibase() {
+    void testLiquibase() {
         Liquibase liquiBase = new Liquibase("liquibase/ext/json/generic-1-insert-people.json", new ClassLoaderResourceAccessor(), database);
         liquiBase.update("");
 
-        final List<MongoRanChangeSet> changeSets = findAll.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        final List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(2)
                 .filteredOn(c -> c.getId().equals("1")).hasSize(1).first()
                 .returns("liquibase/ext/json/generic-1-insert-people.json", RanChangeSet::getChangeLog)
@@ -94,11 +97,11 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
 
     @SneakyThrows
     @Test
-    void testMongoParentFile() {
+    void testParentFile() {
         Liquibase liquiBase = new Liquibase("liquibase/ext/json/generic-0-main-1.json", new ClassLoaderResourceAccessor(), database);
         liquiBase.update("");
 
-        final List<MongoRanChangeSet> changeSets = findAll.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        final List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(2)
                 .filteredOn(c -> c.getId().equals("1")).hasSize(1).first()
                 .returns("liquibase/ext/json/generic-1-insert-people.json", RanChangeSet::getChangeLog)
@@ -134,11 +137,11 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
 
     @SneakyThrows
     @Test
-    void testMongoLiquibaseIncremental() {
+    void testLiquibaseIncremental() {
         Liquibase liquibase = new Liquibase("liquibase/ext/json/generic-0-main-1.json", new ClassLoaderResourceAccessor(), database);
         liquibase.update("");
 
-        List<MongoRanChangeSet> changeSets = findAll.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(2)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getLastCheckSum)
                 .containsExactly(
@@ -157,7 +160,7 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
         liquibase = new Liquibase("liquibase/ext/json/generic-0-main-2.json", new ClassLoaderResourceAccessor(), database);
         liquibase.update("");
 
-        changeSets = findAll.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(4)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getLastCheckSum)
                 .containsExactly(
@@ -172,6 +175,35 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                 .containsExactlyInAnyOrder(
                         tuple("Nicolas Bodros", "Spain", 34),
                         tuple("Luka Modrich", "Lapland", 55));
+    }
+
+    @SneakyThrows
+    @Test
+    void testPreconditions() {
+        final Liquibase liquibase = new Liquibase("liquibase/ext/json/changelog.insert-precondition.test.json", new ClassLoaderResourceAccessor(), database);
+        liquibase.update("");
+
+        List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        assertThat(changeSets).hasSize(6)
+                .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType)
+                .containsExactly(
+                        tuple("1", 1, SKIPPED),
+                        tuple("2", 2, EXECUTED),
+                        tuple("3", 3, EXECUTED),
+                        tuple("4", 4, SKIPPED),
+                        tuple("5", 5, EXECUTED),
+                        tuple("6", 6, EXECUTED)
+                );
+
+        assertThat(getCollections(connection))
+                .hasSize(4)
+                .containsExactlyInAnyOrder("DATABASECHANGELOG", "DATABASECHANGELOGLOCK", "collection1", "results");
+
+        final FindAllStatement findAllResults = new FindAllStatement("results");
+        assertThat(findAllResults.queryForList(connection))
+                .hasSize(3).extracting(d -> d.get("info"))
+                .containsExactlyInAnyOrder("existsAnyDocumentInCollection1", "filterMatchedInCollection1", "changeSetExecutedMatch");
+
     }
 
 }

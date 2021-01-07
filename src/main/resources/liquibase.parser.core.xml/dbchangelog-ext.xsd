@@ -112,5 +112,17 @@
 
     </xsd:element>
 
+    <xsd:element name="documentExists">
+        <xsd:complexType>
+
+            <xsd:sequence>
+                <xsd:element name="filter" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            </xsd:sequence>
+
+            <xsd:attribute name="collectionName" type="xsd:string" use="required"/>
+
+        </xsd:complexType>
+    </xsd:element>
+
 
 </xsd:schema>
