@@ -184,7 +184,7 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
         liquibase.update("");
 
         List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
-        assertThat(changeSets).hasSize(6)
+        assertThat(changeSets).hasSize(8)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType)
                 .containsExactly(
                         tuple("1", 1, SKIPPED),
@@ -192,7 +192,9 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                         tuple("3", 3, EXECUTED),
                         tuple("4", 4, SKIPPED),
                         tuple("5", 5, EXECUTED),
-                        tuple("6", 6, EXECUTED)
+                        tuple("6", 6, EXECUTED),
+                        tuple("7", 7, SKIPPED),
+                        tuple("8", 8, EXECUTED)
                 );
 
         assertThat(getCollections(connection))
@@ -201,8 +203,8 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
 
         final FindAllStatement findAllResults = new FindAllStatement("results");
         assertThat(findAllResults.queryForList(connection))
-                .hasSize(3).extracting(d -> d.get("info"))
-                .containsExactlyInAnyOrder("existsAnyDocumentInCollection1", "filterMatchedInCollection1", "changeSetExecutedMatch");
+                .hasSize(4).extracting(d -> d.get("info"))
+                .containsExactlyInAnyOrder("existsAnyDocumentInCollection1", "filterMatchedInCollection1", "changeSetExecutedMatch", "expectedDocumentCountFilterMatchedInCollection1");
 
     }
 

@@ -165,5 +165,68 @@
         </ext:insertOne>
 
     </changeSet>
+    
+    <changeSet id="7" author="alex">
+        <preConditions onFail="CONTINUE" onError="HALT">
+            <ext:expectedDocumentCount collectionName="collection1">
+                <ext:filter>
+                    <!--@formatter:off-->
+                    {
+                        "$or" :
+                            [
+                                {"id": 100}, {"id": {"$lt": 10}}
+                            ]
+                    }
+                    <!--@formatter:on-->
+                </ext:filter>
+                <ext:expectedCount>0</ext:expectedCount>
+            </ext:expectedDocumentCount>
+        </preConditions>
+        <comment>Will not be inserted as filter not matches</comment>
 
+        <ext:insertOne collectionName="results">
+
+            <ext:document>
+                <!--@formatter:off-->
+                {
+                    info: "expectedDocumentCountfilterNotMatchedInCollection1"
+                }
+                <!--@formatter:on-->
+            </ext:document>
+
+        </ext:insertOne>
+
+    </changeSet>
+
+	<changeSet id="8" author="alex">
+        <preConditions onFail="CONTINUE" onError="HALT">
+            <ext:expectedDocumentCount collectionName="collection1">
+                <ext:filter>
+                    <!--@formatter:off-->
+                    {
+                        "$or" :
+                            [
+                                {"id": 100}, {"id": {"$lt": 10}}
+                            ]
+                    }
+                    <!--@formatter:on-->
+                </ext:filter>
+                <ext:expectedCount>1</ext:expectedCount>
+            </ext:expectedDocumentCount>
+        </preConditions>
+        <comment>Will be inserted as filter matches</comment>
+
+        <ext:insertOne collectionName="results">
+
+            <ext:document>
+                <!--@formatter:off-->
+                {
+                    info: "expectedDocumentCountfilterMatchedInCollection1"
+                }
+                <!--@formatter:on-->
+            </ext:document>
+
+        </ext:insertOne>
+
+    </changeSet>
 </databaseChangeLog>

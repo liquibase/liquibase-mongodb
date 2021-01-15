@@ -190,6 +190,94 @@
           }
         ]
       }
+    },
+    {
+      "changeSet": {
+        "id": "7",
+        "author": "alex",
+        "preConditions": [
+          {
+            "onFail": "CONTINUE"
+          },
+          {
+            "expectedDocumentCount": {
+              "collectionName": "collection1",
+              "filter": {
+                "$rawJson": {
+                  "$or": [
+                    {
+                      "id": 100
+                    },
+                    {
+                      "id": {
+                        "$lt": 10
+                      }
+                    }
+                  ]
+                }
+              },
+              "expectedCount":0
+            }
+          }
+        ],
+        "comment": "Will not be inserted as filter not matches",
+        "changes": [
+          {
+            "insertOne": {
+              "collectionName": "results",
+              "document": {
+                "$rawJson": {
+                  "info": "expectedDocumentCountFilterNotMatchedInCollection1"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "8",
+        "author": "alex",
+        "preConditions": [
+          {
+            "onFail": "CONTINUE"
+          },
+          {
+            "expectedDocumentCount": {
+              "collectionName": "collection1",
+              "filter": {
+                "$rawJson": {
+                  "$or": [
+                    {
+                      "id": 100
+                    },
+                    {
+                      "id": {
+                        "$lt": 10
+                      }
+                    }
+                  ]
+                }
+              },
+              "expectedCount":1
+            }
+          }
+        ],
+        "comment": "Will be inserted as filter matches",
+        "changes": [
+          {
+            "insertOne": {
+              "collectionName": "results",
+              "document": {
+                "$rawJson": {
+                  "info": "expectedDocumentCountFilterMatchedInCollection1"
+                }
+              }
+            }
+          }
+        ]
+      }
     }
   ]
 }
