@@ -33,7 +33,7 @@ import java.util.stream.StreamSupport;
 public class CountCollectionByNameStatement extends AbstractCollectionStatement
         implements NoSqlQueryForLongStatement<MongoConnection> {
 
-    public static final String COMMAND_NAME = "countCollectionByNames";
+    public static final String COMMAND_NAME = "count";
 
     public CountCollectionByNameStatement(final String collectionName) {
         super(collectionName);
@@ -49,5 +49,10 @@ public class CountCollectionByNameStatement extends AbstractCollectionStatement
         return StreamSupport.stream(connection.getDatabase().listCollectionNames().spliterator(), false)
                 .filter(s -> s.equals(getCollectionName()))
                 .count();
+    }
+
+    @Override
+    public String toJs() {
+        return String.format("db.%s.count()", getCollectionName());
     }
 }

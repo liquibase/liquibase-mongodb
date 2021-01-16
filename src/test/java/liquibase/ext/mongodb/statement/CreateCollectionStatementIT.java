@@ -21,32 +21,60 @@ package liquibase.ext.mongodb.statement;
  */
 
 import liquibase.ext.AbstractMongoIntegrationTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static liquibase.ext.mongodb.TestUtils.COLLECTION_NAME_1;
 import static liquibase.ext.mongodb.TestUtils.EMPTY_OPTION;
-import static liquibase.ext.mongodb.TestUtils.OPTION_1;
 import static liquibase.ext.mongodb.TestUtils.getCollections;
+import static liquibase.ext.mongodb.TestUtils.formatDoubleQuoted;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CreateCollectionStatementIT extends AbstractMongoIntegrationTest {
 
-    private static final String EXPECTED_COMMAND = "db.createCollection(collectionName, {\"opt1\": \"option 1\"});";
+    // Some of the extra options that create collection supports
+    private static final String CREATE_OPTIONS = "'capped': true, 'size': 100, 'max': 200";
 
-    @Test
-    void execute() {
-        final String collection = COLLECTION_NAME_1 + System.nanoTime();
-        final CreateCollectionStatement statement = new CreateCollectionStatement(collection, EMPTY_OPTION);
-        statement.execute(connection);
-        assertThat(getCollections(connection))
-            .contains(collection);
+    private String collectionName;
+
+    @BeforeEach
+    public void createCollectionName() {
+        collectionName = COLLECTION_NAME_1 + System.nanoTime();
     }
 
     @Test
-    void toStringJs() {
-        final CreateCollectionStatement statement = new CreateCollectionStatement(COLLECTION_NAME_1, OPTION_1);
+    void executeStatementWithoutOptions() {
+        final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, EMPTY_OPTION);
+        statement.execute(connection);
+        assertThat(getCollections(connection))
+            .contains(collectionName);
+    }
+
+    @Test
+    void toStringJsWithoutOptions() {
+        String expected = formatDoubleQuoted("db.runCommand({'create': '%s'})", collectionName);
+        final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, EMPTY_OPTION);
         assertThat(statement.toJs())
-            .isEqualTo(EXPECTED_COMMAND)
-            .isEqualTo(statement.toString());
+                .isEqualTo(expected)
+                .isEqualTo(statement.toString());
+    }
+
+    @Test
+    void executeStatementWithOptions() {
+        String options = String.format("{ %s }", CREATE_OPTIONS);
+        final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, options);
+        statement.execute(connection);
+        assertThat(getCollections(connection))
+                .contains(collectionName);
+    }
+
+    @Test
+    void toStringJsWithOptions() {
+        String options = String.format("{ %s }", CREATE_OPTIONS);
+        String expected = formatDoubleQuoted("db.runCommand({'create': '%s', %s})", collectionName, CREATE_OPTIONS);
+        final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, options);
+        assertThat(statement.toJs())
+                .isEqualTo(expected)
+                .isEqualTo(statement.toString());
     }
 }

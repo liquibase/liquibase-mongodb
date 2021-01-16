@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CountCollectionByNameStatementIT extends AbstractMongoIntegrationTest {
     private static final String COLLECTION_NAME = TestUtils.COLLECTION_NAME_1;
-    private static final String COLLECTION_CMD = String.format("db.countCollectionByNames(%s);", COLLECTION_NAME);
+    private static final String COLLECTION_CMD = String.format("db.%s.count()", COLLECTION_NAME);
     private static final CountCollectionByNameStatement COUNT_COLLECTION = new CountCollectionByNameStatement(COLLECTION_NAME);
 
     @Test

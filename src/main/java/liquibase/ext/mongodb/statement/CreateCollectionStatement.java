@@ -20,23 +20,28 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.client.model.CreateCollectionOptions;
 import liquibase.ext.mongodb.database.MongoConnection;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
-import static java.util.Optional.ofNullable;
+import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 
+/**
+ * Creates a collection via the database runCommand method
+ * For a list of supported options see the reference page:
+ *   https://docs.mongodb.com/manual/reference/command/create/index.html
+ */
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class CreateCollectionStatement extends AbstractCollectionStatement
         implements NoSqlExecuteStatement<MongoConnection> {
 
-    public static final String COMMAND_NAME = "createCollection";
+    private static final String COMMAND_NAME = "create";
 
-    protected Document options;
+    private final Document options;
 
     public CreateCollectionStatement(final String collectionName, final String options) {
         this(collectionName, BsonUtils.orEmptyDocument(options));
@@ -54,20 +59,20 @@ public class CreateCollectionStatement extends AbstractCollectionStatement
 
     @Override
     public String toJs() {
-        return
-                "db."
-                        + getCommandName()
-                        + "("
-                        + getCollectionName()
-                        + ", "
-                        + ofNullable(options).map(Document::toJson).orElse(null)
-                        + ");";
+        return String.format("db.runCommand(%s)", createCommand().toString());
     }
 
     @Override
     public void execute(final MongoConnection connection) {
-        final CreateCollectionOptions createCollectionOptions = BsonUtils.orEmptyCreateCollectionOptions(options);
-        connection.getDatabase().createCollection(getCollectionName(), createCollectionOptions);
+        Bson bson = createCommand();
+        connection.getDatabase().runCommand(bson);
     }
 
+    private Bson createCommand() {
+        Document commandOptions = new Document(COMMAND_NAME, getCollectionName());
+        if(options!=null) {
+            commandOptions.putAll(options);
+        }
+        return commandOptions.toBsonDocument(Document.class, getDefaultCodecRegistry());
+    }
 }

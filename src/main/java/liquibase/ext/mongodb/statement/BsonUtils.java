@@ -22,20 +22,11 @@ package liquibase.ext.mongodb.statement;
 
 import com.mongodb.DBRefCodecProvider;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.model.CreateCollectionOptions;
 import com.mongodb.client.model.IndexOptions;
-import com.mongodb.client.model.ValidationAction;
-import com.mongodb.client.model.ValidationLevel;
-import com.mongodb.client.model.ValidationOptions;
 import lombok.NoArgsConstructor;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
-import org.bson.codecs.BsonValueCodecProvider;
-import org.bson.codecs.DocumentCodec;
-import org.bson.codecs.DocumentCodecProvider;
-import org.bson.codecs.UuidCodec;
-import org.bson.codecs.UuidCodecProvider;
-import org.bson.codecs.ValueCodecProvider;
+import org.bson.codecs.*;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 
@@ -43,7 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 import static liquibase.util.StringUtil.trimToNull;
 import static lombok.AccessLevel.PRIVATE;
@@ -83,32 +73,6 @@ public final class BsonUtils {
                         .map(d -> d.getList("items", Document.class, new ArrayList<>()))
                         .orElseGet(ArrayList::new)
         );
-    }
-
-    public static CreateCollectionOptions orEmptyCreateCollectionOptions(final Document options) {
-        final CreateCollectionOptions createCollectionOptions =
-                new CreateCollectionOptions();
-
-        if (nonNull(options)) {
-            final ValidationAction
-                    validationAction =
-                    ofNullable(options.getString("validationAction"))
-                            .map(ValidationAction::fromString)
-                            .orElse(null);
-
-            final ValidationLevel
-                    validationLevel =
-                    ofNullable(options.getString("validationLevel"))
-                            .map(ValidationLevel::fromString)
-                            .orElse(null);
-
-            createCollectionOptions.validationOptions(
-                    new ValidationOptions()
-                            .validationAction(validationAction)
-                            .validationLevel(validationLevel)
-                            .validator(options.get("validator", Document.class)));
-        }
-        return createCollectionOptions;
     }
 
     public static IndexOptions orEmptyIndexOptions(final Document options) {

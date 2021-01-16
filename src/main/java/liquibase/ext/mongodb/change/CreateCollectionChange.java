@@ -32,7 +32,7 @@ import lombok.Setter;
 
 
 @DatabaseChange(name = "createCollection",
-        description = "Create collection with validation " +
+        description = "Create collection. Supports all options available: " +
                 "https://docs.mongodb.com/manual/reference/method/db.createCollection/#db.createCollection",
         priority = ChangeMetaData.PRIORITY_DEFAULT, appliesTo = "collection")
 @NoArgsConstructor
