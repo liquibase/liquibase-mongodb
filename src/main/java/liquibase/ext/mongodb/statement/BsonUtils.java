@@ -22,16 +22,26 @@ package liquibase.ext.mongodb.statement;
 
 import com.mongodb.DBRefCodecProvider;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.model.*;
+import com.mongodb.client.model.CreateCollectionOptions;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.ValidationAction;
+import com.mongodb.client.model.ValidationLevel;
+import com.mongodb.client.model.ValidationOptions;
 import lombok.NoArgsConstructor;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
-import org.bson.codecs.*;
+import org.bson.codecs.BsonValueCodecProvider;
+import org.bson.codecs.DocumentCodec;
+import org.bson.codecs.DocumentCodecProvider;
+import org.bson.codecs.UuidCodec;
+import org.bson.codecs.UuidCodecProvider;
+import org.bson.codecs.ValueCodecProvider;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
@@ -43,12 +53,12 @@ import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 public final class BsonUtils {
 
     public static final DocumentCodec DOCUMENT_CODEC =
-        new DocumentCodec(fromProviders(
-            new UuidCodecProvider(UuidRepresentation.STANDARD),
-            new ValueCodecProvider(),
-            new BsonValueCodecProvider(),
-            new DocumentCodecProvider(),
-            new DBRefCodecProvider()));
+            new DocumentCodec(fromProviders(
+                    new UuidCodecProvider(UuidRepresentation.STANDARD),
+                    new ValueCodecProvider(),
+                    new BsonValueCodecProvider(),
+                    new DocumentCodecProvider(),
+                    new DBRefCodecProvider()));
 
     public static CodecRegistry uuidCodecRegistry() {
         return CodecRegistries.fromRegistries(
@@ -59,19 +69,19 @@ public final class BsonUtils {
 
     public static Document orEmptyDocument(final String json) {
         return (
-            ofNullable(trimToNull(json))
-                .map(s -> Document.parse(s, DOCUMENT_CODEC))
-                .orElseGet(Document::new)
+                ofNullable(trimToNull(json))
+                        .map(s -> Document.parse(s, DOCUMENT_CODEC))
+                        .orElseGet(Document::new)
         );
     }
 
     public static List<Document> orEmptyList(final String json) {
         return (
-            ofNullable(trimToNull(json))
-                .map(jn -> "{ items: " + jn + "}")
-                .map(s -> Document.parse(s, DOCUMENT_CODEC))
-                .map(d -> d.getList("items", Document.class, new ArrayList<>()))
-                .orElseGet(ArrayList::new)
+                ofNullable(trimToNull(json))
+                        .map(jn -> "{ items: " + jn + "}")
+                        .map(s -> Document.parse(s, DOCUMENT_CODEC))
+                        .map(d -> d.getList("items", Document.class, new ArrayList<>()))
+                        .orElseGet(ArrayList::new)
         );
     }
 
@@ -109,6 +119,9 @@ public final class BsonUtils {
         }
         if (options.containsKey("name")) {
             indexOptions.name(options.getString("name"));
+        }
+        if (options.containsKey("expireAfterSeconds")) {
+            indexOptions.expireAfter(options.getLong("expireAfterSeconds"), TimeUnit.SECONDS);
         }
         return indexOptions;
     }

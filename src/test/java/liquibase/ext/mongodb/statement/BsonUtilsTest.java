@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toList;
 import static liquibase.ext.mongodb.statement.BsonUtils.DOCUMENT_CODEC;
@@ -73,5 +74,12 @@ class BsonUtilsTest {
         assertThat(Document.parse("{\"id\" : UUID(\"cda2d50f-f233-492e-9150-9a09ad1ddb96\")}", DOCUMENT_CODEC).get("id"))
                 //.isEqualTo(UUID.fromString("2e4933f2-0fd5-a2cd-96db-1dad099a5091"))
                 .isEqualTo(uuid1);
+    }
+
+    @Test
+    void orEmptyIndexOptionsTest() {
+        assertThat(BsonUtils.orEmptyIndexOptions(
+                BsonUtils.orEmptyDocument("{expireAfterSeconds: NumberLong(\"60\")}")).getExpireAfter(TimeUnit.SECONDS))
+                .isEqualTo(60L);
     }
 }

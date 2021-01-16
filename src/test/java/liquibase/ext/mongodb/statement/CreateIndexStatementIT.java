@@ -50,7 +50,7 @@ class CreateIndexStatementIT extends AbstractMongoIntegrationTest {
         database.createCollection(COLLECTION_NAME_1);
         database.getCollection(COLLECTION_NAME_1).insertOne(initialDocument);
         final CreateIndexStatement createIndexStatement = new CreateIndexStatement(COLLECTION_NAME_1, "{ locale: 1 }",
-            "{ name: \"" + indexName + "\", unique: true}");
+            "{ name: \"" + indexName + "\", unique: true, expireAfterSeconds: NumberLong(\"30\") }");
         createIndexStatement.execute(connection);
 
         final Document document = StreamSupport.stream(database.getCollection(COLLECTION_NAME_1).listIndexes().spliterator(), false)
@@ -60,5 +60,6 @@ class CreateIndexStatementIT extends AbstractMongoIntegrationTest {
 
             assertThat(document.get("unique")).isEqualTo(true);
             assertThat(document.get("key")).isEqualTo(Document.parse("{ locale: 1 }"));
+            assertThat(document.get("expireAfterSeconds")).isEqualTo(30L);
     }
 }

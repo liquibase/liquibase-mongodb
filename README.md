@@ -28,8 +28,9 @@ Liquibase turned to be the most feasible tool to extend as it allows to define c
 ## Release Notes
 
 #### 4.2.2.1
-* Fixed [Does it support preconditions](https://github.com/liquibase/liquibase-mongodb/issues/69)
-* Added documentExistsPrecondition
+* Fixed [Issue-69: Does it support preconditions](https://github.com/liquibase/liquibase-mongodb/issues/69)
+* Added DocumentExistsPrecondition, ExpectedDocumentCountPrecondition
+* Fixed [Issue-74: createIndex with TTL (expireAfterSeconds) is ignored and normal index created](https://github.com/liquibase/liquibase-mongodb/issues/74)
 
 #### 4.2.2
 * Support for Liquibase 4.2.2
