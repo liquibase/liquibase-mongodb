@@ -1,0 +1,178 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "Nick",
+        "changes": [
+          {
+            "insertOne": {
+              "collectionName": "results",
+              "document": {
+                "$rawJson": {
+                  "info": "row1"
+                }
+              }
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "runCommand": {
+              "command": {
+                "$rawJson": {
+                  "delete": "results",
+                  "deletes": [
+                    {
+                      "q": {
+                        "info": "row1"
+                      },
+                      "limit": 0
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "2",
+        "author": "Nick",
+        "changes": [
+          {
+            "tagDatabase": {
+              "tag": "tag2"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "3",
+        "author": "Nick",
+        "changes": [
+          {
+            "insertOne": {
+              "collectionName": "results",
+              "document": {
+                "$rawJson": {
+                  "info": "row3"
+                }
+              }
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "runCommand": {
+              "command": {
+                "$rawJson": {
+                  "delete": "results",
+                  "deletes": [
+                    {
+                      "q": {
+                        "info": "row3"
+                      },
+                      "limit": 0
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "4",
+        "author": "Nick",
+        "changes": [
+          {
+            "insertOne": {
+              "collectionName": "results",
+              "document": {
+                "$rawJson": {
+                  "info": "row4"
+                }
+              }
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "runCommand": {
+              "command": {
+                "$rawJson": {
+                  "delete": "results",
+                  "deletes": [
+                    {
+                      "q": {
+                        "info": "row4"
+                      },
+                      "limit": 0
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "5",
+        "author": "Nick",
+        "changes": [
+          {
+            "tagDatabase": {
+              "tag": "tag5"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "6",
+        "author": "Nick",
+        "changes": [
+          {
+            "insertOne": {
+              "collectionName": "results",
+              "document": {
+                "$rawJson": {
+                  "info": "row6"
+                }
+              }
+            }
+          }
+        ],
+        "rollback": [
+          {
+            "runCommand": {
+              "command": {
+                "$rawJson": {
+                  "delete": "results",
+                  "deletes": [
+                    {
+                      "q": {
+                        "info": "row6"
+                      },
+                      "limit": 0
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

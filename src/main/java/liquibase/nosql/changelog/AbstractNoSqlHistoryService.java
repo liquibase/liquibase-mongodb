@@ -216,6 +216,8 @@ public abstract class AbstractNoSqlHistoryService extends AbstractChangeLogHisto
             this.setExecType(emptyChangeSet, ChangeSet.ExecType.EXECUTED);
         }
 
+        tagLast(tagString);
+
         if (this.ranChangeSetList != null) {
             ranChangeSetList.get(ranChangeSetList.size() - 1).setTag(tagString);
         }
@@ -280,6 +282,8 @@ public abstract class AbstractNoSqlHistoryService extends AbstractChangeLogHisto
     protected abstract void clearChekSums() throws DatabaseException;
 
     protected abstract long countTags(String tag) throws DatabaseException;
+
+    protected abstract void tagLast(String tagString) throws DatabaseException;
 
     protected abstract long countRanChangeSets() throws DatabaseException;
 

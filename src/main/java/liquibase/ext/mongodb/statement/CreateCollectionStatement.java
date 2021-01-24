@@ -43,9 +43,4 @@ public class CreateCollectionStatement extends AbstractRunCommandStatement {
         super(BsonUtils.toCommand(RUN_COMMAND_NAME, collectionName, options));
     }
 
-    @Override
-    public String getCommandName() {
-        return COMMAND_NAME;
-    }
-
 }

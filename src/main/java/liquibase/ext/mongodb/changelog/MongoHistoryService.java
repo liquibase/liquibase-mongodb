@@ -36,6 +36,7 @@ import liquibase.ext.mongodb.statement.CountDocumentsInCollectionStatement;
 import liquibase.ext.mongodb.statement.DeleteManyStatement;
 import liquibase.ext.mongodb.statement.DropCollectionStatement;
 import liquibase.ext.mongodb.statement.FindAllStatement;
+import liquibase.ext.mongodb.statement.FindOneAndUpdateStatement;
 import liquibase.ext.mongodb.statement.InsertOneStatement;
 import liquibase.ext.mongodb.statement.UpdateManyStatement;
 import liquibase.logging.Logger;
@@ -222,6 +223,15 @@ public class MongoHistoryService extends AbstractNoSqlHistoryService {
         final Bson filter = Filters.eq(MongoRanChangeSet.Fields.tag, tag);
         return getExecutor().queryForLong(
                 new CountDocumentsInCollectionStatement(getDatabaseChangeLogTableName(), filter));
+    }
+
+    @Override
+    protected void tagLast(final String tagString) throws DatabaseException {
+        final Document filter = new Document();
+        final Bson update = Updates.set(MongoRanChangeSet.Fields.tag, tagString);
+        final Bson sort = Sorts.descending(MongoRanChangeSet.Fields.dateExecuted, MongoRanChangeSet.Fields.orderExecuted);
+
+        getExecutor().update(new FindOneAndUpdateStatement(getDatabaseChangeLogTableName(), filter, update, sort));
     }
 
     @Override

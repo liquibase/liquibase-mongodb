@@ -31,6 +31,7 @@ Liquibase turned to be the most feasible tool to extend as it allows to define c
 #### 4.2.2.1
 * Fixed [Issue-64:Support for DNS Seed List Connection Format or Atlas Cluster](https://github.com/liquibase/liquibase-mongodb/issues/66)
 * Fixed [Issue-69: Does it support preconditions](https://github.com/liquibase/liquibase-mongodb/issues/69)
+* Fixed [Issue-70: Is there a way to tag the current database state?](https://github.com/liquibase/liquibase-mongodb/issues/70)  
 * Added DocumentExistsPrecondition, ExpectedDocumentCountPrecondition
 * Fixed [Issue-74: createIndex with TTL (expireAfterSeconds) is ignored and normal index created](https://github.com/liquibase/liquibase-mongodb/issues/74)
 * Fixed [Issue-79: CreateCollection silently drops supported options](https://github.com/liquibase/liquibase-mongodb/issues/79)
