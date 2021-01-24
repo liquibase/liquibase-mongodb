@@ -48,8 +48,9 @@ class MongoLiquibaseDatabaseTest {
         database = (MongoLiquibaseDatabase) DatabaseFactory.getInstance()
                 .findCorrectDatabaseImplementation(new MongoConnection());
 
-        assertThat(database.getDefaultDriver("mongodb://qwe")).isEqualTo(MongoClientDriver.class.getName());
         assertThat(database.getDefaultDriver("cosmos://qwe")).isNull();
+        assertThat(database.getDefaultDriver("mongodb://qwe")).isEqualTo(MongoClientDriver.class.getName());
+        assertThat(database.getDefaultDriver("mongodb+srv://qwe")).isEqualTo(MongoClientDriver.class.getName());
     }
 
     @Test

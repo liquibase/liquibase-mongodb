@@ -38,8 +38,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
+import static liquibase.ext.mongodb.database.MongoLiquibaseDatabase.MONGODB_PRODUCT_SHORT_NAME;
 
 @Getter
 @Setter
@@ -47,8 +49,8 @@ import static java.util.Optional.ofNullable;
 public class MongoConnection extends AbstractNoSqlConnection {
 
     public static final int DEFAULT_PORT = 27017;
-    public static final String MONGO_PREFIX = MongoLiquibaseDatabase.MONGODB_PRODUCT_SHORT_NAME + "://";
-    public static final String MONGO_CONNECTION_STRING_PATTERN = "%s/%s";
+    public static final String MONGO_PREFIX = MONGODB_PRODUCT_SHORT_NAME + "://";
+    public static final String MONGO_DNS_PREFIX = MONGODB_PRODUCT_SHORT_NAME + "+srv://";
 
     private ConnectionString connectionString;
 
@@ -81,23 +83,15 @@ public class MongoConnection extends AbstractNoSqlConnection {
     }
 
     @Override
+    public boolean isClosed() throws DatabaseException {
+        return isNull(client);
+    }
+
+    @Override
     public void open(final String url, final Driver driverObject, final Properties driverProperties) throws DatabaseException {
 
         try {
-
-            String urlWithCredentials = url;
-
-            if (nonNull(driverProperties)) {
-
-                final Optional<String> user = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("user")));
-                final Optional<String> password = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("password")));
-
-                if (user.isPresent() && password.isPresent()) {
-                    // injects credentials
-                    // mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database.collection][?options]]
-                    urlWithCredentials = MONGO_PREFIX + user.get() + ":" + password.get() + "@" + StringUtil.trimToEmpty(url).replaceFirst(MONGO_PREFIX, "");
-                }
-            }
+            final String urlWithCredentials = injectCredentials(StringUtil.trimToEmpty(url), driverProperties);
 
             this.connectionString = new ConnectionString(urlWithCredentials);
 
@@ -111,10 +105,33 @@ public class MongoConnection extends AbstractNoSqlConnection {
         }
     }
 
+    private String injectCredentials(final String url, final Properties driverProperties) {
+
+        if (nonNull(driverProperties)) {
+
+            final Optional<String> user = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("user")));
+            final Optional<String> password = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("password")));
+
+            if (user.isPresent()) {
+                // injects credentials
+                // mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database.collection][?options]]
+                // mongodb+srv://[username:password@]host[:port1][?options]]
+                final String mongoPrefix = url.startsWith(MONGO_DNS_PREFIX) ? MONGO_DNS_PREFIX : MONGO_PREFIX;
+                return mongoPrefix + user.get() + password.map(p -> ":" + p).orElse("") + "@" +
+                        url.substring(mongoPrefix.length());
+            }
+        }
+        return url;
+    }
+
+
     @Override
     public void close() throws DatabaseException {
         try {
-            client.close();
+            if (!isClosed()) {
+                client.close();
+                client = null;
+            }
         } catch (final Exception e) {
             throw new DatabaseException(e);
         }

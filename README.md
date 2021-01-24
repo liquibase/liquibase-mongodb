@@ -7,6 +7,7 @@
 1. [Introduction](#introduction)
 1. [Release Notes](#release-notes)
 1. [Implemented Changes](#implemented-changes)
+1. [Connection String Formats](#connection-string)
 1. [Getting Started](#getting-started)
 1. [Running tests](#running-tests)
 1. [Integration](#integration)
@@ -28,9 +29,11 @@ Liquibase turned to be the most feasible tool to extend as it allows to define c
 ## Release Notes
 
 #### 4.2.2.1
+* Fixed [Issue-64:Support for DNS Seed List Connection Format or Atlas Cluster](https://github.com/liquibase/liquibase-mongodb/issues/66)
 * Fixed [Issue-69: Does it support preconditions](https://github.com/liquibase/liquibase-mongodb/issues/69)
 * Added DocumentExistsPrecondition, ExpectedDocumentCountPrecondition
 * Fixed [Issue-74: createIndex with TTL (expireAfterSeconds) is ignored and normal index created](https://github.com/liquibase/liquibase-mongodb/issues/74)
+* Fixed [Issue-79: CreateCollection silently drops supported options](https://github.com/liquibase/liquibase-mongodb/issues/79)
 
 #### 4.2.2
 * Support for Liquibase 4.2.2
@@ -101,6 +104,24 @@ Provides a helper to run specified database commands. This is the preferred meth
 * [__adminCommand__](https://docs.mongodb.com/manual/reference/method/db.adminCommand/#db.adminCommand) - 
 Provides a helper to run specified database commands against the admin database
 
+<a name="connection-string"></a>
+## Connection String Formats
+
+### [Standard Connection String Format](https://docs.mongodb.com/manual/reference/connection-string/index.html#standard-connection-string-format)
+
+`
+mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
+mongodb://mongodb1.example.com:27317,mongodb2.example.com:27017/?replicaSet=mySet&authSource=authDB
+`
+
+### [DNS Seed List Connection Format](https://docs.mongodb.com/manual/reference/connection-string/index.html#dns-seed-list-connection-format)
+
+`
+mongodb+srv://[username:password@]host[/[database][?options]]
+mongodb+srv://server.example.com/
+mongodb+srv://:@cluster0.example.com/testdb?authSource=$external&authMechanism=MONGODB-AWS
+`
+
 <a name="getting-started"></a>
 ## Getting Started
 
@@ -115,6 +136,10 @@ mongo-java-driver:3.12.7
 ### Installing
 
 * Clone the project
+
+```shell
+git clone https://github.com/liquibase/liquibase-mongodb
+```  
 * [Run tests](#running-tests)
 
 <a name="running-tests"></a>
@@ -128,7 +153,7 @@ Run Integration tests by enabling `run-its` profile
 
 ### Run integration tests
 
-```shell script
+```shell
 mvn clean install -Prun-its
 ```
 

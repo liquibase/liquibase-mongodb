@@ -23,7 +23,6 @@ package liquibase.nosql.database;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -51,8 +50,6 @@ public abstract class AbstractNoSqlConnection implements DatabaseConnection {
 
     @Override
     public String nativeSQL(String sql) {
-        //TODO: Investigate whether can be thrown not applicable
-        //throw new UnsupportedOperationException();
         return null;
     }
 
@@ -84,11 +81,6 @@ public abstract class AbstractNoSqlConnection implements DatabaseConnection {
     @Override
     public void rollback() throws DatabaseException {
         // Do nothing
-    }
-
-    @Override
-    public boolean isClosed() throws DatabaseException {
-        return false;
     }
 
 }

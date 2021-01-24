@@ -23,14 +23,13 @@ package liquibase.ext.mongodb.database;
 import liquibase.CatalogAndSchema;
 import liquibase.Scope;
 import liquibase.changelog.ChangeLogHistoryServiceFactory;
-import liquibase.configuration.GlobalConfiguration;
 import liquibase.configuration.LiquibaseConfiguration;
-import liquibase.ext.mongodb.configuration.MongoConfiguration;
-import liquibase.nosql.database.AbstractNoSqlDatabase;
 import liquibase.exception.LiquibaseException;
 import liquibase.executor.Executor;
 import liquibase.executor.ExecutorService;
+import liquibase.ext.mongodb.configuration.MongoConfiguration;
 import liquibase.ext.mongodb.statement.DropAllCollectionsStatement;
+import liquibase.nosql.database.AbstractNoSqlDatabase;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -41,6 +40,7 @@ public class MongoLiquibaseDatabase extends AbstractNoSqlDatabase {
 
     public static final String MONGODB_PRODUCT_NAME = "MongoDB";
     public static final String MONGODB_PRODUCT_SHORT_NAME = "mongodb";
+    public static final String ADMIN_DATABSE_NAME = "admin";
 
     @Setter
     private Boolean adjustTrackingTablesOnStartup;
@@ -58,7 +58,7 @@ public class MongoLiquibaseDatabase extends AbstractNoSqlDatabase {
 
     @Override
     public String getDefaultDriver(final String url) {
-        if (url.startsWith(MongoConnection.MONGO_PREFIX)) {
+        if (url.startsWith(MongoConnection.MONGO_DNS_PREFIX) || url.startsWith(MongoConnection.MONGO_PREFIX)) {
             return MongoClientDriver.class.getName();
         }
         return null;
@@ -90,7 +90,7 @@ public class MongoLiquibaseDatabase extends AbstractNoSqlDatabase {
 
     @Override
     public String getSystemSchema() {
-        return "admin";
+        return ADMIN_DATABSE_NAME;
     }
 
     /*********************************

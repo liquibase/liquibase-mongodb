@@ -5,6 +5,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
+import liquibase.util.StringUtil;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -12,10 +13,12 @@ import java.sql.DriverPropertyInfo;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import static java.util.Objects.nonNull;
+
 public class MongoClientDriver implements Driver {
 
     @Override
-    public Connection connect(String url, Properties info) {
+    public Connection connect(final String url, final Properties info) {
         //Not applicable for non JDBC DBs
         throw new UnsupportedOperationException("Cannot initiate a SQL Connection for a NoSql DB");
     }
@@ -32,8 +35,9 @@ public class MongoClientDriver implements Driver {
     }
 
     @Override
-    public boolean acceptsURL(String url) {
-        return false;
+    public boolean acceptsURL(final String url) {
+        final String trimmedUrl = StringUtil.trimToEmpty(url);
+        return trimmedUrl.startsWith(MongoConnection.MONGO_DNS_PREFIX) || trimmedUrl.startsWith(MongoConnection.MONGO_PREFIX);
     }
 
     @Override
