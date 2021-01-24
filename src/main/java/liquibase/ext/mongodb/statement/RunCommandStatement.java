@@ -20,47 +20,18 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import liquibase.ext.mongodb.database.MongoConnection;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.bson.Document;
 
-import static java.util.Optional.ofNullable;
-
-@Getter
 @EqualsAndHashCode(callSuper = true)
-public class RunCommandStatement extends AbstractMongoDocumentStatement<Document> {
-
-    public static final String COMMAND_NAME = "runCommand";
-
-    protected Document command;
+public class RunCommandStatement extends AbstractRunCommandStatement {
 
     public RunCommandStatement(final String command) {
         this(BsonUtils.orEmptyDocument(command));
     }
 
     public RunCommandStatement(final Document command) {
-        this.command = command;
-    }
-
-    @Override
-    public String getCommandName() {
-        return COMMAND_NAME;
-    }
-
-    @Override
-    public String toJs() {
-        return
-                "db."
-                        + getCommandName()
-                        + "("
-                        + ofNullable(command).map(Document::toJson).orElse(null)
-                        + ");";
-    }
-
-    @Override
-    public Document run(final MongoConnection connection) {
-        return connection.getDatabase().runCommand(command);
+        super(command);
     }
 
 }

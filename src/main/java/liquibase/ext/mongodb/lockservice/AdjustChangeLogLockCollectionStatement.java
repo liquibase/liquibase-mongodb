@@ -23,8 +23,10 @@ package liquibase.ext.mongodb.lockservice;
 import liquibase.ext.mongodb.database.MongoConnection;
 import liquibase.ext.mongodb.statement.RunCommandStatement;
 import lombok.Getter;
+import org.bson.Document;
 
 import static java.lang.Boolean.TRUE;
+import static java.util.Optional.ofNullable;
 
 public class AdjustChangeLogLockCollectionStatement extends RunCommandStatement {
 
@@ -58,5 +60,19 @@ public class AdjustChangeLogLockCollectionStatement extends RunCommandStatement 
         if(TRUE.equals(supportsValidator)) {
             super.execute(connection);
         }
+    }
+
+    @Override
+    public String toJs() {
+        return SHELL_DB_PREFIX
+                        + getCommandName()
+                        + "("
+                        + ofNullable(command).map(Document::toJson).orElse(null)
+                        + ");";
+    }
+
+    @Override
+    public Document run(final MongoConnection connection) {
+        return connection.getDatabase().runCommand(command);
     }
 }

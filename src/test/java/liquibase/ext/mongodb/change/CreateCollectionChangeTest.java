@@ -48,7 +48,7 @@ class CreateCollectionChangeTest extends AbstractMongoChangeTest {
                 .hasSize(1)
                 .first()
                 .isInstanceOf(DropCollectionStatement.class)
-                .returns("collection1", s -> ((DropCollectionStatement)s).getCollectionName());
+                .returns("collection1", s -> ((DropCollectionStatement) s).getCollectionName());
     }
 
     @Test
@@ -60,7 +60,7 @@ class CreateCollectionChangeTest extends AbstractMongoChangeTest {
                 .isNotNull()
                 .hasSize(1)
                 .first()
-                .returns("8:9613cffe7f07a1310ed2b6a47efb92c8",  s -> s.generateCheckSum().toString());
+                .returns("8:9613cffe7f07a1310ed2b6a47efb92c8", s -> s.generateCheckSum().toString());
 
         assertThat(changeSets.get(0).getChanges())
                 .hasSize(3)
@@ -72,9 +72,13 @@ class CreateCollectionChangeTest extends AbstractMongoChangeTest {
         final SqlStatement[] sqlStatement1 = ch1.generateStatements(database);
         assertThat(sqlStatement1)
                 .hasSize(1);
-        assertThat(((CreateCollectionStatement) sqlStatement1[0]))
+        assertThat(((CreateCollectionStatement) sqlStatement1[0]).getCommand())
+                .hasSize(4)
                 .hasNoNullFieldsOrProperties()
-                .hasFieldOrPropertyWithValue("collectionName", "createCollectionWithValidatorAndOptionsTest");
+                .hasFieldOrPropertyWithValue("create", "createCollectionWithValidatorAndOptionsTest")
+                .hasFieldOrPropertyWithValue("validationAction", "warn")
+                .hasFieldOrPropertyWithValue("validationLevel", "strict")
+                .hasFieldOrProperty("validator");
 
         final CreateCollectionChange ch2 = (CreateCollectionChange) changeSets.get(0).getChanges().get(1);
         assertThat(ch2.getCollectionName()).isEqualTo("createCollectionWithEmptyValidatorTest");
@@ -82,9 +86,10 @@ class CreateCollectionChangeTest extends AbstractMongoChangeTest {
         final SqlStatement[] sqlStatement2 = ch2.generateStatements(database);
         assertThat(sqlStatement2)
                 .hasSize(1);
-        assertThat(((CreateCollectionStatement) sqlStatement2[0]))
-                .hasNoNullFieldsOrPropertiesExcept("options")
-                .hasFieldOrPropertyWithValue("collectionName", "createCollectionWithEmptyValidatorTest");
+        assertThat(((CreateCollectionStatement) sqlStatement2[0]).getCommand())
+                .hasSize(1)
+                .hasNoNullFieldsOrProperties()
+                .hasFieldOrPropertyWithValue("create", "createCollectionWithEmptyValidatorTest");
 
         final CreateCollectionChange ch3 = (CreateCollectionChange) changeSets.get(0).getChanges().get(2);
         assertThat(ch3.getCollectionName()).isEqualTo("createCollectionWithNoValidator");
@@ -92,9 +97,9 @@ class CreateCollectionChangeTest extends AbstractMongoChangeTest {
         final SqlStatement[] sqlStatement3 = ch3.generateStatements(database);
         assertThat(sqlStatement3)
                 .hasSize(1);
-        assertThat(((CreateCollectionStatement) sqlStatement3[0]))
-                .hasNoNullFieldsOrPropertiesExcept("options")
-                .hasFieldOrPropertyWithValue("collectionName", "createCollectionWithNoValidator");
+        assertThat(((CreateCollectionStatement) sqlStatement3[0]).getCommand())
+                .hasSize(1)
+                .hasFieldOrPropertyWithValue("create", "createCollectionWithNoValidator");
     }
 
     @Test
@@ -115,9 +120,11 @@ class CreateCollectionChangeTest extends AbstractMongoChangeTest {
         final SqlStatement[] sqlStatement1 = ch1.generateStatements(database);
         assertThat(sqlStatement1)
                 .hasSize(1);
-        assertThat(((CreateCollectionStatement) sqlStatement1[0]))
+        assertThat(((CreateCollectionStatement) sqlStatement1[0]).getCommand())
+                .hasSize(1)
                 .hasNoNullFieldsOrProperties()
-                .hasFieldOrPropertyWithValue("collectionName", "person");
+                .hasFieldOrPropertyWithValue("create", "person")
+                .hasFieldOrPropertyWithValue(CreateCollectionStatement.RUN_COMMAND_NAME, "person");
 
         final CreateCollectionChange ch2 = (CreateCollectionChange) changeSets.get(0).getChanges().get(1);
         assertThat(ch2.getCollectionName()).isEqualTo("person1");
@@ -125,8 +132,11 @@ class CreateCollectionChangeTest extends AbstractMongoChangeTest {
         final SqlStatement[] sqlStatement2 = ch2.generateStatements(database);
         assertThat(sqlStatement2)
                 .hasSize(1);
-        assertThat(((CreateCollectionStatement) sqlStatement2[0]))
-                .hasFieldOrPropertyWithValue("collectionName", "person1")
-                .hasNoNullFieldsOrPropertiesExcept("options");
+        assertThat(((CreateCollectionStatement) sqlStatement2[0]).getCommand())
+                .hasSize(4)
+                .hasFieldOrPropertyWithValue("create", "person1")
+                .hasFieldOrPropertyWithValue("validationAction", "warn")
+                .hasFieldOrPropertyWithValue("validationLevel", "strict")
+                .hasFieldOrProperty("validator");
     }
 }

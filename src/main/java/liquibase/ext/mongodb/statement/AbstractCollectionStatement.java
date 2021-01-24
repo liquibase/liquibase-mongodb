@@ -31,10 +31,17 @@ public abstract class AbstractCollectionStatement extends AbstractNoSqlStatement
     protected final String collectionName;
 
     /**
-     * Provides a javascript representation of the command
-     *   (for example that can be ran in the mongo shell).
+     * Provides a pseudo javascript representation of the collection related statement
+     *   (for example that can be ran in the mongo shell.
+     *   Exceptions examples are count which uses db.getCollectionNames however filters programmatically by name).
      * @return javascript version of the full command
      */
     @Override
-    public abstract String toJs();
+    public String toJs() {
+        return "db." +
+                getCommandName() +
+                "(" +
+                getCollectionName() +
+                ");";
+    }
 }

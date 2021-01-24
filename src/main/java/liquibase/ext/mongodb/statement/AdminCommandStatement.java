@@ -25,6 +25,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bson.Document;
 
+import static java.util.Optional.ofNullable;
+
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class AdminCommandStatement extends RunCommandStatement {

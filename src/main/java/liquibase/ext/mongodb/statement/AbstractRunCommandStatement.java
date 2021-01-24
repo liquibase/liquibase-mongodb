@@ -23,16 +23,44 @@ package liquibase.ext.mongodb.statement;
 import liquibase.ext.mongodb.database.MongoConnection;
 import liquibase.nosql.statement.AbstractNoSqlStatement;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.bson.Document;
 
-public abstract class AbstractMongoDocumentStatement<T extends Document> extends AbstractNoSqlStatement
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public abstract class AbstractRunCommandStatement extends AbstractNoSqlStatement
         implements NoSqlExecuteStatement<MongoConnection> {
 
-    public abstract T run(MongoConnection connection);
+    public static final String COMMAND_NAME = "runCommand";
+    public static final String SHELL_DB_PREFIX = "db.";
+
+    @Getter
+    protected final Document command;
 
     @Override
     public void execute(final MongoConnection connection) {
         run(connection);
     }
+
+    public Document run(final MongoConnection connection) {
+        return connection.getDatabase().runCommand(command);
+    }
+
+    @Override
+    public String getCommandName() {
+        return COMMAND_NAME;
+    }
+
+    @Override
+    public String toJs() {
+        return SHELL_DB_PREFIX
+                + getCommandName()
+                + "("
+                + BsonUtils.toJson(command)
+                + ");";
+    }
+
 
 }

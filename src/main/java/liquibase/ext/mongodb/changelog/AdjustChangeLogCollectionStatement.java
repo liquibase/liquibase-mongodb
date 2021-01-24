@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Boolean.TRUE;
+import static java.util.Optional.ofNullable;
 
 public class AdjustChangeLogCollectionStatement extends RunCommandStatement {
 
@@ -86,5 +87,19 @@ public class AdjustChangeLogCollectionStatement extends RunCommandStatement {
 
             collection.createIndex(keys, options);
         }
+    }
+
+    @Override
+    public String toJs() {
+        return SHELL_DB_PREFIX
+                        + getCommandName()
+                        + "("
+                        + ofNullable(command).map(Document::toJson).orElse(null)
+                        + ");";
+    }
+
+    @Override
+    public Document run(final MongoConnection connection) {
+        return connection.getDatabase().runCommand(command);
     }
 }

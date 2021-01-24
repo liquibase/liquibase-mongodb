@@ -26,7 +26,12 @@ import com.mongodb.client.model.IndexOptions;
 import lombok.NoArgsConstructor;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
-import org.bson.codecs.*;
+import org.bson.codecs.BsonValueCodecProvider;
+import org.bson.codecs.DocumentCodec;
+import org.bson.codecs.DocumentCodecProvider;
+import org.bson.codecs.UuidCodec;
+import org.bson.codecs.UuidCodecProvider;
+import org.bson.codecs.ValueCodecProvider;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 
@@ -34,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 import static liquibase.util.StringUtil.trimToNull;
 import static lombok.AccessLevel.PRIVATE;
@@ -90,4 +96,15 @@ public final class BsonUtils {
         return indexOptions;
     }
 
+    public static String toJson(final Document document) {
+        return ofNullable(document).map(Document::toJson).orElse(null);
+    }
+
+    public static Document toCommand(final String commandName, final Object commandValue, final Document options) {
+        final Document command = new Document(commandName, commandValue);
+        if (nonNull(options)) {
+            command.putAll(options);
+        }
+        return command;
+    }
 }

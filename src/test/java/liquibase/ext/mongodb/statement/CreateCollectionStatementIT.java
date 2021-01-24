@@ -52,7 +52,7 @@ class CreateCollectionStatementIT extends AbstractMongoIntegrationTest {
 
     @Test
     void toStringJsWithoutOptions() {
-        String expected = formatDoubleQuoted("db.runCommand({'create': '%s'})", collectionName);
+        String expected = formatDoubleQuoted("db.runCommand({'create': '%s'});", collectionName);
         final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, EMPTY_OPTION);
         assertThat(statement.toJs())
                 .isEqualTo(expected)
@@ -71,7 +71,7 @@ class CreateCollectionStatementIT extends AbstractMongoIntegrationTest {
     @Test
     void toStringJsWithOptions() {
         String options = String.format("{ %s }", CREATE_OPTIONS);
-        String expected = formatDoubleQuoted("db.runCommand({'create': '%s', %s})", collectionName, CREATE_OPTIONS);
+        String expected = formatDoubleQuoted("db.runCommand({'create': '%s', %s});", collectionName, CREATE_OPTIONS);
         final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, options);
         assertThat(statement.toJs())
                 .isEqualTo(expected)
