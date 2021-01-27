@@ -20,59 +20,66 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.client.MongoCollection;
-import liquibase.ext.mongodb.database.MongoConnection;
-import liquibase.nosql.statement.NoSqlExecuteStatement;
+import com.mongodb.MongoException;
+import com.mongodb.MongoWriteException;
+import com.mongodb.WriteError;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.bson.BsonDocument;
 import org.bson.Document;
 
-import static java.util.Optional.ofNullable;
+import java.util.List;
+
+import static java.util.Objects.nonNull;
+import static java.util.Collections.singletonList;
 import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyDocument;
 
+/**
+ * Inserts a document via the database runCommand method
+ * For a list of supported options see the reference page:
+ * https://docs.mongodb.com/manual/reference/command/insert/
+ */
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class InsertOneStatement extends AbstractCollectionStatement
-implements NoSqlExecuteStatement<MongoConnection> {
+public class InsertOneStatement extends AbstractRunCommandStatement {
 
-    public static final String COMMAND_NAME = "insertOne";
-
-    private final Document document;
-    private final Document options;
+    public static final String COMMAND_NAME = "insert";
 
     public InsertOneStatement(final String collectionName, final String document, final String options) {
         this(collectionName, orEmptyDocument(document), orEmptyDocument(options));
     }
 
     public InsertOneStatement(final String collectionName, final Document document, final Document options) {
-        super(collectionName);
-        this.document = document;
-        this.options = options;
+        super(BsonUtils.toCommand(COMMAND_NAME, collectionName, combine(document, options)));
     }
 
-    @Override
-    public String getCommandName() {
-        return COMMAND_NAME;
+    private static Document combine(final Document document, final Document options) {
+        Document combined = new Document("documents", singletonList(document));
+        if (nonNull(options)) {
+            combined.putAll(options);
+        }
+        return combined;
     }
 
+    /**
+     * The server responds with { "ok" : 1 } (success) even when this command fails to insert the document.
+     * The contents of the response is checked to see if the document was actually inserted
+     * For more information see the manual page: https://docs.mongodb.com/manual/reference/command/insert/#output
+     *
+     * @param responseDocument the response document
+     * @throws MongoWriteException containing the code and error message if the document failed to insert
+     */
     @Override
-    public String toJs() {
-        return
-                "db." +
-                        getCollectionName() +
-                        "." +
-                        getCommandName() +
-                        "(" +
-                        ofNullable(document).map(Document::toJson).orElse(null) +
-                        ", " +
-                        ofNullable(options).map(Document::toJson).orElse(null) +
-                        ");";
-    }
-
-    @Override
-    public void execute(final MongoConnection connection) {
-            final MongoCollection<Document> collection = connection.getDatabase().getCollection(getCollectionName());
-            collection.insertOne(document);
+    public void checkResponse(Document responseDocument) throws MongoException {
+        if(responseDocument.getInteger("n")==1) return;
+        List<Document> writeErrors = responseDocument.getList("writeErrors", Document.class);
+        if(writeErrors.size()==1) {
+            Document firstError = writeErrors.get(0);
+            int code = firstError.getInteger("code");
+            String message = firstError.getString("errmsg");
+            WriteError error = new WriteError(code, message, new BsonDocument());
+            throw new MongoWriteException(error, null);
+        }
     }
 
 }

@@ -20,6 +20,7 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
+import com.mongodb.MongoException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bson.Document;
@@ -43,4 +44,14 @@ public class CreateCollectionStatement extends AbstractRunCommandStatement {
         super(BsonUtils.toCommand(RUN_COMMAND_NAME, collectionName, options));
     }
 
+    /**
+     * The server responds with { "ok": 0 } (failure) if this command fails
+     * Therefore the response document does not need to be explicitly checked.
+     * @param responseDocument the response document
+     * @throws MongoException - does not throw in this case
+     */
+    @Override
+    void checkResponse(Document responseDocument) throws MongoException {
+        // NoOp
+    }
 }

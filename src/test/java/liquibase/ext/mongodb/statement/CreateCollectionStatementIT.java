@@ -20,6 +20,7 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
+import com.mongodb.MongoCommandException;
 import liquibase.ext.AbstractMongoIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,8 @@ import static liquibase.ext.mongodb.TestUtils.EMPTY_OPTION;
 import static liquibase.ext.mongodb.TestUtils.getCollections;
 import static liquibase.ext.mongodb.TestUtils.formatDoubleQuoted;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 
 class CreateCollectionStatementIT extends AbstractMongoIntegrationTest {
 
@@ -76,5 +79,15 @@ class CreateCollectionStatementIT extends AbstractMongoIntegrationTest {
         assertThat(statement.toJs())
                 .isEqualTo(expected)
                 .isEqualTo(statement.toString());
+    }
+
+    @Test
+    void cannotCreateExistingCollection() {
+        final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, "{}");
+        statement.execute(connection);
+
+        assertThatExceptionOfType(MongoCommandException.class)
+                .isThrownBy(() -> statement.execute(connection))
+                .withMessageContaining("Collection already exists");
     }
 }

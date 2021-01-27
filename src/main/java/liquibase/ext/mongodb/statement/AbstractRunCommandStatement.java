@@ -20,6 +20,7 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
+import com.mongodb.MongoException;
 import liquibase.ext.mongodb.database.MongoConnection;
 import liquibase.nosql.statement.AbstractNoSqlStatement;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
@@ -41,12 +42,20 @@ public abstract class AbstractRunCommandStatement extends AbstractNoSqlStatement
 
     @Override
     public void execute(final MongoConnection connection) {
-        run(connection);
+        Document response = run(connection);
+        checkResponse(response);
     }
 
     public Document run(final MongoConnection connection) {
         return connection.getDatabase().runCommand(command);
     }
+
+    /**
+     * Check the response and throw an appropriate exception if the command was not successful
+     * @param responseDocument the response document
+     * @throws MongoException a MongoException to be thrown
+     */
+    abstract void checkResponse(Document responseDocument) throws MongoException;
 
     @Override
     public String getCommandName() {

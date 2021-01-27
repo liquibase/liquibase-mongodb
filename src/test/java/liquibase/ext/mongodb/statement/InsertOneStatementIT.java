@@ -20,34 +20,50 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
+import com.mongodb.MongoCommandException;
+import com.mongodb.MongoException;
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoDatabase;
 import liquibase.ext.AbstractMongoIntegrationTest;
+import liquibase.ext.mongodb.TestUtils;
 import org.bson.Document;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static liquibase.ext.mongodb.TestUtils.COLLECTION_NAME_1;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class InsertOneStatementIT extends AbstractMongoIntegrationTest {
+
+    private String collectionName;
+
+    @BeforeEach
+    public void createCollectionName() {
+        collectionName = COLLECTION_NAME_1 + System.nanoTime();
+    }
 
     @Test
     void executeForObject() {
         final MongoDatabase database = connection.getDatabase();
         final Document document = new Document("key1", "value1");
-        new InsertOneStatement(COLLECTION_NAME_1, document, new Document()).execute(connection);
+        new InsertOneStatement(collectionName, document, new Document()).execute(connection);
 
-        assertThat(database.getCollection(COLLECTION_NAME_1).find())
-                .containsExactly(document);
+        final FindIterable<Document> docs = database.getCollection(collectionName).find();
+        assertThat(docs).hasSize(1);
+        assertThat(docs.iterator().next())
+                .containsEntry("key1", "value1")
+                .containsKey("_id");
     }
 
     @Test
     void executeForString() {
         final MongoDatabase database = connection.getDatabase();
         final Document document = new Document("key1", "value1");
-        new InsertOneStatement(COLLECTION_NAME_1, document.toJson(), "").execute(connection);
+        new InsertOneStatement(collectionName, document.toJson(), "").execute(connection);
 
-        final FindIterable<Document> docs = database.getCollection(COLLECTION_NAME_1).find();
+        final FindIterable<Document> docs = database.getCollection(collectionName).find();
         assertThat(docs).hasSize(1);
         assertThat(docs.iterator().next())
                 .containsEntry("key1", "value1")
@@ -56,9 +72,24 @@ class InsertOneStatementIT extends AbstractMongoIntegrationTest {
 
     @Test
     void toStringJs() {
-        final InsertOneStatement statement = new InsertOneStatement(COLLECTION_NAME_1, new Document("key1", "value1"), new Document());
+        String expected = TestUtils.formatDoubleQuoted(
+                "db.runCommand({'insert': '%s', 'documents': [{'key1': 'value1'}], 'ordered': false});",collectionName);
+        final InsertOneStatement statement = new InsertOneStatement(
+                collectionName,
+                new Document("key1", "value1"),
+                new Document("ordered",false));
         assertThat(statement.toJs())
                 .isEqualTo(statement.toString())
-                .isEqualTo("db.collectionName.insertOne({\"key1\": \"value1\"}, {});");
+                .isEqualTo(expected);
+    }
+
+    @Test
+    void cannotInsertSameDocumentTwice() {
+        final InsertOneStatement statement = new InsertOneStatement(collectionName, new Document("_id", "theId"), new Document());
+        statement.execute(connection);
+
+        assertThatExceptionOfType(MongoWriteException.class)
+                .isThrownBy(() -> statement.execute(connection))
+                .withMessageContaining("E11000 duplicate key error");
     }
 }
