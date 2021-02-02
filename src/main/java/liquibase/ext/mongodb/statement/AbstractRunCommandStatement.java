@@ -29,6 +29,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bson.Document;
 
+import java.util.List;
+
+import static java.util.Objects.nonNull;
+
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public abstract class AbstractRunCommandStatement extends AbstractNoSqlStatement
@@ -42,7 +46,7 @@ public abstract class AbstractRunCommandStatement extends AbstractNoSqlStatement
 
     @Override
     public void execute(final MongoConnection connection) {
-        Document response = run(connection);
+        final Document response = run(connection);
         checkResponse(response);
     }
 
@@ -51,16 +55,36 @@ public abstract class AbstractRunCommandStatement extends AbstractNoSqlStatement
     }
 
     /**
-     * Check the response and throw an appropriate exception if the command was not successful
+     * Inspects response Document for any issues.
+     * For example the server responds with { "ok" : 1 } (success) even when run command fails to insert the document.
+     * The contents of the response is checked to see if the document was actually inserted
+     * For more information see the manual page
+     *
      * @param responseDocument the response document
      * @throws MongoException a MongoException to be thrown
+     * @see <a href="https://docs.mongodb.com/manual/reference/command/insert/#output">Insert Output</a>
+     * <p>
+     * Check the response and throw an appropriate exception if the command was not successful
      */
-    abstract void checkResponse(Document responseDocument) throws MongoException;
+    protected void checkResponse(final Document responseDocument) throws MongoException {
+        final List<Document> writeErrors = responseDocument.getList(BsonUtils.WRITE_ERRORS, Document.class);
+        if (nonNull(writeErrors) && !writeErrors.isEmpty()) {
+            throw new MongoException("Command failed. The full response is " + responseDocument.toJson());
+        }
+    }
 
     @Override
     public String getCommandName() {
         return COMMAND_NAME;
     }
+
+    /**
+     * Returns the RunCommand command name.
+     *
+     * @return the run command as this is not used and not required for a generic RunCommandStatement
+     * @see <a href="https://docs.mongodb.com/manual/reference/command/">Database Commands</a>
+     */
+    public abstract String getRunCommandName();
 
     @Override
     public String toJs() {
@@ -70,6 +94,4 @@ public abstract class AbstractRunCommandStatement extends AbstractNoSqlStatement
                 + BsonUtils.toJson(command)
                 + ");";
     }
-
-
 }

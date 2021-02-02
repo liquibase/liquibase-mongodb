@@ -1,12 +1,13 @@
 package liquibase.ext.mongodb.lockservice;
 
-import com.mongodb.MongoWriteException;
+import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import liquibase.ext.AbstractMongoIntegrationTest;
 import liquibase.ext.mongodb.statement.FindAllStatement;
 import liquibase.ext.mongodb.statement.InsertOneStatement;
 import liquibase.lockservice.DatabaseChangeLogLock;
+import lombok.SneakyThrows;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +33,7 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
     protected MongoChangeLogLockToDocumentConverter converter = new MongoChangeLogLockToDocumentConverter();
 
     @Test
+    @SneakyThrows
     void executeToJSTest() {
         AdjustChangeLogLockCollectionStatement adjustChangeLogLockCollectionStatement =
                 new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME);
@@ -59,6 +61,7 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
     }
 
     @Test
+    @SneakyThrows
     void executeTest() {
 
         new CreateChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME).execute(connection);
@@ -110,6 +113,7 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
     }
 
     @Test
+    @SneakyThrows
     void insertDataTest() {
         // Returns empty even when collection does not exists
         assertThat(findAllStatement.queryForList(connection)).isEmpty();
@@ -124,9 +128,10 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
                 .append("_id", 1);
 
         // Minimal not all required fields
-        assertThatExceptionOfType(MongoWriteException.class)
+        assertThatExceptionOfType(MongoException.class)
                 .isThrownBy(() -> new InsertOneStatement(LOCK_COLLECTION_NAME, minimal, options).execute(connection))
-                .withMessageStartingWith("Document failed validation");
+                .withMessageStartingWith("Command failed. The full response is")
+                .withMessageContaining("Document failed validation");
 
         // Minimal accepted
         minimal.append("locked", true);
@@ -140,9 +145,10 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
                 .returns(null, d -> d.get("lockGranted"));
 
         // Unique constraint failure
-        assertThatExceptionOfType(MongoWriteException.class)
+        assertThatExceptionOfType(MongoException.class)
                 .isThrownBy(() -> new InsertOneStatement(LOCK_COLLECTION_NAME, minimal, options).execute(connection))
-                .withMessageStartingWith("E11000 duplicate key error collection");
+                .withMessageStartingWith("Command failed. The full response is")
+                .withMessageContaining("E11000 duplicate key error collection");
 
         // Extra fields are allowed
         minimal.append("_id", 2).append("extraField", "extraValue");
@@ -154,9 +160,10 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
 
         // Nulls fail validation
         minimal.append("_id", 3).append("lockGranted", null);
-        assertThatExceptionOfType(MongoWriteException.class)
+        assertThatExceptionOfType(MongoException.class)
                 .isThrownBy(() -> new InsertOneStatement(LOCK_COLLECTION_NAME, minimal, options).execute(connection))
-                .withMessageStartingWith("Document failed validation");
+                .withMessageStartingWith("Command failed. The full response is")
+                .withMessageContaining("Document failed validation");
 
         // Maximum
         final Date lockGranted = new Date();
@@ -192,6 +199,7 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
     }
 
     @Test
+    @SneakyThrows
     void insertDataNoValidatorTest() {
         // Returns empty even when collection does not exists
         assertThat(findAllStatement.queryForList(connection)).isEmpty();
@@ -212,6 +220,7 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
     }
 
     @Test
+    @SneakyThrows
     void insertEntityTest() {
         final Date lockGranted = new Date();
 
@@ -224,9 +233,10 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
         final MongoChangeLogLock minimal = new MongoChangeLogLock(1, lockGranted, null, null);
 
         // Fail on nulls
-        assertThatExceptionOfType(MongoWriteException.class)
+        assertThatExceptionOfType(MongoException.class)
                 .isThrownBy(() -> new InsertOneStatement(LOCK_COLLECTION_NAME, converter.toDocument(minimal), options).execute(connection))
-                .withMessageStartingWith("Document failed validation");
+                .withMessageStartingWith("Command failed. The full response is")
+                .withMessageContaining("Document failed validation");
 
         // Minimal accepted
         final MongoChangeLogLock defaultConstructor = new MongoChangeLogLock();
@@ -240,9 +250,10 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
                 .returns(false, d -> isNull(d.get("lockGranted")));
 
         // Unique constraint failure
-        assertThatExceptionOfType(MongoWriteException.class)
+        assertThatExceptionOfType(MongoException.class)
                 .isThrownBy(() -> new InsertOneStatement(LOCK_COLLECTION_NAME, converter.toDocument(defaultConstructor), options).execute(connection))
-                .withMessageStartingWith("E11000 duplicate key error collection");
+                .withMessageStartingWith("Command failed. The full response is")
+                .withMessageContaining("E11000 duplicate key error collection");
 
         // Maximum
         final MongoChangeLogLock maximal = new MongoChangeLogLock(2, lockGranted, "Alex", false);

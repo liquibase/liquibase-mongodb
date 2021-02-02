@@ -20,7 +20,6 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.MongoException;
 import lombok.EqualsAndHashCode;
 import org.bson.Document;
 
@@ -36,15 +35,11 @@ public class RunCommandStatement extends AbstractRunCommandStatement {
     }
 
     /**
-     * Responses are not checked for adhoc commands.
-     * This could result in unexpected behaviour
-     * TODO: Minimally check if { "ok": 0 } and throw an exception containing the responseDocument
-     *
-     * @param responseDocument the response document
-     * @throws MongoException does not throw in this case
+     * Returns the RunCommand command name
+     * @return null as this is not used and not required for a generic RunCommandStatement
      */
     @Override
-    void checkResponse(Document responseDocument) throws MongoException {
-        // NoOp
+    public String getRunCommandName() {
+        return null;
     }
 }

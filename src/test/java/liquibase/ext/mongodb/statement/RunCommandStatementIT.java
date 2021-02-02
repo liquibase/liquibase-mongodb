@@ -23,6 +23,7 @@ package liquibase.ext.mongodb.statement;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoDatabase;
 import liquibase.ext.AbstractMongoIntegrationTest;
+import lombok.SneakyThrows;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +42,7 @@ class RunCommandStatementIT extends AbstractMongoIntegrationTest {
         + "}";
 
     @Test
+    @SneakyThrows
     void runFromString() {
         final MongoDatabase database = connection.getDatabase();
         new RunCommandStatement(INSERT_CMD).execute(connection);
@@ -52,6 +54,7 @@ class RunCommandStatementIT extends AbstractMongoIntegrationTest {
     }
 
     @Test
+    @SneakyThrows
     void runFromDocument() {
         final MongoDatabase database = connection.getDatabase();
         new RunCommandStatement(Document.parse(INSERT_CMD)).execute(connection);

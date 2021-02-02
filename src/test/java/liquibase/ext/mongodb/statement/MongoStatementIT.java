@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MongoStatementIT extends AbstractMongoIntegrationTest {
 
     @Test
+    @SneakyThrows
     void testInsertOneStatement() {
 
         final String collectionName = "logCollection";
@@ -128,7 +129,6 @@ class MongoStatementIT extends AbstractMongoIntegrationTest {
                     .countDocuments()).isEqualTo(2L);
 
     }
-
 
     @Test
     void testInsertManyChange() throws LiquibaseException {

@@ -20,13 +20,12 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.MongoCommandException;
 import com.mongodb.MongoException;
-import com.mongodb.MongoWriteException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoDatabase;
 import liquibase.ext.AbstractMongoIntegrationTest;
 import liquibase.ext.mongodb.TestUtils;
+import lombok.SneakyThrows;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +44,7 @@ class InsertOneStatementIT extends AbstractMongoIntegrationTest {
     }
 
     @Test
+    @SneakyThrows
     void executeForObject() {
         final MongoDatabase database = connection.getDatabase();
         final Document document = new Document("key1", "value1");
@@ -58,6 +58,7 @@ class InsertOneStatementIT extends AbstractMongoIntegrationTest {
     }
 
     @Test
+    @SneakyThrows
     void executeForString() {
         final MongoDatabase database = connection.getDatabase();
         final Document document = new Document("key1", "value1");
@@ -71,25 +72,28 @@ class InsertOneStatementIT extends AbstractMongoIntegrationTest {
     }
 
     @Test
+    @SneakyThrows
     void toStringJs() {
         String expected = TestUtils.formatDoubleQuoted(
-                "db.runCommand({'insert': '%s', 'documents': [{'key1': 'value1'}], 'ordered': false});",collectionName);
+                "db.runCommand({'insert': '%s', 'documents': [{'key1': 'value1'}], 'ordered': false});", collectionName);
         final InsertOneStatement statement = new InsertOneStatement(
                 collectionName,
                 new Document("key1", "value1"),
-                new Document("ordered",false));
+                new Document("ordered", false));
         assertThat(statement.toJs())
                 .isEqualTo(statement.toString())
                 .isEqualTo(expected);
     }
 
     @Test
+    @SneakyThrows
     void cannotInsertSameDocumentTwice() {
         final InsertOneStatement statement = new InsertOneStatement(collectionName, new Document("_id", "theId"), new Document());
         statement.execute(connection);
 
-        assertThatExceptionOfType(MongoWriteException.class)
+        assertThatExceptionOfType(MongoException.class)
                 .isThrownBy(() -> statement.execute(connection))
-                .withMessageContaining("E11000 duplicate key error");
+                .withMessageStartingWith("Command failed. The full response is")
+                .withMessageContaining("E11000 duplicate key error collection");
     }
 }

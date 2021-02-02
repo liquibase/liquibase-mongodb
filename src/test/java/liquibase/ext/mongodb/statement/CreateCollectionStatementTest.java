@@ -4,7 +4,7 @@ package liquibase.ext.mongodb.statement;
  * #%L
  * Liquibase MongoDB Extension
  * %%
- * Copyright (C) 2019 Mastercard
+ * Copyright (C) 2021 Mastercard
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -20,20 +20,16 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.MongoCommandException;
-import liquibase.ext.AbstractMongoIntegrationTest;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static liquibase.ext.mongodb.TestUtils.COLLECTION_NAME_1;
 import static liquibase.ext.mongodb.TestUtils.EMPTY_OPTION;
-import static liquibase.ext.mongodb.TestUtils.getCollections;
+import static liquibase.ext.mongodb.TestUtils.formatDoubleQuoted;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 
-class CreateCollectionStatementIT extends AbstractMongoIntegrationTest {
+class CreateCollectionStatementTest {
 
     // Some of the extra options that create collection supports
     private static final String CREATE_OPTIONS = "'capped': true, 'size': 100, 'max': 200";
@@ -46,32 +42,27 @@ class CreateCollectionStatementIT extends AbstractMongoIntegrationTest {
     }
 
     @Test
-    @SneakyThrows
-    void executeStatementWithoutOptions() {
+    void toStringJsWithoutOptions() {
+        String expected = formatDoubleQuoted("db.runCommand({'create': '%s'});", collectionName);
         final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, EMPTY_OPTION);
-        statement.execute(connection);
-        assertThat(getCollections(connection))
-            .contains(collectionName);
+        assertThat(statement.toJs())
+                .isEqualTo(expected)
+                .isEqualTo(statement.toString());
     }
 
-    @Test
-    @SneakyThrows
-    void executeStatementWithOptions() {
+     @Test
+    void toStringJsWithOptions() {
         String options = String.format("{ %s }", CREATE_OPTIONS);
+        String expected = formatDoubleQuoted("db.runCommand({'create': '%s', %s});", collectionName, CREATE_OPTIONS);
         final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, options);
-        statement.execute(connection);
-        assertThat(getCollections(connection))
-                .contains(collectionName);
+        assertThat(statement.toJs())
+                .isEqualTo(expected)
+                .isEqualTo(statement.toString());
     }
 
     @Test
-    @SneakyThrows
-    void cannotCreateExistingCollection() {
-        final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, "{}");
-        statement.execute(connection);
-
-        assertThatExceptionOfType(MongoCommandException.class)
-                .isThrownBy(() -> statement.execute(connection))
-                .withMessageContaining("already exists");
+    void getRunCommandName() {
+        assertThat(new CreateCollectionStatement(collectionName, EMPTY_OPTION).getRunCommandName()).isEqualTo("create");
+        assertThat(new CreateCollectionStatement(collectionName, EMPTY_OPTION).getCommandName()).isEqualTo("runCommand");
     }
 }

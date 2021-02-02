@@ -1,11 +1,12 @@
 package liquibase.ext.mongodb.changelog;
 
-import com.mongodb.MongoWriteException;
+import com.mongodb.MongoException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import liquibase.ext.AbstractMongoIntegrationTest;
 import liquibase.ext.mongodb.statement.FindAllStatement;
 import liquibase.ext.mongodb.statement.InsertOneStatement;
+import lombok.SneakyThrows;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +28,7 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
     protected FindAllStatement findAllStatement = new FindAllStatement(LOG_COLLECTION_NAME);
 
     @Test
+    @SneakyThrows
     void executeToJSTest() {
         AdjustChangeLogCollectionStatement adjustChangeLogCollectionStatement =
                 new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME);
@@ -69,6 +71,7 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
     }
 
     @Test
+    @SneakyThrows
     void executeTest() {
 
         new CreateChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(connection);
@@ -129,6 +132,7 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
     }
 
     @Test
+    @SneakyThrows
     void insertDataTest() {
         // Returns empty even when collection does not exists
         assertThat(findAllStatement.queryForList(connection)).isEmpty();
@@ -142,21 +146,24 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         final Document options = new Document();
         final Document minimal = new Document()
                 .append("id", "cs1");
-        assertThatExceptionOfType(MongoWriteException.class)
+        assertThatExceptionOfType(MongoException.class)
                 .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(connection))
-                .withMessageStartingWith("Document failed validation");
+                .withMessageStartingWith("Command failed. The full response is")
+                .withMessageContaining("Document failed validation");
 
         // Minimal not all required fields
         minimal.append("author", "Alex");
-        assertThatExceptionOfType(MongoWriteException.class)
+        assertThatExceptionOfType(MongoException.class)
                 .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(connection))
-                .withMessageStartingWith("Document failed validation");
+                .withMessageStartingWith("Command failed. The full response is")
+                .withMessageContaining("Document failed validation");
 
         // Minimal not all required fields
         minimal.append("fileName", "liquibase/file.xml");
-        assertThatExceptionOfType(MongoWriteException.class)
+        assertThatExceptionOfType(MongoException.class)
                 .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(connection))
-                .withMessageStartingWith("Document failed validation");
+                .withMessageStartingWith("Command failed. The full response is")
+                .withMessageContaining("Document failed validation");
 
         // Minimal accepted
         minimal.append("execType", "EXECUTED");
@@ -171,9 +178,10 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
 
         // Unique constraint failure
         minimal.remove("_id");
-        assertThatExceptionOfType(MongoWriteException.class)
+        assertThatExceptionOfType(MongoException.class)
                 .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(connection))
-                .withMessageStartingWith("E11000 duplicate key error collection");
+                .withMessageStartingWith("Command failed. The full response is")
+                .withMessageContaining("E11000 duplicate key error collection");
 
         // Extra fields are allowed
         minimal.remove("_id");
@@ -187,9 +195,10 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         // Nulls fail validation
         minimal.remove("_id");
         minimal.append("id", "cs3").append("fileName", null);
-        assertThatExceptionOfType(MongoWriteException.class)
+        assertThatExceptionOfType(MongoException.class)
                 .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(connection))
-                .withMessageStartingWith("Document failed validation");
+                .withMessageStartingWith("Command failed. The full response is")
+                .withMessageContaining("Document failed validation");
 
         // Maximum
         final Date dateExecuted = new Date();
@@ -261,6 +270,7 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
     }
 
     @Test
+    @SneakyThrows
     void insertDataNoValidatorTest() {
         // Returns empty even when collection does not exists
         assertThat(findAllStatement.queryForList(connection)).isEmpty();

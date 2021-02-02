@@ -20,15 +20,9 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.MongoException;
-import com.mongodb.MongoWriteException;
-import com.mongodb.WriteError;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.bson.BsonDocument;
 import org.bson.Document;
-
-import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static java.util.Collections.singletonList;
@@ -43,18 +37,18 @@ import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyDocument;
 @EqualsAndHashCode(callSuper = true)
 public class InsertOneStatement extends AbstractRunCommandStatement {
 
-    public static final String COMMAND_NAME = "insert";
+    public static final String RUN_COMMAND_NAME = "insert";
 
     public InsertOneStatement(final String collectionName, final String document, final String options) {
         this(collectionName, orEmptyDocument(document), orEmptyDocument(options));
     }
 
     public InsertOneStatement(final String collectionName, final Document document, final Document options) {
-        super(BsonUtils.toCommand(COMMAND_NAME, collectionName, combine(document, options)));
+        super(BsonUtils.toCommand(RUN_COMMAND_NAME, collectionName, combine(document, options)));
     }
 
     private static Document combine(final Document document, final Document options) {
-        Document combined = new Document("documents", singletonList(document));
+        final Document combined = new Document(BsonUtils.DOCUMENTS, singletonList(document));
         if (nonNull(options)) {
             combined.putAll(options);
         }
@@ -62,24 +56,13 @@ public class InsertOneStatement extends AbstractRunCommandStatement {
     }
 
     /**
-     * The server responds with { "ok" : 1 } (success) even when this command fails to insert the document.
-     * The contents of the response is checked to see if the document was actually inserted
-     * For more information see the manual page: https://docs.mongodb.com/manual/reference/command/insert/#output
+     * Returns the RunCommand command name.
      *
-     * @param responseDocument the response document
-     * @throws MongoWriteException containing the code and error message if the document failed to insert
+     * @return the run command as this is not used and not required for a generic RunCommandStatement
+     * @see <a href="https://docs.mongodb.com/manual/reference/command/">Database Commands</a>
      */
     @Override
-    public void checkResponse(Document responseDocument) throws MongoException {
-        if(responseDocument.getInteger("n")==1) return;
-        List<Document> writeErrors = responseDocument.getList("writeErrors", Document.class);
-        if(writeErrors.size()==1) {
-            Document firstError = writeErrors.get(0);
-            int code = firstError.getInteger("code");
-            String message = firstError.getString("errmsg");
-            WriteError error = new WriteError(code, message, new BsonDocument());
-            throw new MongoWriteException(error, null);
-        }
+    public String getRunCommandName() {
+        return RUN_COMMAND_NAME;
     }
-
 }

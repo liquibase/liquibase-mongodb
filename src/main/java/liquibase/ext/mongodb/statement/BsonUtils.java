@@ -48,6 +48,9 @@ import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 @NoArgsConstructor(access = PRIVATE)
 public final class BsonUtils {
 
+    public static final String WRITE_ERRORS = "writeErrors";
+    public static final String DOCUMENTS = "documents";
+
     public static final DocumentCodec DOCUMENT_CODEC =
             new DocumentCodec(fromProviders(
                     new UuidCodecProvider(UuidRepresentation.STANDARD),
