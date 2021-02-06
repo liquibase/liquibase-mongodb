@@ -24,7 +24,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bson.Document;
 
-import static java.util.Objects.nonNull;
 import static java.util.Collections.singletonList;
 import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyDocument;
 
@@ -35,34 +34,13 @@ import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyDocument;
  */
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class InsertOneStatement extends AbstractRunCommandStatement {
-
-    public static final String RUN_COMMAND_NAME = "insert";
+public class InsertOneStatement extends InsertManyStatement {
 
     public InsertOneStatement(final String collectionName, final String document, final String options) {
         this(collectionName, orEmptyDocument(document), orEmptyDocument(options));
     }
 
     public InsertOneStatement(final String collectionName, final Document document, final Document options) {
-        super(BsonUtils.toCommand(RUN_COMMAND_NAME, collectionName, combine(document, options)));
-    }
-
-    private static Document combine(final Document document, final Document options) {
-        final Document combined = new Document(BsonUtils.DOCUMENTS, singletonList(document));
-        if (nonNull(options)) {
-            combined.putAll(options);
-        }
-        return combined;
-    }
-
-    /**
-     * Returns the RunCommand command name.
-     *
-     * @return the run command as this is not used and not required for a generic RunCommandStatement
-     * @see <a href="https://docs.mongodb.com/manual/reference/command/">Database Commands</a>
-     */
-    @Override
-    public String getRunCommandName() {
-        return RUN_COMMAND_NAME;
+        super(collectionName, singletonList(document), options);
     }
 }

@@ -20,9 +20,6 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.client.MongoCollection;
-import liquibase.ext.mongodb.database.MongoConnection;
-import liquibase.nosql.statement.NoSqlExecuteStatement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bson.Document;
@@ -30,16 +27,20 @@ import org.bson.Document;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Optional.ofNullable;
+import static java.util.Objects.nonNull;
 import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyDocument;
 import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyList;
 
+/**
+ * Inserts many documents via the database runCommand method
+ * For a list of supported options see the reference page:
+ * https://docs.mongodb.com/manual/reference/command/insert/
+ */
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class InsertManyStatement extends AbstractCollectionStatement
-        implements NoSqlExecuteStatement<MongoConnection> {
+public class InsertManyStatement extends AbstractRunCommandStatement {
 
-    public static final String COMMAND_NAME = "insertMany";
+    public static final String RUN_COMMAND_NAME = "insert";
 
     private final List<Document> documents;
     private final Document options;
@@ -49,34 +50,22 @@ public class InsertManyStatement extends AbstractCollectionStatement
     }
 
     public InsertManyStatement(final String collectionName, final List<Document> documents, final Document options) {
-        super(collectionName);
+        super(BsonUtils.toCommand(RUN_COMMAND_NAME, collectionName, combine(documents, options)));
         this.documents = documents;
         this.options = options;
     }
 
-    @Override
-    public String getCommandName() {
-        return COMMAND_NAME;
+    private static Document combine(final List<Document> documents, final Document options) {
+        final Document combined = new Document(BsonUtils.DOCUMENTS, documents);
+        if (nonNull(options)) {
+            combined.putAll(options);
+        }
+        return combined;
     }
 
     @Override
-    public String toJs() {
-        return
-                "db." +
-                        getCollectionName() +
-                        "." +
-                        getCommandName() +
-                        "(" +
-                        ofNullable(documents).map(List::toString).orElse(null) +
-                        ", " +
-                        ofNullable(options).map(Document::toJson).orElse(null) +
-                        ");";
-    }
-
-    @Override
-    public void execute(final MongoConnection connection) {
-        final MongoCollection<Document> collection = connection.getDatabase().getCollection(collectionName);
-        collection.insertMany(documents);
+    public String getRunCommandName() {
+        return RUN_COMMAND_NAME;
     }
 
 }

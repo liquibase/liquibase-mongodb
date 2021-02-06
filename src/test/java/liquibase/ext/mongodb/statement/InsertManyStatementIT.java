@@ -20,27 +20,51 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
+import com.mongodb.MongoException;
 import com.mongodb.client.MongoDatabase;
 import liquibase.ext.AbstractMongoIntegrationTest;
+import lombok.SneakyThrows;
 import org.bson.Document;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static liquibase.ext.mongodb.TestUtils.formatDoubleQuoted;
 import static liquibase.ext.mongodb.TestUtils.COLLECTION_NAME_1;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class InsertManyStatementIT extends AbstractMongoIntegrationTest {
 
+    private String collectionName;
+
+    @BeforeEach
+    public void createCollectionName() {
+        collectionName = COLLECTION_NAME_1 + System.nanoTime();
+    }
+
     @Test
     void toStringTest() {
-        final InsertManyStatement statement = new InsertManyStatement(COLLECTION_NAME_1, Collections.emptyList(), new Document());
+
+        String expected = formatDoubleQuoted(
+                "db.runCommand({'insert': '%s', " +
+                "'documents': [{'key1': 'value1'}, {'key1': 'value2'}], " +
+                "'ordered': false});", collectionName);
+
+        final InsertManyStatement statement = new InsertManyStatement(
+                collectionName,
+                Arrays.asList(
+                        new Document("key1", "value1"),
+                        new Document("key1", "value2")),
+                new Document("ordered", false));
         assertThat(statement.toJs())
             .isEqualTo(statement.toString())
-            .isEqualTo("db.collectionName.insertMany([], {});");
+            .isEqualTo(expected);
     }
 
     @Test
@@ -50,9 +74,9 @@ class InsertManyStatementIT extends AbstractMongoIntegrationTest {
             .mapToObj(id -> Collections.singletonMap("id", (Object) id))
             .map(Document::new)
             .collect(Collectors.toList());
-        new InsertManyStatement(COLLECTION_NAME_1, testObjects, new Document()).execute(connection);
+        new InsertManyStatement(collectionName, testObjects, new Document()).execute(connection);
 
-        assertThat(database.getCollection(COLLECTION_NAME_1).find())
+        assertThat(database.getCollection(collectionName).find())
             .hasSize(5);
     }
 
@@ -64,9 +88,23 @@ class InsertManyStatementIT extends AbstractMongoIntegrationTest {
             .map(Document::new)
             .map(Document::toJson)
             .collect(Collectors.joining(",", "[", "]"));
-        new InsertManyStatement(COLLECTION_NAME_1, testObjects, "").execute(connection);
+        new InsertManyStatement(collectionName, testObjects, "").execute(connection);
 
-        assertThat(database.getCollection(COLLECTION_NAME_1).find())
+        assertThat(database.getCollection(collectionName).find())
             .hasSize(5);
+    }
+
+    @Test
+    @SneakyThrows
+    void cannotInsertSameDocumentsTwice() {
+        final List<Document> documents = Arrays.asList(new Document("_id", "x"),new Document("_id", "y"));
+        final Document options = new Document("ordered", false);
+        final InsertManyStatement statement = new InsertManyStatement(collectionName, documents, options);
+        statement.execute(connection);
+
+        assertThatExceptionOfType(MongoException.class)
+                .isThrownBy(() -> statement.execute(connection))
+                .withMessageStartingWith("Command failed. The full response is")
+                .withMessageContaining("E11000 duplicate key error collection");
     }
 }
