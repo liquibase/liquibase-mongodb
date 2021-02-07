@@ -54,8 +54,9 @@ public class NoSqlExecutor extends AbstractExecutor {
         super.setDatabase(database);
     }
 
-    private AbstractNoSqlDatabase getDatabase() {
-        return (AbstractNoSqlDatabase) database;
+    @SuppressWarnings("unchecked")
+    private <T extends AbstractNoSqlDatabase> T getDatabase() {
+        return (T) database;
     }
 
     @Override
@@ -84,7 +85,7 @@ public class NoSqlExecutor extends AbstractExecutor {
         if (sql instanceof NoSqlQueryForObjectStatement) {
             try {
                 return ((NoSqlQueryForObjectStatement<?>) sql)
-                        .queryForObject(getConnection(), requiredType);
+                        .queryForObject(getDatabase(), requiredType);
             } catch (final Exception e) {
                 throw new DatabaseException("Could not query for object", e);
             }
@@ -101,7 +102,7 @@ public class NoSqlExecutor extends AbstractExecutor {
     public long queryForLong(final SqlStatement sql, final List<SqlVisitor> sqlVisitors) throws DatabaseException {
         if (sql instanceof NoSqlQueryForLongStatement) {
             try {
-                return ((NoSqlQueryForLongStatement<? extends AbstractNoSqlConnection>) sql).queryForLong(getConnection());
+                return ((NoSqlQueryForLongStatement<? extends AbstractNoSqlDatabase>) sql).queryForLong(getDatabase());
             } catch (final Exception e) {
                 throw new DatabaseException("Could not query for long", e);
             }
@@ -129,7 +130,7 @@ public class NoSqlExecutor extends AbstractExecutor {
     public List<Object> queryForList(final SqlStatement sql, final Class elementType, final List<SqlVisitor> sqlVisitors) throws DatabaseException {
         if (sql instanceof NoSqlQueryForListStatement) {
             try {
-                return ((NoSqlQueryForListStatement<? extends AbstractNoSqlConnection, Object>) sql).queryForList(getConnection());
+                return ((NoSqlQueryForListStatement<? extends AbstractNoSqlDatabase, Object>) sql).queryForList(getDatabase());
             } catch (final Exception e) {
                 throw new DatabaseException("Could not query for list", e);
             }
@@ -177,7 +178,7 @@ public class NoSqlExecutor extends AbstractExecutor {
     public void execute(final SqlStatement sql, final List<SqlVisitor> sqlVisitors) throws DatabaseException {
         if (sql instanceof NoSqlExecuteStatement) {
             try {
-                ((NoSqlExecuteStatement<? extends AbstractNoSqlConnection>) sql).execute(getConnection());
+                ((NoSqlExecuteStatement<? extends AbstractNoSqlDatabase>) sql).execute(getDatabase());
             } catch (final Exception e) {
                 throw new DatabaseException("Could not execute", e);
             }
@@ -197,7 +198,7 @@ public class NoSqlExecutor extends AbstractExecutor {
     public int update(final SqlStatement sql, final List<SqlVisitor> sqlVisitors) throws DatabaseException {
         if (sql instanceof NoSqlUpdateStatement) {
             try {
-                return ((NoSqlUpdateStatement<? extends AbstractNoSqlConnection>) sql).update(getConnection());
+                return ((NoSqlUpdateStatement<? extends AbstractNoSqlDatabase>) sql).update(getDatabase());
             } catch (final Exception e) {
                 throw new DatabaseException("Could not execute", e);
             }

@@ -50,7 +50,7 @@ class MongoStatementIT extends AbstractMongoIntegrationTest {
     void testInsertOneStatement() {
 
         final String collectionName = "logCollection";
-        new CreateChangeLogCollectionStatement(collectionName).execute(connection);
+        new CreateChangeLogCollectionStatement(collectionName).execute(database);
 
         Date expectedDateExecuted = new Date();
         MongoRanChangeSet ranChangeSet = new MongoRanChangeSet(
@@ -74,7 +74,7 @@ class MongoStatementIT extends AbstractMongoIntegrationTest {
         MongoRanChangeSetToDocumentConverter converter = new MongoRanChangeSetToDocumentConverter();
         Document document = converter.toDocument(ranChangeSet);
 
-        new InsertOneStatement(collectionName,document , null).execute(connection);
+        new InsertOneStatement(collectionName,document , null).execute(database);
         assertThat(connection.getDatabase().getCollection(collectionName).countDocuments()).isEqualTo(1L);
 
         document.put("id", "2");
@@ -84,12 +84,12 @@ class MongoStatementIT extends AbstractMongoIntegrationTest {
         ranChangeSet.setOrderExecuted(1);
         document = converter.toDocument(ranChangeSet);
 
-        new InsertOneStatement(collectionName,document , null).execute(connection);
+        new InsertOneStatement(collectionName,document , null).execute(database);
         assertThat(connection.getDatabase().getCollection(collectionName).countDocuments()).isEqualTo(2L);
 
         final FindAllStatement findAllStatement = new FindAllStatement(collectionName);
 
-        final List<Document> ranChangeSetList = findAllStatement.queryForList(connection);
+        final List<Document> ranChangeSetList = findAllStatement.queryForList(database);
 
         assertThat(ranChangeSetList.size()).isEqualTo(2);
 

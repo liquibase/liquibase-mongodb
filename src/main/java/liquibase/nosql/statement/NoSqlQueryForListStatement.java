@@ -20,12 +20,12 @@ package liquibase.nosql.statement;
  * #L%
  */
 
-import liquibase.nosql.database.AbstractNoSqlConnection;
+import liquibase.nosql.database.AbstractNoSqlDatabase;
 
 import java.util.List;
 
-public interface NoSqlQueryForListStatement <C extends AbstractNoSqlConnection, T>{
+public interface NoSqlQueryForListStatement <D extends AbstractNoSqlDatabase, T>{
 
-    List<T> queryForList(C connection);
+    List<T> queryForList(D database);
 
 }

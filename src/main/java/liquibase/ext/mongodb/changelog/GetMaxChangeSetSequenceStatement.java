@@ -21,22 +21,20 @@ package liquibase.ext.mongodb.changelog;
  */
 
 import com.mongodb.client.model.Sorts;
-import liquibase.ext.mongodb.database.MongoConnection;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.ext.mongodb.statement.AbstractCollectionStatement;
 import liquibase.nosql.statement.NoSqlQueryForLongStatement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bson.Document;
-import org.bson.conversions.Bson;
-
-import java.util.Objects;
 
 import static java.util.Optional.ofNullable;
+import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class GetMaxChangeSetSequenceStatement extends AbstractCollectionStatement
-        implements NoSqlQueryForLongStatement<MongoConnection> {
+        implements NoSqlQueryForLongStatement<MongoLiquibaseDatabase> {
 
     public static final String COMMAND_NAME = "maxSequence";
 
@@ -52,7 +50,7 @@ public class GetMaxChangeSetSequenceStatement extends AbstractCollectionStatemen
     @Override
     public String toJs() {
         return
-                "db." +
+                SHELL_DB_PREFIX +
                         getCollectionName() +
                         "." +
                         getCommandName() +
@@ -61,8 +59,8 @@ public class GetMaxChangeSetSequenceStatement extends AbstractCollectionStatemen
     }
 
     @Override
-    public long queryForLong(final MongoConnection connection) {
-        final Document max = connection.getDatabase().getCollection(getCollectionName())
+    public long queryForLong(final MongoLiquibaseDatabase database) {
+        final Document max = getMongoDatabase(database).getCollection(getCollectionName())
                 .find().sort(Sorts.descending(MongoRanChangeSet.Fields.orderExecuted)).limit(1).first();
         return ofNullable(max).map(d->(long)d.getInteger(MongoRanChangeSet.Fields.orderExecuted))
                 .orElse(0L);

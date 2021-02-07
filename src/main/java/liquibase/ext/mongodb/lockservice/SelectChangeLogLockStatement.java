@@ -21,12 +21,14 @@ package liquibase.ext.mongodb.lockservice;
  */
 
 import com.mongodb.client.model.Filters;
-import liquibase.ext.mongodb.database.MongoConnection;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.ext.mongodb.statement.AbstractCollectionStatement;
 import liquibase.nosql.statement.NoSqlQueryForObjectStatement;
 
+import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
+
 public class SelectChangeLogLockStatement extends AbstractCollectionStatement
-implements NoSqlQueryForObjectStatement<MongoConnection> {
+implements NoSqlQueryForObjectStatement<MongoLiquibaseDatabase> {
 
     public static final String COMMAND_NAME = "findLock";
 
@@ -42,7 +44,7 @@ implements NoSqlQueryForObjectStatement<MongoConnection> {
     @Override
     public String toJs() {
         return
-                "db." +
+                SHELL_DB_PREFIX +
                         getCollectionName() +
                         "." +
                         getCommandName() +
@@ -51,9 +53,9 @@ implements NoSqlQueryForObjectStatement<MongoConnection> {
     }
 
     @Override
-    public <T> T queryForObject(final MongoConnection connection, final Class<T> requiredType) {
+    public <T> T queryForObject(final MongoLiquibaseDatabase database, final Class<T> requiredType) {
 
-        return connection.getDatabase().getCollection(getCollectionName(), requiredType)
+        return getMongoDatabase(database).getCollection(getCollectionName(), requiredType)
                 .find(Filters.eq(MongoChangeLogLock.Fields.id, 1)).first();
     }
 }

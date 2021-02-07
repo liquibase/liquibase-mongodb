@@ -21,7 +21,6 @@ package liquibase.ext.mongodb.statement;
  */
 
 import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoDatabase;
 import liquibase.ext.AbstractMongoIntegrationTest;
 import lombok.SneakyThrows;
 import org.bson.Document;
@@ -44,9 +43,8 @@ class RunCommandStatementIT extends AbstractMongoIntegrationTest {
     @Test
     @SneakyThrows
     void runFromString() {
-        final MongoDatabase database = connection.getDatabase();
-        new RunCommandStatement(INSERT_CMD).execute(connection);
-        final FindIterable<Document> docs = database.getCollection(COLLECTION_NAME_1).find();
+        new RunCommandStatement(INSERT_CMD).execute(database);
+        final FindIterable<Document> docs = mongoDatabase.getCollection(COLLECTION_NAME_1).find();
         assertThat(docs).hasSize(2);
         assertThat(docs.iterator().next())
             .containsEntry("user", 1)
@@ -56,9 +54,8 @@ class RunCommandStatementIT extends AbstractMongoIntegrationTest {
     @Test
     @SneakyThrows
     void runFromDocument() {
-        final MongoDatabase database = connection.getDatabase();
-        new RunCommandStatement(Document.parse(INSERT_CMD)).execute(connection);
-        final FindIterable<Document> docs = database.getCollection(COLLECTION_NAME_1).find();
+        new RunCommandStatement(Document.parse(INSERT_CMD)).execute(database);
+        final FindIterable<Document> docs = mongoDatabase.getCollection(COLLECTION_NAME_1).find();
         assertThat(docs).hasSize(2);
         assertThat(docs.iterator().next())
             .containsEntry("user", 1)

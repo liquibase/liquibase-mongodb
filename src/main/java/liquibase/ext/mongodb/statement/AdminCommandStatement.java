@@ -20,12 +20,10 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import liquibase.ext.mongodb.database.MongoConnection;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bson.Document;
-
-import static java.util.Optional.ofNullable;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -47,8 +45,8 @@ public class AdminCommandStatement extends RunCommandStatement {
     }
 
     @Override
-    public Document run(final MongoConnection connection) {
-        return connection.getDatabase().runCommand(command);
+    public Document run(final MongoLiquibaseDatabase database) {
+        return getMongoDatabase(database).runCommand(command);
     }
 
 }

@@ -20,11 +20,10 @@ package liquibase.nosql.statement;
  * #L%
  */
 
+import liquibase.nosql.database.AbstractNoSqlDatabase;
 
-import liquibase.nosql.database.AbstractNoSqlConnection;
+public interface NoSqlQueryForLongStatement <D extends AbstractNoSqlDatabase>{
 
-public interface NoSqlQueryForLongStatement <C extends AbstractNoSqlConnection>{
-
-   long queryForLong(C connection) ;
+   long queryForLong(D database) ;
 
 }

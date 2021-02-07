@@ -20,10 +20,10 @@ package liquibase.nosql.statement;
  * #L%
  */
 
-import liquibase.nosql.database.AbstractNoSqlConnection;
+import liquibase.nosql.database.AbstractNoSqlDatabase;
 
-public interface NoSqlExecuteStatement<C extends AbstractNoSqlConnection> {
+public interface NoSqlExecuteStatement<D extends AbstractNoSqlDatabase> {
 
-   void execute(C connection);
+   void execute(D database);
 
 }

@@ -21,8 +21,7 @@ package liquibase.ext.mongodb.statement;
  */
 
 import com.mongodb.MongoException;
-import liquibase.ext.mongodb.database.MongoConnection;
-import liquibase.nosql.statement.AbstractNoSqlStatement;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -35,8 +34,8 @@ import static java.util.Objects.nonNull;
 
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public abstract class AbstractRunCommandStatement extends AbstractNoSqlStatement
-        implements NoSqlExecuteStatement<MongoConnection> {
+public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
+        implements NoSqlExecuteStatement<MongoLiquibaseDatabase> {
 
     public static final String COMMAND_NAME = "runCommand";
     public static final String SHELL_DB_PREFIX = "db.";
@@ -45,13 +44,13 @@ public abstract class AbstractRunCommandStatement extends AbstractNoSqlStatement
     protected final Document command;
 
     @Override
-    public void execute(final MongoConnection connection) {
-        final Document response = run(connection);
+    public void execute(final MongoLiquibaseDatabase database) {
+        final Document response = run(database);
         checkResponse(response);
     }
 
-    public Document run(final MongoConnection connection) {
-        return connection.getDatabase().runCommand(command);
+    public Document run(final MongoLiquibaseDatabase database) {
+        return getMongoDatabase(database).runCommand(command);
     }
 
     /**

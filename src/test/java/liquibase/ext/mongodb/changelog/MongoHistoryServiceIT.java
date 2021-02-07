@@ -140,7 +140,7 @@ class MongoHistoryServiceIT extends AbstractMongoIntegrationTest {
         assertThat(historyService.isServiceInitialized()).isTrue();
         historyService.reset();
 
-        new InsertOneStatement(historyService.getDatabaseChangeLogTableName(), historyService.getConverter().toDocument(ranChangeSet1), new Document()).execute(connection);
+        new InsertOneStatement(historyService.getDatabaseChangeLogTableName(), historyService.getConverter().toDocument(ranChangeSet1), new Document()).execute(database);
 
         assertThat(historyService.countRanChangeSets()).isEqualTo(1L);
         assertThat(historyService.queryRanChangeSets())
@@ -151,7 +151,7 @@ class MongoHistoryServiceIT extends AbstractMongoIntegrationTest {
                 .hasSize(1).hasOnlyElementsOfType(MongoRanChangeSet.class);
 
         historyService.reset();
-        new InsertOneStatement(historyService.getDatabaseChangeLogTableName(), historyService.getConverter().toDocument(ranChangeSet2), new Document()).execute(connection);
+        new InsertOneStatement(historyService.getDatabaseChangeLogTableName(), historyService.getConverter().toDocument(ranChangeSet2), new Document()).execute(database);
 
         assertThat(historyService.countRanChangeSets()).isEqualTo(2L);
         assertThat(historyService.queryRanChangeSets())
@@ -166,8 +166,8 @@ class MongoHistoryServiceIT extends AbstractMongoIntegrationTest {
     @Test
     void replaceChecksum() {
 
-        new InsertOneStatement(historyService.getDatabaseChangeLogTableName(), historyService.getConverter().toDocument(ranChangeSet1), new Document()).execute(connection);
-        new InsertOneStatement(historyService.getDatabaseChangeLogTableName(), historyService.getConverter().toDocument(ranChangeSet2), new Document()).execute(connection);
+        new InsertOneStatement(historyService.getDatabaseChangeLogTableName(), historyService.getConverter().toDocument(ranChangeSet1), new Document()).execute(database);
+        new InsertOneStatement(historyService.getDatabaseChangeLogTableName(), historyService.getConverter().toDocument(ranChangeSet2), new Document()).execute(database);
 
         assertThat(historyService.queryRanChangeSets()).filteredOn("id", "2").first()
                 .returns("2", RanChangeSet::getId)
@@ -208,8 +208,8 @@ class MongoHistoryServiceIT extends AbstractMongoIntegrationTest {
 
         historyService.init();
         assertThat(historyService.getRanChangeSets()).hasSize(0);
-        new InsertOneStatement(historyService.getDatabaseChangeLogTableName(), historyService.getConverter().toDocument(ranChangeSet1), new Document()).execute(connection);
-        new InsertOneStatement(historyService.getDatabaseChangeLogTableName(), historyService.getConverter().toDocument(ranChangeSet2), new Document()).execute(connection);
+        new InsertOneStatement(historyService.getDatabaseChangeLogTableName(), historyService.getConverter().toDocument(ranChangeSet1), new Document()).execute(database);
+        new InsertOneStatement(historyService.getDatabaseChangeLogTableName(), historyService.getConverter().toDocument(ranChangeSet2), new Document()).execute(database);
         assertThat(historyService.queryRanChangeSets()).hasSize(2);
         historyService.removeFromHistory(changeSet1);
 

@@ -20,7 +20,6 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.client.MongoDatabase;
 import liquibase.ext.AbstractMongoIntegrationTest;
 import org.junit.jupiter.api.Test;
 
@@ -33,14 +32,12 @@ class DropAllCollectionsStatementIT extends AbstractMongoIntegrationTest {
 
     @Test
     void execute() {
-        final MongoDatabase database = connection.getDatabase();
-
         IntStream.rangeClosed(1, 5)
-            .forEach(indx -> database.createCollection(COLLECTION_NAME_1 + indx));
-        assertThat(database.listCollectionNames()).hasSize(5);
+            .forEach(indx -> mongoDatabase.createCollection(COLLECTION_NAME_1 + indx));
+        assertThat(mongoDatabase.listCollectionNames()).hasSize(5);
 
-        new DropAllCollectionsStatement().execute(connection);
-        assertThat(database.listCollectionNames()).isEmpty();
+        new DropAllCollectionsStatement().execute(database);
+        assertThat(mongoDatabase.listCollectionNames()).isEmpty();
     }
 
     @Test

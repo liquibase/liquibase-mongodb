@@ -20,19 +20,20 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import liquibase.ext.mongodb.database.MongoConnection;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bson.Document;
 
 import static java.util.Optional.ofNullable;
+import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
 import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyDocument;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class CreateIndexStatement extends AbstractCollectionStatement
-        implements NoSqlExecuteStatement<MongoConnection> {
+        implements NoSqlExecuteStatement<MongoLiquibaseDatabase> {
 
     public static final String COMMAND_NAME = "createIndex";
 
@@ -57,7 +58,7 @@ public class CreateIndexStatement extends AbstractCollectionStatement
     @Override
     public String toJs() {
         return
-                "db."
+                SHELL_DB_PREFIX
                         + getCollectionName()
                         + ". "
                         + getCommandName()
@@ -69,8 +70,8 @@ public class CreateIndexStatement extends AbstractCollectionStatement
     }
 
     @Override
-    public void execute(final MongoConnection connection) {
-        connection.getDatabase().getCollection(collectionName).createIndex(keys, BsonUtils.orEmptyIndexOptions(options));
+    public void execute(final MongoLiquibaseDatabase database) {
+        getMongoDatabase(database).getCollection(collectionName).createIndex(keys, BsonUtils.orEmptyIndexOptions(options));
     }
 
 }

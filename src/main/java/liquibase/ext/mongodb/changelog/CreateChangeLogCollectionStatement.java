@@ -100,12 +100,6 @@ public class CreateChangeLogCollectionStatement extends CreateCollectionStatemen
             "\"validationAction\": \"error\"\n";
 
     public static final String OPTIONS = "{" + VALIDATOR + "}";
-    public static final String COMMAND_NAME = "createChangeLogCollection";
-
-    @Override
-    public String getCommandName() {
-        return COMMAND_NAME;
-    }
 
     /**
      * Creates the Statement. Options are passed as null by intention so the Validator is created in {@link AdjustChangeLogCollectionStatement}

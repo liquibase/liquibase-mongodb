@@ -20,25 +20,27 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import liquibase.nosql.statement.AbstractNoSqlStatement;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
+
 @RequiredArgsConstructor
-public abstract class AbstractCollectionStatement extends AbstractNoSqlStatement {
+public abstract class AbstractCollectionStatement extends AbstractMongoStatement {
 
     @Getter
     protected final String collectionName;
 
     /**
      * Provides a pseudo javascript representation of the collection related statement
-     *   (for example that can be ran in the mongo shell.
-     *   Exceptions examples are count which uses db.getCollectionNames however filters programmatically by name).
+     * (for example that can be ran in the mongo shell.
+     * Exceptions examples are count which uses db.getCollectionNames however filters programmatically by name).
+     *
      * @return javascript version of the full command
      */
     @Override
     public String toJs() {
-        return "db." +
+        return SHELL_DB_PREFIX +
                 getCommandName() +
                 "(" +
                 getCollectionName() +

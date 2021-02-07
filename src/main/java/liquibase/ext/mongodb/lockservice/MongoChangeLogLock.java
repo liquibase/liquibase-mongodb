@@ -29,7 +29,7 @@ import java.util.Date;
 
 import static java.util.Optional.ofNullable;
 
-public class MongoChangeLogLock extends DatabaseChangeLogLock{
+public class MongoChangeLogLock extends DatabaseChangeLogLock {
 
     public static class Fields {
         public static final String id = "_id";

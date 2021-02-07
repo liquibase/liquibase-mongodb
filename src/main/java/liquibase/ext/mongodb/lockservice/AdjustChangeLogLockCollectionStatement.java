@@ -20,7 +20,7 @@ package liquibase.ext.mongodb.lockservice;
  * #L%
  */
 
-import liquibase.ext.mongodb.database.MongoConnection;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.ext.mongodb.statement.RunCommandStatement;
 import lombok.Getter;
 import org.bson.Document;
@@ -56,9 +56,9 @@ public class AdjustChangeLogLockCollectionStatement extends RunCommandStatement 
     }
 
     @Override
-    public void execute(final MongoConnection connection) {
+    public void execute(final MongoLiquibaseDatabase database) {
         if(TRUE.equals(supportsValidator)) {
-            super.execute(connection);
+            super.execute(database);
         }
     }
 
@@ -72,7 +72,7 @@ public class AdjustChangeLogLockCollectionStatement extends RunCommandStatement 
     }
 
     @Override
-    public Document run(final MongoConnection connection) {
-        return connection.getDatabase().runCommand(command);
+    public Document run(final MongoLiquibaseDatabase database) {
+        return getMongoDatabase(database).runCommand(command);
     }
 }

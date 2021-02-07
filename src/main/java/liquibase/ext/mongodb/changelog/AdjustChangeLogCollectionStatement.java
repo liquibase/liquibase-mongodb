@@ -22,7 +22,7 @@ package liquibase.ext.mongodb.changelog;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.IndexOptions;
-import liquibase.ext.mongodb.database.MongoConnection;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.ext.mongodb.statement.RunCommandStatement;
 import lombok.Getter;
 import org.bson.Document;
@@ -31,14 +31,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Boolean.TRUE;
-import static java.util.Optional.ofNullable;
 
 public class AdjustChangeLogCollectionStatement extends RunCommandStatement {
 
     public static final String UI = "ui_";
     public static String OPTIONS = "{ collMod: \"%s\"," + CreateChangeLogCollectionStatement.VALIDATOR + "}";
-
-    public static final String COMMAND_NAME = "adjustChangeLogCollection";
 
     @Getter
     private final String collectionName;
@@ -61,17 +58,17 @@ public class AdjustChangeLogCollectionStatement extends RunCommandStatement {
     }
 
     @Override
-    public void execute(final MongoConnection connection) {
+    public void execute(final MongoLiquibaseDatabase database) {
 
-        adjustIndexes(connection);
+        adjustIndexes(database);
 
         if (TRUE.equals(supportsValidator)) {
-            super.execute(connection);
+            super.execute(database);
         }
     }
 
-    private void adjustIndexes(final MongoConnection connection) {
-        final MongoCollection<Document> collection = connection.getDatabase().getCollection(getCollectionName());
+    private void adjustIndexes(final MongoLiquibaseDatabase database) {
+        final MongoCollection<Document> collection = getMongoDatabase(database).getCollection(getCollectionName());
         List<Document> indexes = new ArrayList<>();
         collection.listIndexes().into(indexes);
         // Only default _id_ exists
@@ -90,16 +87,7 @@ public class AdjustChangeLogCollectionStatement extends RunCommandStatement {
     }
 
     @Override
-    public String toJs() {
-        return SHELL_DB_PREFIX
-                        + getCommandName()
-                        + "("
-                        + ofNullable(command).map(Document::toJson).orElse(null)
-                        + ");";
-    }
-
-    @Override
-    public Document run(final MongoConnection connection) {
-        return connection.getDatabase().runCommand(command);
+    public Document run(final MongoLiquibaseDatabase database) {
+        return getMongoDatabase(database).runCommand(command);
     }
 }

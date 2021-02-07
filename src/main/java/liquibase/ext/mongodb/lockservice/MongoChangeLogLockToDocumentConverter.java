@@ -2,16 +2,12 @@ package liquibase.ext.mongodb.lockservice;
 
 import liquibase.ContextExpression;
 import liquibase.Labels;
-import liquibase.change.CheckSum;
-import liquibase.changelog.ChangeSet;
-import liquibase.ext.mongodb.changelog.MongoRanChangeSet;
 import liquibase.nosql.changelog.AbstractNoSqlItemToDocumentConverter;
 import org.bson.Document;
 
 import java.util.Collection;
 import java.util.Date;
 
-import static java.util.Optional.ofNullable;
 import static liquibase.sqlgenerator.core.MarkChangeSetRanGenerator.*;
 
 public class MongoChangeLogLockToDocumentConverter extends AbstractNoSqlItemToDocumentConverter<MongoChangeLogLock, Document> {

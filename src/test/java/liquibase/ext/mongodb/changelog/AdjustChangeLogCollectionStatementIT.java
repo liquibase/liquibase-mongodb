@@ -33,10 +33,10 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         AdjustChangeLogCollectionStatement adjustChangeLogCollectionStatement =
                 new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME);
 
-        assertThat(adjustChangeLogCollectionStatement.getCommandName()).isEqualTo("adjustChangeLogCollection");
+        assertThat(adjustChangeLogCollectionStatement.getCommandName()).isEqualTo("runCommand");
         assertThat(adjustChangeLogCollectionStatement.getCollectionName()).isEqualTo(LOG_COLLECTION_NAME);
         assertThat(adjustChangeLogCollectionStatement.getSupportsValidator()).isTrue();
-        assertThat(adjustChangeLogCollectionStatement.toJs()).isEqualTo("db.adjustChangeLogCollection({" +
+        assertThat(adjustChangeLogCollectionStatement.toJs()).isEqualTo("db.runCommand({" +
                 "\"collMod\": \"historyLogCollection\", \"validator\": {" +
                 "\"$jsonSchema\": {\"bsonType\": \"object\", \"description\": \"Database Change Log Table.\", " +
                 "\"required\": [\"id\", \"author\", \"fileName\", \"execType\"], " +
@@ -62,8 +62,8 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
                 "\"deploymentId\": {\"bsonType\": [\"string\", \"null\"], \"description\": \"Unique identifier generate for a run.\"}, " +
                 "\"liquibase\": {\"bsonType\": [\"string\", \"null\"], \"description\": \"Version of Liquibase used to execute the changeSet.\"}}}}, " +
                 "\"validationLevel\": \"strict\", \"validationAction\": \"error\"});");
-        new CreateChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(connection);
-        adjustChangeLogCollectionStatement.execute(connection);
+        new CreateChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
+        adjustChangeLogCollectionStatement.execute(database);
 
         Optional<Document> options = ofNullable(connection.getDatabase().listCollections().first()).map(c -> (Document) c.get("options"));
         assertThat(options.map(Document::toJson).orElse(""))
@@ -74,7 +74,7 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
     @SneakyThrows
     void executeTest() {
 
-        new CreateChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(connection);
+        new CreateChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
 
         MongoCollection<Document> collection = connection.getDatabase().getCollection(LOG_COLLECTION_NAME);
 
@@ -93,7 +93,7 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         assertThat(indexes.get(0).get("name")).isEqualTo("_id_");
 
         // with explicit supportsValidator=false should not change validators should add indexes only
-        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME, FALSE).execute(connection);
+        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME, FALSE).execute(database);
         final Document collectionInfoExplicitNoAdjustment =
                 connection.getDatabase().listCollections().filter(Filters.eq("name", LOG_COLLECTION_NAME)).first();
 
@@ -112,7 +112,7 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
                 .returns(1, i -> ((Document) i.get("key")).get("id"));
 
         // with explicit supportsValidator=true validator should be changed indexes remain same
-        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME, TRUE).execute(connection);
+        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME, TRUE).execute(database);
 
         final Document collectionInfoAdjusted =
                 connection.getDatabase().listCollections().filter(Filters.eq("name", LOG_COLLECTION_NAME)).first();
@@ -135,41 +135,41 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
     @SneakyThrows
     void insertDataTest() {
         // Returns empty even when collection does not exists
-        assertThat(findAllStatement.queryForList(connection)).isEmpty();
+        assertThat(findAllStatement.queryForList(database)).isEmpty();
 
         // Create collection
-        new CreateChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(connection);
-        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME, TRUE).execute(connection);
-        assertThat(findAllStatement.queryForList(connection)).isEmpty();
+        new CreateChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
+        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME, TRUE).execute(database);
+        assertThat(findAllStatement.queryForList(database)).isEmpty();
 
         // Minimal not all required fields
         final Document options = new Document();
         final Document minimal = new Document()
                 .append("id", "cs1");
         assertThatExceptionOfType(MongoException.class)
-                .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(connection))
+                .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(database))
                 .withMessageStartingWith("Command failed. The full response is")
                 .withMessageContaining("Document failed validation");
 
         // Minimal not all required fields
         minimal.append("author", "Alex");
         assertThatExceptionOfType(MongoException.class)
-                .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(connection))
+                .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(database))
                 .withMessageStartingWith("Command failed. The full response is")
                 .withMessageContaining("Document failed validation");
 
         // Minimal not all required fields
         minimal.append("fileName", "liquibase/file.xml");
         assertThatExceptionOfType(MongoException.class)
-                .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(connection))
+                .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(database))
                 .withMessageStartingWith("Command failed. The full response is")
                 .withMessageContaining("Document failed validation");
 
         // Minimal accepted
         minimal.append("execType", "EXECUTED");
-        new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(connection);
+        new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(database);
 
-        assertThat(findAllStatement.queryForList(connection))
+        assertThat(findAllStatement.queryForList(database))
                 .hasSize(1).first()
                 .hasFieldOrPropertyWithValue(MongoRanChangeSet.Fields.changeSetId, "cs1")
                 .hasFieldOrPropertyWithValue(MongoRanChangeSet.Fields.author, "Alex")
@@ -179,15 +179,15 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         // Unique constraint failure
         minimal.remove("_id");
         assertThatExceptionOfType(MongoException.class)
-                .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(connection))
+                .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(database))
                 .withMessageStartingWith("Command failed. The full response is")
                 .withMessageContaining("E11000 duplicate key error collection");
 
         // Extra fields are allowed
         minimal.remove("_id");
         minimal.append("id", "cs2").append("extraField", "extraValue");
-        new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(connection);
-        assertThat(findAllStatement.queryForList(connection)).hasSize(2)
+        new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(database);
+        assertThat(findAllStatement.queryForList(database)).hasSize(2)
                 .filteredOn(d -> d.get("id").equals("cs2")).hasSize(1).first()
                 .hasFieldOrPropertyWithValue(MongoRanChangeSet.Fields.changeSetId, "cs2")
                 .hasFieldOrPropertyWithValue("extraField", "extraValue");
@@ -196,7 +196,7 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         minimal.remove("_id");
         minimal.append("id", "cs3").append("fileName", null);
         assertThatExceptionOfType(MongoException.class)
-                .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(connection))
+                .isThrownBy(() -> new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(database))
                 .withMessageStartingWith("Command failed. The full response is")
                 .withMessageContaining("Document failed validation");
 
@@ -218,8 +218,8 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
                 .append("deploymentId", "The Deployment Id")
                 .append("liquibase", "Liquibase Version");
 
-        new InsertOneStatement(LOG_COLLECTION_NAME, maximal, options).execute(connection);
-        assertThat(findAllStatement.queryForList(connection)).hasSize(3)
+        new InsertOneStatement(LOG_COLLECTION_NAME, maximal, options).execute(database);
+        assertThat(findAllStatement.queryForList(database)).hasSize(3)
                 .filteredOn(d -> d.get("id").equals("cs4")).hasSize(1).first()
                 .hasFieldOrPropertyWithValue(MongoRanChangeSet.Fields.changeSetId, "cs4")
                 .hasFieldOrPropertyWithValue(MongoRanChangeSet.Fields.author, "Alex")
@@ -250,8 +250,8 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
                 .append("deploymentId", null)
                 .append("liquibase", null);
 
-        new InsertOneStatement(LOG_COLLECTION_NAME, maximal, options).execute(connection);
-        assertThat(findAllStatement.queryForList(connection)).hasSize(4)
+        new InsertOneStatement(LOG_COLLECTION_NAME, maximal, options).execute(database);
+        assertThat(findAllStatement.queryForList(database)).hasSize(4)
                 .filteredOn(d -> d.get("id").equals("cs5")).hasSize(1).first()
                 .hasFieldOrPropertyWithValue(MongoRanChangeSet.Fields.changeSetId, "cs5")
                 .hasFieldOrPropertyWithValue(MongoRanChangeSet.Fields.author, "Alex")
@@ -273,21 +273,21 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
     @SneakyThrows
     void insertDataNoValidatorTest() {
         // Returns empty even when collection does not exists
-        assertThat(findAllStatement.queryForList(connection)).isEmpty();
+        assertThat(findAllStatement.queryForList(database)).isEmpty();
 
         // Create collection
-        new CreateChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(connection);
-        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME, FALSE).execute(connection);
-        assertThat(findAllStatement.queryForList(connection)).isEmpty();
+        new CreateChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
+        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME, FALSE).execute(database);
+        assertThat(findAllStatement.queryForList(database)).isEmpty();
 
         final Document options = new Document();
         final Document minimal = new Document()
                 .append("_id", 1);
 
         // Insert a not valid one, check it was persisted
-        new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(connection);
+        new InsertOneStatement(LOG_COLLECTION_NAME, minimal, options).execute(database);
 
-        assertThat(findAllStatement.queryForList(connection)).hasSize(1);
+        assertThat(findAllStatement.queryForList(database)).hasSize(1);
     }
 
 }

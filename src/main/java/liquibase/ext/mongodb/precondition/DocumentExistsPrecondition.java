@@ -8,7 +8,7 @@ import liquibase.exception.PreconditionErrorException;
 import liquibase.exception.PreconditionFailedException;
 import liquibase.exception.ValidationErrors;
 import liquibase.exception.Warnings;
-import liquibase.ext.mongodb.database.MongoConnection;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.ext.mongodb.statement.BsonUtils;
 import liquibase.ext.mongodb.statement.CountDocumentsInCollectionStatement;
 import liquibase.precondition.AbstractPrecondition;
@@ -52,7 +52,7 @@ public class DocumentExistsPrecondition extends AbstractPrecondition {
             final Bson bsonFilter = BsonUtils.orEmptyDocument(filter);
             final CountDocumentsInCollectionStatement countDocumentsInCollectionStatement = new CountDocumentsInCollectionStatement(collectionName, bsonFilter);
 
-            if (!(countDocumentsInCollectionStatement.queryForLong((MongoConnection) database.getConnection()) > 0L)) {
+            if (countDocumentsInCollectionStatement.queryForLong((MongoLiquibaseDatabase) database) <= 0L) {
                 throw new PreconditionFailedException(format(
                         "Document does not exist in collection %s", collectionName), changeLog, this);
 

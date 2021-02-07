@@ -2,9 +2,9 @@ package liquibase.ext.mongodb.statement;
 
 /*-
  * #%L
- * Liquibase MongoDB Extension
+ * Liquibase NoSql Extension
  * %%
- * Copyright (C) 2019 Mastercard
+ * Copyright (C) 2021 Mastercard
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -20,46 +20,40 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoDatabase;
+import liquibase.ext.mongodb.database.MongoConnection;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
-import liquibase.nosql.statement.NoSqlExecuteStatement;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import org.bson.Document;
+import liquibase.nosql.database.AbstractNoSqlDatabase;
+import liquibase.nosql.statement.AbstractNoSqlStatement;
 
 import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
 
-@Getter
-@EqualsAndHashCode(callSuper = true)
-public class DropCollectionStatement extends AbstractCollectionStatement
-        implements NoSqlExecuteStatement<MongoLiquibaseDatabase> {
-
-    public static final String COMMAND_NAME = "drop";
-
-    public DropCollectionStatement(final String collectionName) {
-        super(collectionName);
-    }
+public abstract class AbstractMongoStatement extends AbstractNoSqlStatement<MongoLiquibaseDatabase> {
 
     @Override
-    public String getCommandName() {
-        return COMMAND_NAME;
+    public MongoLiquibaseDatabase getDatabase(final AbstractNoSqlDatabase database) {
+        return (MongoLiquibaseDatabase) database;
     }
 
-    @Override
+    public MongoConnection getConnection(final AbstractNoSqlDatabase database) {
+        return (MongoConnection) getDatabase(database).getConnection();
+    }
+
+    public MongoClient getClient(final AbstractNoSqlDatabase database) {
+        return getConnection(database).getClient();
+    }
+
+    public MongoDatabase getMongoDatabase(final AbstractNoSqlDatabase database) {
+        return getConnection(database).getDatabase();
+    }
+
     public String toJs() {
         return
                 SHELL_DB_PREFIX +
-                        getCollectionName() +
-                        "." +
                         getCommandName() +
                         "(" +
                         ");";
-    }
-
-    @Override
-    public void execute(final MongoLiquibaseDatabase database) {
-        final MongoCollection<Document> collection = getMongoDatabase(database).getCollection(getCollectionName());
-        collection.drop();
     }
 
 }

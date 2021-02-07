@@ -23,7 +23,7 @@ package liquibase.ext.mongodb.lockservice;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndReplaceOptions;
 import com.mongodb.client.model.ReturnDocument;
-import liquibase.ext.mongodb.database.MongoConnection;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.ext.mongodb.statement.AbstractCollectionStatement;
 import liquibase.nosql.statement.NoSqlUpdateStatement;
 import lombok.Getter;
@@ -32,9 +32,11 @@ import org.bson.Document;
 import java.util.Date;
 import java.util.Optional;
 
+import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
+
 @Getter
 public class ReplaceChangeLogLockStatement extends AbstractCollectionStatement
-implements NoSqlUpdateStatement<MongoConnection> {
+implements NoSqlUpdateStatement<MongoLiquibaseDatabase> {
 
     public static final String COMMAND_NAME = "updateLock";
 
@@ -52,7 +54,7 @@ implements NoSqlUpdateStatement<MongoConnection> {
 
     @Override
     public String toJs() {
-        return "db." +
+        return SHELL_DB_PREFIX +
                 getCollectionName() +
                 "." +
                 getCommandName() +
@@ -62,14 +64,14 @@ implements NoSqlUpdateStatement<MongoConnection> {
     }
 
     @Override
-    public int update(final MongoConnection connection) {
+    public int update(final MongoLiquibaseDatabase database) {
 
         final MongoChangeLogLock entry = new MongoChangeLogLock(1, new Date()
                 , MongoChangeLogLock.formLockedBy(), locked);
         final Document inputDocument = new MongoChangeLogLockToDocumentConverter().toDocument(entry);
         inputDocument.put(MongoChangeLogLock.Fields.locked, locked);
         final Optional<Document> changeLogLock = Optional.ofNullable(
-                connection.getDatabase().getCollection(collectionName)
+                getMongoDatabase(database).getCollection(collectionName)
                         .findOneAndReplace(Filters.eq(MongoChangeLogLock.Fields.id, entry.getId()), inputDocument,
                                 new FindOneAndReplaceOptions().upsert(true).returnDocument(ReturnDocument.AFTER))
         );

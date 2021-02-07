@@ -21,7 +21,7 @@ package liquibase.ext.mongodb.statement;
  */
 
 import com.mongodb.client.MongoCollection;
-import liquibase.ext.mongodb.database.MongoConnection;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
 import liquibase.nosql.statement.NoSqlUpdateStatement;
 import lombok.EqualsAndHashCode;
@@ -30,11 +30,12 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import static java.util.Optional.ofNullable;
+import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class UpdateManyStatement extends AbstractCollectionStatement
-        implements NoSqlExecuteStatement<MongoConnection>, NoSqlUpdateStatement<MongoConnection> {
+        implements NoSqlExecuteStatement<MongoLiquibaseDatabase>, NoSqlUpdateStatement<MongoLiquibaseDatabase> {
 
     public static final String COMMAND_NAME = "updateMany";
 
@@ -55,7 +56,7 @@ public class UpdateManyStatement extends AbstractCollectionStatement
     @Override
     public String toJs() {
         return
-                "db." +
+                SHELL_DB_PREFIX +
                         getCollectionName() +
                         "." +
                         getCommandName() +
@@ -67,13 +68,13 @@ public class UpdateManyStatement extends AbstractCollectionStatement
     }
 
     @Override
-    public void execute(final MongoConnection connection) {
-        update(connection);
+    public void execute(final MongoLiquibaseDatabase database) {
+        update(database);
     }
 
     @Override
-    public int update(final MongoConnection connection) {
-        final MongoCollection<Document> collection = connection.getDatabase().getCollection(getCollectionName());
+    public int update(final MongoLiquibaseDatabase database) {
+        final MongoCollection<Document> collection = getMongoDatabase(database).getCollection(getCollectionName());
         return (int) collection.updateMany(filter, document).getMatchedCount();
     }
 }

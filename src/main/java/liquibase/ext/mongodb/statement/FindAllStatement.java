@@ -20,7 +20,7 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import liquibase.ext.mongodb.database.MongoConnection;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.nosql.statement.NoSqlQueryForListStatement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,11 +31,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Optional.ofNullable;
+import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class FindAllStatement extends AbstractCollectionStatement
-        implements NoSqlQueryForListStatement<MongoConnection, Document> {
+        implements NoSqlQueryForListStatement<MongoLiquibaseDatabase, Document> {
 
     public static final String COMMAND_NAME = "find";
 
@@ -60,7 +61,7 @@ public class FindAllStatement extends AbstractCollectionStatement
     @Override
     public String toJs() {
         return
-                "db." +
+                SHELL_DB_PREFIX +
                         getCollectionName() +
                         "." +
                         getCommandName() +
@@ -72,9 +73,9 @@ public class FindAllStatement extends AbstractCollectionStatement
     }
 
     @Override
-    public List<Document> queryForList(final MongoConnection connection) {
+    public List<Document> queryForList(final MongoLiquibaseDatabase database) {
         final ArrayList<Document> result = new ArrayList<>();
-        connection.getDatabase().getCollection(collectionName, Document.class)
+        getMongoDatabase(database).getCollection(collectionName, Document.class)
                 .find(filter).sort(sort).into(result);
         return result;
     }

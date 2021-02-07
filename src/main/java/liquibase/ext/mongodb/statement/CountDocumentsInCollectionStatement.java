@@ -20,7 +20,7 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import liquibase.ext.mongodb.database.MongoConnection;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.nosql.statement.NoSqlQueryForLongStatement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,11 +29,12 @@ import org.bson.conversions.Bson;
 import java.util.Objects;
 
 import static java.util.Optional.ofNullable;
+import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class CountDocumentsInCollectionStatement extends AbstractCollectionStatement
-        implements NoSqlQueryForLongStatement<MongoConnection> {
+        implements NoSqlQueryForLongStatement<MongoLiquibaseDatabase> {
 
     public static final String COMMAND_NAME = "countDocuments";
 
@@ -56,7 +57,7 @@ public class CountDocumentsInCollectionStatement extends AbstractCollectionState
     @Override
     public String toJs() {
         return
-                "db." +
+                SHELL_DB_PREFIX +
                         getCollectionName() +
                         "." +
                         getCommandName() +
@@ -66,8 +67,8 @@ public class CountDocumentsInCollectionStatement extends AbstractCollectionState
     }
 
     @Override
-    public long queryForLong(final MongoConnection connection) {
-        return connection.getDatabase().getCollection(getCollectionName()).countDocuments(filter);
+    public long queryForLong(final MongoLiquibaseDatabase database) {
+        return getMongoDatabase(database).getCollection(getCollectionName()).countDocuments(filter);
     }
 
 }

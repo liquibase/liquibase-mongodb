@@ -20,6 +20,7 @@ package liquibase.ext;
  * #L%
  */
 
+import com.mongodb.client.MongoDatabase;
 import liquibase.Scope;
 import liquibase.changelog.ChangeLogHistoryServiceFactory;
 import liquibase.database.DatabaseFactory;
@@ -43,6 +44,7 @@ public abstract class AbstractMongoIntegrationTest {
     protected MongoConnection connection;
     protected NoSqlExecutor executor;
     protected MongoLiquibaseDatabase database;
+    protected MongoDatabase mongoDatabase;
 
     @SneakyThrows
     @BeforeEach
@@ -52,6 +54,7 @@ public abstract class AbstractMongoIntegrationTest {
         final String url = loadProperty(PROPERTY_FILE, DB_CONNECTION_PATH);
         database = (MongoLiquibaseDatabase) DatabaseFactory.getInstance().openDatabase(url, null, null, null , null);
         connection = (MongoConnection) database.getConnection();
+        mongoDatabase = connection.getDatabase();
         executor = (NoSqlExecutor) Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(EXECUTOR_NAME, database);
         deleteContainers();
     }

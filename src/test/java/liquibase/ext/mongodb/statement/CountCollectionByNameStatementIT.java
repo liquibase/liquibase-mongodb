@@ -35,7 +35,7 @@ class CountCollectionByNameStatementIT extends AbstractMongoIntegrationTest {
     @Test
     void queryForLong() {
         connection.getDatabase().createCollection(COLLECTION_NAME_1);
-        assertThat(new CountCollectionByNameStatement(COLLECTION_NAME_1).queryForLong(connection))
+        assertThat(new CountCollectionByNameStatement(COLLECTION_NAME_1).queryForLong(database))
             .isEqualTo(1);
     }
 

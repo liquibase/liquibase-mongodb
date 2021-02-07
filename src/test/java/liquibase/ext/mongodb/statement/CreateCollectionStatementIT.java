@@ -49,7 +49,7 @@ class CreateCollectionStatementIT extends AbstractMongoIntegrationTest {
     @SneakyThrows
     void executeStatementWithoutOptions() {
         final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, EMPTY_OPTION);
-        statement.execute(connection);
+        statement.execute(database);
         assertThat(getCollections(connection))
             .contains(collectionName);
     }
@@ -59,7 +59,7 @@ class CreateCollectionStatementIT extends AbstractMongoIntegrationTest {
     void executeStatementWithOptions() {
         String options = String.format("{ %s }", CREATE_OPTIONS);
         final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, options);
-        statement.execute(connection);
+        statement.execute(database);
         assertThat(getCollections(connection))
                 .contains(collectionName);
     }
@@ -68,10 +68,10 @@ class CreateCollectionStatementIT extends AbstractMongoIntegrationTest {
     @SneakyThrows
     void cannotCreateExistingCollection() {
         final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, "{}");
-        statement.execute(connection);
+        statement.execute(database);
 
         assertThatExceptionOfType(MongoCommandException.class)
-                .isThrownBy(() -> statement.execute(connection))
+                .isThrownBy(() -> statement.execute(database))
                 .withMessageContaining("already exists");
     }
 }

@@ -21,7 +21,6 @@ package liquibase.ext.mongodb.statement;
  */
 
 import com.mongodb.MongoException;
-import com.mongodb.client.MongoDatabase;
 import liquibase.ext.AbstractMongoIntegrationTest;
 import lombok.SneakyThrows;
 import org.bson.Document;
@@ -69,28 +68,26 @@ class InsertManyStatementIT extends AbstractMongoIntegrationTest {
 
     @Test
     void executeForList() {
-        final MongoDatabase database = connection.getDatabase();
         final List<Document> testObjects = IntStream.rangeClosed(1, 5)
             .mapToObj(id -> Collections.singletonMap("id", (Object) id))
             .map(Document::new)
             .collect(Collectors.toList());
-        new InsertManyStatement(collectionName, testObjects, new Document()).execute(connection);
+        new InsertManyStatement(collectionName, testObjects, new Document()).execute(database);
 
-        assertThat(database.getCollection(collectionName).find())
+        assertThat(mongoDatabase.getCollection(collectionName).find())
             .hasSize(5);
     }
 
     @Test
     void executeForString() {
-        final MongoDatabase database = connection.getDatabase();
         final String testObjects = IntStream.rangeClosed(1, 5)
             .mapToObj(id -> Collections.singletonMap("id", (Object) id))
             .map(Document::new)
             .map(Document::toJson)
             .collect(Collectors.joining(",", "[", "]"));
-        new InsertManyStatement(collectionName, testObjects, "").execute(connection);
+        new InsertManyStatement(collectionName, testObjects, "").execute(database);
 
-        assertThat(database.getCollection(collectionName).find())
+        assertThat(mongoDatabase.getCollection(collectionName).find())
             .hasSize(5);
     }
 
@@ -100,10 +97,10 @@ class InsertManyStatementIT extends AbstractMongoIntegrationTest {
         final List<Document> documents = Arrays.asList(new Document("_id", "x"),new Document("_id", "y"));
         final Document options = new Document("ordered", false);
         final InsertManyStatement statement = new InsertManyStatement(collectionName, documents, options);
-        statement.execute(connection);
+        statement.execute(database);
 
         assertThatExceptionOfType(MongoException.class)
-                .isThrownBy(() -> statement.execute(connection))
+                .isThrownBy(() -> statement.execute(database))
                 .withMessageStartingWith("Command failed. The full response is")
                 .withMessageContaining("E11000 duplicate key error collection");
     }

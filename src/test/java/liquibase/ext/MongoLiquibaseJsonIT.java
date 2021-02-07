@@ -63,7 +63,7 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
         Liquibase liquiBase = new Liquibase("liquibase/ext/json/generic-1-insert-people.json", new ClassLoaderResourceAccessor(), database);
         liquiBase.update("");
 
-        final List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        final List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(2)
                 .filteredOn(c -> c.getId().equals("1")).hasSize(1).first()
                 .returns("liquibase/ext/json/generic-1-insert-people.json", RanChangeSet::getChangeLog)
@@ -103,7 +103,7 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
         Liquibase liquiBase = new Liquibase("liquibase/ext/json/generic-0-main-1.json", new ClassLoaderResourceAccessor(), database);
         liquiBase.update("");
 
-        final List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        final List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(2)
                 .filteredOn(c -> c.getId().equals("1")).hasSize(1).first()
                 .returns("liquibase/ext/json/generic-1-insert-people.json", RanChangeSet::getChangeLog)
@@ -143,14 +143,14 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
         Liquibase liquibase = new Liquibase("liquibase/ext/json/generic-0-main-1.json", new ClassLoaderResourceAccessor(), database);
         liquibase.update("");
 
-        List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(2)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getLastCheckSum)
                 .containsExactly(
                         tuple("1", 1, CheckSum.parse("8:6b06a10d8faf0a516c7f4a77f76041f2")),
                         tuple("2", 2, CheckSum.parse("8:3da23c9b02c5297da06ca10d41c783aa")));
 
-        List<Document> documents = new FindAllStatement("person").queryForList(connection);
+        List<Document> documents = new FindAllStatement("person").queryForList(database);
         assertThat(documents).hasSize(3)
                 .extracting(d -> d.get("name"), d -> d.get("address"), d -> d.get("age"))
                 .containsExactlyInAnyOrder(
@@ -162,7 +162,7 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
         liquibase = new Liquibase("liquibase/ext/json/generic-0-main-2.json", new ClassLoaderResourceAccessor(), database);
         liquibase.update("");
 
-        changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(4)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getLastCheckSum)
                 .containsExactly(
@@ -171,7 +171,7 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                         tuple("1", 3, CheckSum.parse("8:0b178dc8f84a4e1464860edad456c290")),
                         tuple("2", 4, CheckSum.parse("8:f7596d3e6bddd4dbbbe29439351bc640")));
 
-        documents = new FindAllStatement("person").queryForList(connection);
+        documents = new FindAllStatement("person").queryForList(database);
         assertThat(documents).hasSize(2)
                 .extracting(d -> d.get("name"), d -> d.get("address"), d -> d.get("age"))
                 .containsExactlyInAnyOrder(
@@ -185,7 +185,7 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
         final Liquibase liquibase = new Liquibase("liquibase/ext/json/changelog.insert-precondition.test.json", new ClassLoaderResourceAccessor(), database);
         liquibase.update("");
 
-        List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(8)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType)
                 .containsExactly(
@@ -204,7 +204,7 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                 .containsExactlyInAnyOrder("DATABASECHANGELOG", "DATABASECHANGELOGLOCK", "collection1", "results");
 
         final FindAllStatement findAllResults = new FindAllStatement("results");
-        assertThat(findAllResults.queryForList(connection))
+        assertThat(findAllResults.queryForList(database))
                 .hasSize(4).extracting(d -> d.get("info"))
                 .containsExactlyInAnyOrder("existsAnyDocumentInCollection1", "filterMatchedInCollection1", "changeSetExecutedMatch", "expectedDocumentCountFilterMatchedInCollection1");
 
@@ -218,7 +218,7 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
         // tag on an empty DB
         liquibase.tag("tag0");
 
-        List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(1)
                 .extracting(MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType, MongoRanChangeSet::getTag)
                 .containsExactly(
@@ -226,13 +226,13 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                 );
 
         final FindAllStatement findAllResults = new FindAllStatement("results");
-        assertThat(findAllResults.queryForList(connection))
+        assertThat(findAllResults.queryForList(database))
                 .hasSize(0);
 
         // update to tag
         liquibase.dropAll();
         liquibase.update("tag5", "");
-        changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(5)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType, MongoRanChangeSet::getTag)
                 .containsExactly(
@@ -243,12 +243,12 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                         tuple("5", 5, EXECUTED, "tag5")
                 );
 
-        assertThat(findAllResults.queryForList(connection))
+        assertThat(findAllResults.queryForList(database))
                 .hasSize(3).extracting(d -> d.get("info"))
                 .containsExactlyInAnyOrder("row1", "row3", "row4");
 
         liquibase.update("");
-        changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(6)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType, MongoRanChangeSet::getTag)
                 .containsExactly(
@@ -259,13 +259,13 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                         tuple("5", 5, EXECUTED, "tag5"),
                         tuple("6", 6, EXECUTED, null)
                 );
-        assertThat(findAllResults.queryForList(connection))
+        assertThat(findAllResults.queryForList(database))
                 .hasSize(4).extracting(d -> d.get("info"))
                 .containsExactlyInAnyOrder("row1", "row3", "row4", "row6");
 
         // tag current state
         liquibase.tag("tag6");
-        changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(6)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType, MongoRanChangeSet::getTag)
                 .containsExactly(
@@ -276,13 +276,13 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                         tuple("5", 5, EXECUTED, "tag5"),
                         tuple("6", 6, EXECUTED, "tag6")
                 );
-        assertThat(findAllResults.queryForList(connection))
+        assertThat(findAllResults.queryForList(database))
                 .hasSize(4).extracting(d -> d.get("info"))
                 .containsExactlyInAnyOrder("row1", "row3", "row4", "row6");
 
         // re tag current state
         liquibase.tag("retag6");
-        changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(6)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType, MongoRanChangeSet::getTag)
                 .containsExactly(
@@ -293,7 +293,7 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                         tuple("5", 5, EXECUTED, "tag5"),
                         tuple("6", 6, EXECUTED, "retag6")
                 );
-        assertThat(findAllResults.queryForList(connection))
+        assertThat(findAllResults.queryForList(database))
                 .hasSize(4).extracting(d -> d.get("info"))
                 .containsExactlyInAnyOrder("row1", "row3", "row4", "row6");
 
@@ -307,7 +307,7 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
 
         // rollback to tagged state. Tagged ChangeSet remains
         liquibase.rollback("retag6", "");
-        changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(6)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType, MongoRanChangeSet::getTag)
                 .containsExactly(
@@ -318,7 +318,7 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                         tuple("5", 5, EXECUTED, "tag5"),
                         tuple("6", 6, EXECUTED, "retag6")
                 );
-        assertThat(findAllResults.queryForList(connection))
+        assertThat(findAllResults.queryForList(database))
                 .hasSize(4).extracting(d -> d.get("info"))
                 .containsExactlyInAnyOrder("row1", "row3", "row4", "row6");
         assertThat(liquibase.tagExists("retag6")).isTrue();
@@ -326,13 +326,13 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
         // rollback to tag2 tag ChangeSet is removed
         assertThat(liquibase.tagExists("tag2")).isTrue();
         liquibase.rollback("tag2", "");
-        changeSets = findAllRanChangeSets.queryForList(connection).stream().map(converter::fromDocument).collect(Collectors.toList());
+        changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
         assertThat(changeSets).hasSize(1)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType, MongoRanChangeSet::getTag)
                 .containsExactly(
                         tuple("1", 1, EXECUTED, null)
                 );
-        assertThat(findAllResults.queryForList(connection))
+        assertThat(findAllResults.queryForList(database))
                 .hasSize(1).extracting(d -> d.get("info"))
                 .containsExactlyInAnyOrder("row1");
 

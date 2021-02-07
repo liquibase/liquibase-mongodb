@@ -20,7 +20,7 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import liquibase.ext.mongodb.database.MongoConnection;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.nosql.statement.NoSqlQueryForLongStatement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -30,7 +30,7 @@ import java.util.stream.StreamSupport;
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class CountCollectionByNameStatement extends AbstractCollectionStatement
-        implements NoSqlQueryForLongStatement<MongoConnection> {
+        implements NoSqlQueryForLongStatement<MongoLiquibaseDatabase> {
 
     public static final String COMMAND_NAME = "getCollectionNames";
 
@@ -44,8 +44,8 @@ public class CountCollectionByNameStatement extends AbstractCollectionStatement
     }
 
     @Override
-    public long queryForLong(final MongoConnection connection) {
-        return StreamSupport.stream(connection.getDatabase().listCollectionNames().spliterator(), false)
+    public long queryForLong(final MongoLiquibaseDatabase database) {
+        return StreamSupport.stream(getMongoDatabase(database).listCollectionNames().spliterator(), false)
                 .filter(s -> s.equals(getCollectionName()))
                 .count();
     }

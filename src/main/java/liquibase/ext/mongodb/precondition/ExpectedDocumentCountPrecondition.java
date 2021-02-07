@@ -1,7 +1,5 @@
 package liquibase.ext.mongodb.precondition;
 
-import org.bson.conversions.Bson;
-
 import liquibase.changelog.ChangeSet;
 import liquibase.changelog.DatabaseChangeLog;
 import liquibase.changelog.visitor.ChangeExecListener;
@@ -10,24 +8,25 @@ import liquibase.exception.PreconditionErrorException;
 import liquibase.exception.PreconditionFailedException;
 import liquibase.exception.ValidationErrors;
 import liquibase.exception.Warnings;
-import liquibase.ext.mongodb.database.MongoConnection;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.ext.mongodb.statement.BsonUtils;
 import liquibase.ext.mongodb.statement.CountDocumentsInCollectionStatement;
 import liquibase.precondition.AbstractPrecondition;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.conversions.Bson;
 
 import static java.lang.String.format;
 
-public class ExpectedDocumentCountPrecondition extends AbstractPrecondition{
-	@Getter
+public class ExpectedDocumentCountPrecondition extends AbstractPrecondition {
+    @Getter
     @Setter
     private String collectionName;
 
     @Getter
     @Setter
     private String filter;
-    
+
     @Getter
     @Setter
     private Long expectedCount;
@@ -53,7 +52,7 @@ public class ExpectedDocumentCountPrecondition extends AbstractPrecondition{
         try {
             final Bson bsonFilter = BsonUtils.orEmptyDocument(filter);
             final CountDocumentsInCollectionStatement countDocumentsInCollectionStatement = new CountDocumentsInCollectionStatement(collectionName, bsonFilter);
-            Long actualDocumentCount = countDocumentsInCollectionStatement.queryForLong((MongoConnection) database.getConnection());
+            final Long actualDocumentCount = countDocumentsInCollectionStatement.queryForLong((MongoLiquibaseDatabase) database);
             if (!actualDocumentCount.equals(expectedCount)) {
                 throw new PreconditionFailedException(format(
                         "ExpectedDocumentCount precondition fails for collection %s, expected: %s, actual: %s", collectionName, expectedCount, actualDocumentCount), changeLog, this);

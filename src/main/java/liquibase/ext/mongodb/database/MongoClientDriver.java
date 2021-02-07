@@ -13,8 +13,6 @@ import java.sql.DriverPropertyInfo;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import static java.util.Objects.nonNull;
-
 public class MongoClientDriver implements Driver {
 
     @Override

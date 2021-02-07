@@ -20,7 +20,6 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.client.MongoDatabase;
 import liquibase.ext.AbstractMongoIntegrationTest;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
@@ -37,16 +36,15 @@ class FindAllStatementIT extends AbstractMongoIntegrationTest {
 
     @Test
     void queryForList() {
-        final MongoDatabase database = connection.getDatabase();
         final List<Document> testObjects = IntStream.rangeClosed(1, 5)
             .mapToObj(id -> Collections.singletonMap("id", (Object) id))
             .map(Document::new)
             .collect(Collectors.toList());
-        database.createCollection(COLLECTION_NAME_1);
-        database.getCollection(COLLECTION_NAME_1).insertMany(testObjects);
+        mongoDatabase.createCollection(COLLECTION_NAME_1);
+        mongoDatabase.getCollection(COLLECTION_NAME_1).insertMany(testObjects);
 
         final FindAllStatement statement = new FindAllStatement(COLLECTION_NAME_1);
-        assertThat(statement.queryForList(connection))
+        assertThat(statement.queryForList(database))
             .hasSize(5);
     }
 
