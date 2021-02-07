@@ -40,7 +40,6 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
 
         assertThat(adjustChangeLogLockCollectionStatement.getCommandName()).isEqualTo("adjustChangeLogLockCollection");
         assertThat(adjustChangeLogLockCollectionStatement.getCollectionName()).isEqualTo(LOCK_COLLECTION_NAME);
-        assertThat(adjustChangeLogLockCollectionStatement.getSupportsValidator()).isTrue();
         assertThat(adjustChangeLogLockCollectionStatement.toJs()).isEqualTo(
                 "db.adjustChangeLogLockCollection({\"collMod\": \"lockCollection\", \"validator\": " +
                         "{\"$jsonSchema\": {\"bsonType\": \"object\", \"description\": \"Database Lock Collection\", " +
@@ -85,7 +84,8 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
                 .returns(TRUE, c -> ((Document) c.get("options")).isEmpty());
 
         // With explicit supportsValidator=false should not be changed
-        new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME, FALSE).execute(database);
+        database.setSupportsValidator(FALSE);
+        new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME).execute(database);
         final Document collectionInfoExplicitNoAdjustment =
                 connection.getDatabase().listCollections().filter(Filters.eq("name", LOCK_COLLECTION_NAME)).first();
 
@@ -94,7 +94,8 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
                 .returns(TRUE, c -> ((Document) c.get("options")).isEmpty());
 
         // With explicit supportsValidator=true should be changed
-        new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME, TRUE).execute(database);
+        database.setSupportsValidator(TRUE);
+        new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME).execute(database);
 
         indexes.clear();
         connection.getDatabase().getCollection(LOCK_COLLECTION_NAME).listIndexes().into(indexes);
@@ -120,7 +121,8 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
 
         // Create collection
         new CreateChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME).execute(database);
-        new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME, TRUE).execute(database);
+        database.setSupportsValidator(TRUE);
+        new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME).execute(database);
         assertThat(findAllStatement.queryForList(database)).isEmpty();
 
         final Document options = new Document();
@@ -206,7 +208,8 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
 
         // Create collection
         new CreateChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME).execute(database);
-        new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME, FALSE).execute(database);
+        database.setSupportsValidator(FALSE);
+        new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME).execute(database);
         assertThat(findAllStatement.queryForList(database)).isEmpty();
 
         final Document options = new Document();
@@ -226,7 +229,8 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
 
         // Create collection
         new CreateChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME).execute(database);
-        new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME, TRUE).execute(database);
+        database.setSupportsValidator(TRUE);
+        new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME).execute(database);
         assertThat(findAllStatement.queryForList(database)).isEmpty();
 
         final Document options = new Document();

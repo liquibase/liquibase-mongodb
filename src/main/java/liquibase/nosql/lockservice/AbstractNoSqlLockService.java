@@ -45,9 +45,9 @@ import static java.lang.Boolean.TRUE;
 import static java.util.Objects.isNull;
 import static liquibase.plugin.Plugin.PRIORITY_SPECIALIZED;
 
-public abstract class AbstractNoSqlLockService implements LockService {
+public abstract class AbstractNoSqlLockService<D extends AbstractNoSqlDatabase> implements LockService {
 
-    private AbstractNoSqlDatabase database;
+    private D database;
 
     private boolean hasChangeLogLock;
 
@@ -74,11 +74,12 @@ public abstract class AbstractNoSqlLockService implements LockService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void setDatabase(final Database database) {
-        this.database = (AbstractNoSqlDatabase) database;
+        this.database = (D) database;
     }
 
-    public Database getDatabase() {
+    public D getDatabase() {
         return database;
     }
 

@@ -30,8 +30,6 @@ import org.bson.Document;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.Boolean.TRUE;
-
 public class AdjustChangeLogCollectionStatement extends RunCommandStatement {
 
     public static final String UI = "ui_";
@@ -39,17 +37,10 @@ public class AdjustChangeLogCollectionStatement extends RunCommandStatement {
 
     @Getter
     private final String collectionName;
-    @Getter
-    private final Boolean supportsValidator;
 
     public AdjustChangeLogCollectionStatement(final String collectionName) {
-        this(collectionName, TRUE);
-    }
-
-    public AdjustChangeLogCollectionStatement(final String collectionName, Boolean supportsValidator) {
         super(String.format(OPTIONS, collectionName));
         this.collectionName = collectionName;
-        this.supportsValidator = supportsValidator;
     }
 
     @Override
@@ -62,7 +53,7 @@ public class AdjustChangeLogCollectionStatement extends RunCommandStatement {
 
         adjustIndexes(database);
 
-        if (TRUE.equals(supportsValidator)) {
+        if (database.getSupportsValidator()) {
             super.execute(database);
         }
     }

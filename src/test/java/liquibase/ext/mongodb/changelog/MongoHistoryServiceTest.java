@@ -152,7 +152,6 @@ class MongoHistoryServiceTest {
         verify(executorMock, times(1)).queryForLong(any());
         verify(executorMock, times(1)).execute(any(CreateChangeLogCollectionStatement.class));
         verify(executorMock, times(1)).execute(any(AdjustChangeLogCollectionStatement.class));
-        assertThat(adjustChangeLogCollectionStatementArgumentCaptor.getValue().getSupportsValidator()).isTrue();
         verifyNoMoreInteractions(executorMock);
 
         assertThat(historyService.getHasDatabaseChangeLogTable()).isTrue();
@@ -199,7 +198,6 @@ class MongoHistoryServiceTest {
 
         verify(executorMock, times(1)).queryForLong(any());
         verify(executorMock, times(1)).execute(any(AdjustChangeLogCollectionStatement.class));
-        assertThat(adjustChangeLogCollectionStatementArgumentCaptor.getValue().getSupportsValidator()).isFalse();
         verifyNoMoreInteractions(executorMock);
 
         assertThat(historyService.getHasDatabaseChangeLogTable()).isTrue();

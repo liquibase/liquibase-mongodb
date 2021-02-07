@@ -35,7 +35,6 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
 
         assertThat(adjustChangeLogCollectionStatement.getCommandName()).isEqualTo("runCommand");
         assertThat(adjustChangeLogCollectionStatement.getCollectionName()).isEqualTo(LOG_COLLECTION_NAME);
-        assertThat(adjustChangeLogCollectionStatement.getSupportsValidator()).isTrue();
         assertThat(adjustChangeLogCollectionStatement.toJs()).isEqualTo("db.runCommand({" +
                 "\"collMod\": \"historyLogCollection\", \"validator\": {" +
                 "\"$jsonSchema\": {\"bsonType\": \"object\", \"description\": \"Database Change Log Table.\", " +
@@ -93,7 +92,8 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         assertThat(indexes.get(0).get("name")).isEqualTo("_id_");
 
         // with explicit supportsValidator=false should not change validators should add indexes only
-        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME, FALSE).execute(database);
+        database.setSupportsValidator(FALSE);
+        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
         final Document collectionInfoExplicitNoAdjustment =
                 connection.getDatabase().listCollections().filter(Filters.eq("name", LOG_COLLECTION_NAME)).first();
 
@@ -112,7 +112,8 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
                 .returns(1, i -> ((Document) i.get("key")).get("id"));
 
         // with explicit supportsValidator=true validator should be changed indexes remain same
-        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME, TRUE).execute(database);
+        database.setSupportsValidator(TRUE);
+        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
 
         final Document collectionInfoAdjusted =
                 connection.getDatabase().listCollections().filter(Filters.eq("name", LOG_COLLECTION_NAME)).first();
@@ -138,8 +139,9 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         assertThat(findAllStatement.queryForList(database)).isEmpty();
 
         // Create collection
+        database.setSupportsValidator(TRUE);
         new CreateChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
-        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME, TRUE).execute(database);
+        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
         assertThat(findAllStatement.queryForList(database)).isEmpty();
 
         // Minimal not all required fields
@@ -276,8 +278,9 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         assertThat(findAllStatement.queryForList(database)).isEmpty();
 
         // Create collection
+        database.setSupportsValidator(FALSE);
         new CreateChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
-        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME, FALSE).execute(database);
+        new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
         assertThat(findAllStatement.queryForList(database)).isEmpty();
 
         final Document options = new Document();

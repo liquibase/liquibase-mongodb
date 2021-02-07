@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Boolean.FALSE;
 
-public class MongoLockService extends AbstractNoSqlLockService {
+public class MongoLockService extends AbstractNoSqlLockService<MongoLiquibaseDatabase> {
 
     private final Logger log = Scope.getCurrentScope().getLog(getClass());
 
@@ -94,12 +94,11 @@ public class MongoLockService extends AbstractNoSqlLockService {
 
     @Override
     protected void adjustRepository() throws DatabaseException {
-        if (((MongoLiquibaseDatabase)getDatabase()).getAdjustTrackingTablesOnStartup()) {
+        if (getDatabase().getAdjustTrackingTablesOnStartup()) {
             this.getLogger().info("Adjusting database Lock Collection with name: "
                     + getDatabase().getConnection().getCatalog() + "." + getDatabaseChangeLogLockTableName());
 
-            getExecutor().execute(new AdjustChangeLogLockCollectionStatement(getDatabaseChangeLogLockTableName(),
-                    ((MongoLiquibaseDatabase)getDatabase()).getSupportsValidator()));
+            getExecutor().execute(new AdjustChangeLogLockCollectionStatement(getDatabaseChangeLogLockTableName()));
 
             this.getLogger().info("Adjusted database Lock Collection with name: "
                     + getDatabase().getConnection().getCatalog() + "." + getDatabaseChangeLogLockTableName());

@@ -20,7 +20,6 @@ package liquibase.nosql.changelog;
  * #L%
  */
 
-import liquibase.Liquibase;
 import liquibase.Scope;
 import liquibase.changelog.AbstractChangeLogHistoryService;
 import liquibase.changelog.ChangeSet;
@@ -29,6 +28,7 @@ import liquibase.exception.DatabaseException;
 import liquibase.exception.DatabaseHistoryException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.executor.ExecutorService;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.logging.Logger;
 import liquibase.nosql.executor.NoSqlExecutor;
 import lombok.Getter;
@@ -44,7 +44,7 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.isNull;
 import static liquibase.plugin.Plugin.PRIORITY_SPECIALIZED;
 
-public abstract class AbstractNoSqlHistoryService extends AbstractChangeLogHistoryService {
+public abstract class AbstractNoSqlHistoryService<D extends MongoLiquibaseDatabase> extends AbstractChangeLogHistoryService {
 
     @Getter
     private List<RanChangeSet> ranChangeSetList;
@@ -81,6 +81,11 @@ public abstract class AbstractNoSqlHistoryService extends AbstractChangeLogHisto
 
     public boolean isServiceInitialized() {
         return serviceInitialized;
+    }
+
+    @SuppressWarnings("unchecked")
+    public D getNoSqlDatabase() {
+        return (D) getDatabase();
     }
 
     public NoSqlExecutor getExecutor() {
@@ -232,6 +237,7 @@ public abstract class AbstractNoSqlHistoryService extends AbstractChangeLogHisto
     /**
      * TODO: Raise with Liquibase why is this one not used instead of {@link liquibase.statement.core.UpdateStatement}
      * in {@link liquibase.Liquibase#clearCheckSums()}
+     *
      * @throws DatabaseException in case of a failure
      */
     @Override
@@ -262,7 +268,7 @@ public abstract class AbstractNoSqlHistoryService extends AbstractChangeLogHisto
     }
 
     protected abstract Logger getLogger();
-    
+
     protected abstract Boolean existsRepository() throws DatabaseException;
 
     protected abstract void createRepository() throws DatabaseException;

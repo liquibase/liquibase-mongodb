@@ -25,7 +25,6 @@ import liquibase.ext.mongodb.statement.RunCommandStatement;
 import lombok.Getter;
 import org.bson.Document;
 
-import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
 
 public class AdjustChangeLogLockCollectionStatement extends RunCommandStatement {
@@ -37,17 +36,9 @@ public class AdjustChangeLogLockCollectionStatement extends RunCommandStatement 
     @Getter
     private final String collectionName;
 
-    @Getter
-    private final Boolean supportsValidator;
-
     public AdjustChangeLogLockCollectionStatement(final String collectionName) {
-    this(collectionName, TRUE);
-    }
-
-    public AdjustChangeLogLockCollectionStatement(final String collectionName, Boolean supportsValidator) {
         super(String.format(OPTIONS, collectionName));
         this.collectionName = collectionName;
-        this.supportsValidator = supportsValidator;
     }
 
     @Override
@@ -57,7 +48,7 @@ public class AdjustChangeLogLockCollectionStatement extends RunCommandStatement 
 
     @Override
     public void execute(final MongoLiquibaseDatabase database) {
-        if(TRUE.equals(supportsValidator)) {
+        if(database.getSupportsValidator()) {
             super.execute(database);
         }
     }

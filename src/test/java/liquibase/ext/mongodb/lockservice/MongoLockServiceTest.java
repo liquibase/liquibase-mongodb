@@ -142,7 +142,6 @@ class MongoLockServiceTest {
         verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).execute(any(CreateChangeLogLockCollectionStatement.class));
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
-        assertThat(adjustChangeLogLockCollectionStatementArgumentCaptor.getValue().getSupportsValidator()).isTrue();
         verifyNoMoreInteractions(executorMock);
 
         assertThat(lockService.getHasDatabaseChangeLogLockTable()).isTrue();

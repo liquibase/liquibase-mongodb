@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 import static java.util.Objects.nonNull;
 import static liquibase.plugin.Plugin.PRIORITY_SPECIALIZED;
 
-public class MongoHistoryService extends AbstractNoSqlHistoryService {
+public class MongoHistoryService extends AbstractNoSqlHistoryService<MongoLiquibaseDatabase> {
 
     private final Logger log = Scope.getCurrentScope().getLog(getClass());
 
@@ -97,15 +97,14 @@ public class MongoHistoryService extends AbstractNoSqlHistoryService {
 
     @Override
     protected void adjustRepository() throws DatabaseException {
-        if (((MongoLiquibaseDatabase) getDatabase()).getAdjustTrackingTablesOnStartup()) {
+        if (getNoSqlDatabase().getAdjustTrackingTablesOnStartup()) {
             this.getLogger().info("Adjusting database history Collection with name: "
                     + getDatabase().getConnection().getCatalog() + "." + getDatabaseChangeLogTableName());
 
             this.getLogger().info("Adjusted database history Collection with name: "
                     + getDatabase().getConnection().getCatalog() + "." + getDatabaseChangeLogTableName());
 
-            getExecutor().execute(new AdjustChangeLogCollectionStatement(getDatabaseChangeLogTableName(),
-                    ((MongoLiquibaseDatabase) getDatabase()).getSupportsValidator()));
+            getExecutor().execute(new AdjustChangeLogCollectionStatement(getDatabaseChangeLogTableName()));
 
         } else {
             this.getLogger().info("Skipped Adjusting database history Collection with name: "
