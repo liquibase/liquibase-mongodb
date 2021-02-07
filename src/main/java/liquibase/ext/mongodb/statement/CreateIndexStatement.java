@@ -26,52 +26,46 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bson.Document;
 
-import static java.util.Optional.ofNullable;
-import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
+import static java.util.Collections.singletonList;
+import static java.util.Objects.nonNull;
 import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyDocument;
+import static liquibase.ext.mongodb.statement.BsonUtils.toCommand;
 
+/**
+ * Creates a index via the database runCommand method
+ * For a list of supported options see the reference page:
+ * @see <a href="https://docs.mongodb.com/manual/reference/command/createIndexes//">createIndexes</a>
+ */
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class CreateIndexStatement extends AbstractCollectionStatement
+public class CreateIndexStatement extends AbstractRunCommandStatement
         implements NoSqlExecuteStatement<MongoLiquibaseDatabase> {
 
-    public static final String COMMAND_NAME = "createIndex";
+    public static final String RUN_COMMAND_NAME = "createIndexes";
+    private static final String KEY = "key";
+    private static final String INDEXES = "indexes";
 
-    private final Document keys;
-    private final Document options;
+    @Override
+    public String getRunCommandName() {
+        return RUN_COMMAND_NAME;
+    }
 
     public CreateIndexStatement(final String collectionName, final Document keys, final Document options) {
-        super(collectionName);
-        this.keys = keys;
-        this.options = options;
+        super(toCommand(RUN_COMMAND_NAME, collectionName, combine(keys, options)));
     }
 
     public CreateIndexStatement(final String collectionName, final String keys, final String options) {
         this(collectionName, orEmptyDocument(keys), orEmptyDocument(options));
     }
 
-    @Override
-    public String getCommandName() {
-        return COMMAND_NAME;
-    }
+    private static Document combine(final Document key, final Document options) {
 
-    @Override
-    public String toJs() {
-        return
-                SHELL_DB_PREFIX
-                        + getCollectionName()
-                        + ". "
-                        + getCommandName()
-                        + "("
-                        + ofNullable(keys).map(Document::toJson).orElse(null)
-                        + ", "
-                        + ofNullable(options).map(Document::toJson).orElse(null)
-                        + ");";
-    }
+        final Document indexDocument = new Document(KEY, key);
+        if (nonNull(options)) {
+            indexDocument.putAll(options);
+        }
 
-    @Override
-    public void execute(final MongoLiquibaseDatabase database) {
-        getMongoDatabase(database).getCollection(collectionName).createIndex(keys, BsonUtils.orEmptyIndexOptions(options));
+        return new Document(INDEXES, singletonList(indexDocument));
     }
 
 }

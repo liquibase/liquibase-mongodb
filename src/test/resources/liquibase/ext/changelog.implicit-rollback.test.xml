@@ -35,7 +35,7 @@
                 { id: 1, type: 1}
             </ext:keys>
             <ext:options>
-                {unique: true, name: "ui_namedIndex"}
+                {unique: true, name: "ui_namedIndex1"}
             </ext:options>
         </ext:createIndex>
 
@@ -43,6 +43,9 @@
             <ext:keys>
                 { id: 1, type: 1}
             </ext:keys>
+            <ext:options>
+                {unique: true, name: "ui_namedIndex2"}
+            </ext:options>
         </ext:createIndex>
     </changeSet>
 

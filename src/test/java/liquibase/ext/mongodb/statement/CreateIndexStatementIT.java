@@ -20,6 +20,7 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
+import com.mongodb.MongoException;
 import liquibase.ext.AbstractMongoIntegrationTest;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ import java.util.stream.StreamSupport;
 
 import static liquibase.ext.mongodb.TestUtils.COLLECTION_NAME_1;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class CreateIndexStatementIT extends AbstractMongoIntegrationTest {
 
@@ -35,10 +37,10 @@ class CreateIndexStatementIT extends AbstractMongoIntegrationTest {
     void toStringJs() {
         final String indexName = "locale_indx";
         final CreateIndexStatement createIndexStatement = new CreateIndexStatement(COLLECTION_NAME_1, "{ locale: 1 }",
-            "{ name: \"" + indexName + "\", unique: true}");
+                "{ name: \"" + indexName + "\", unique: true}");
         assertThat(createIndexStatement.toString())
-            .isEqualTo(createIndexStatement.toJs())
-            .isEqualTo("db.collectionName. createIndex({\"locale\": 1}, {\"name\": \"locale_indx\", \"unique\": true});");
+                .isEqualTo(createIndexStatement.toJs())
+                .isEqualTo("db.runCommand({\"createIndexes\": \"collectionName\", \"indexes\": [{\"key\": {\"locale\": 1}, \"name\": \"locale_indx\", \"unique\": true}]});");
     }
 
     @Test
@@ -48,16 +50,29 @@ class CreateIndexStatementIT extends AbstractMongoIntegrationTest {
         mongoDatabase.createCollection(COLLECTION_NAME_1);
         mongoDatabase.getCollection(COLLECTION_NAME_1).insertOne(initialDocument);
         final CreateIndexStatement createIndexStatement = new CreateIndexStatement(COLLECTION_NAME_1, "{ locale: 1 }",
-            "{ name: \"" + indexName + "\", unique: true, expireAfterSeconds: NumberLong(\"30\") }");
+                "{ name: \"" + indexName + "\", unique: true, expireAfterSeconds: NumberLong(\"30\") }");
         createIndexStatement.execute(database);
 
         final Document document = StreamSupport.stream(mongoDatabase.getCollection(COLLECTION_NAME_1).listIndexes().spliterator(), false)
-            .filter(doc -> doc.get("name").equals(indexName))
-            .findAny()
-            .orElseThrow(() -> new IllegalStateException("Index not found"));
+                .filter(doc -> doc.get("name").equals(indexName))
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException("Index not found"));
 
-            assertThat(document.get("unique")).isEqualTo(true);
-            assertThat(document.get("key")).isEqualTo(Document.parse("{ locale: 1 }"));
-            assertThat(document.get("expireAfterSeconds")).isEqualTo(30L);
+        assertThat(document.get("unique")).isEqualTo(true);
+        assertThat(document.get("key")).isEqualTo(Document.parse("{ locale: 1 }"));
+        assertThat(document.get("expireAfterSeconds")).isEqualTo(30L);
+
+        // Same index name exception
+        final CreateIndexStatement createDuplicateNameIndexStatement = new CreateIndexStatement(COLLECTION_NAME_1, "{ otherField: 1 }", "{ name: \"" + indexName + "\" }");
+        assertThatExceptionOfType(MongoException.class).isThrownBy(() -> createDuplicateNameIndexStatement.execute(database))
+                .withMessageStartingWith("Command failed with error")
+                .withMessageContaining("Index must have unique name");
+
+        // Same index name exception
+        final CreateIndexStatement createSameFieldsIndexStatement = new CreateIndexStatement(COLLECTION_NAME_1, "{ locale: 1 }", "{ name: \"otherName\" }");
+        assertThatExceptionOfType(MongoException.class).isThrownBy(() -> createSameFieldsIndexStatement.execute(database))
+                .withMessageStartingWith("Command failed with error")
+                .withMessageContaining("Index")
+                .withMessageContaining("already exists with different options");
     }
 }

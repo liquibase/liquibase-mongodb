@@ -25,14 +25,13 @@ import org.junit.jupiter.api.Test;
 
 import static liquibase.ext.mongodb.TestUtils.COLLECTION_NAME_1;
 import static liquibase.ext.mongodb.TestUtils.EMPTY_OPTION;
-import static liquibase.ext.mongodb.TestUtils.formatDoubleQuoted;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 class CreateCollectionStatementTest {
 
     // Some of the extra options that create collection supports
-    private static final String CREATE_OPTIONS = "'capped': true, 'size': 100, 'max': 200";
+    private static final String CREATE_OPTIONS = "\"capped\": true, \"size\": 100, \"max\": 200";
 
     private String collectionName;
 
@@ -43,7 +42,7 @@ class CreateCollectionStatementTest {
 
     @Test
     void toStringJsWithoutOptions() {
-        String expected = formatDoubleQuoted("db.runCommand({'create': '%s'});", collectionName);
+        String expected = String.format("db.runCommand({\"create\": \"%s\"});", collectionName);
         final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, EMPTY_OPTION);
         assertThat(statement.toJs())
                 .isEqualTo(expected)
@@ -53,7 +52,7 @@ class CreateCollectionStatementTest {
      @Test
     void toStringJsWithOptions() {
         String options = String.format("{ %s }", CREATE_OPTIONS);
-        String expected = formatDoubleQuoted("db.runCommand({'create': '%s', %s});", collectionName, CREATE_OPTIONS);
+        String expected = String.format("db.runCommand({\"create\": \"%s\", %s});", collectionName, CREATE_OPTIONS);
         final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, options);
         assertThat(statement.toJs())
                 .isEqualTo(expected)

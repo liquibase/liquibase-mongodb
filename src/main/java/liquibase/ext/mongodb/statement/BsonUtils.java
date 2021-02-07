@@ -22,7 +22,6 @@ package liquibase.ext.mongodb.statement;
 
 import com.mongodb.DBRefCodecProvider;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.client.model.IndexOptions;
 import lombok.NoArgsConstructor;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
@@ -37,7 +36,6 @@ import org.bson.codecs.configuration.CodecRegistry;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
@@ -48,9 +46,6 @@ import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 @NoArgsConstructor(access = PRIVATE)
 public final class BsonUtils {
 
-    public static final String WRITE_ERRORS = "writeErrors";
-    public static final String DOCUMENTS = "documents";
-
     public static final DocumentCodec DOCUMENT_CODEC =
             new DocumentCodec(fromProviders(
                     new UuidCodecProvider(UuidRepresentation.STANDARD),
@@ -58,6 +53,8 @@ public final class BsonUtils {
                     new BsonValueCodecProvider(),
                     new DocumentCodecProvider(),
                     new DBRefCodecProvider()));
+
+    public static final String ITEMS = "items";
 
     public static CodecRegistry uuidCodecRegistry() {
         return CodecRegistries.fromRegistries(
@@ -77,26 +74,11 @@ public final class BsonUtils {
     public static List<Document> orEmptyList(final String json) {
         return (
                 ofNullable(trimToNull(json))
-                        .map(jn -> "{ items: " + jn + "}")
+                        .map(jn -> "{ " + ITEMS + ": " + jn + "}")
                         .map(s -> Document.parse(s, DOCUMENT_CODEC))
-                        .map(d -> d.getList("items", Document.class, new ArrayList<>()))
+                        .map(d -> d.getList(ITEMS, Document.class, new ArrayList<>()))
                         .orElseGet(ArrayList::new)
         );
-    }
-
-    public static IndexOptions orEmptyIndexOptions(final Document options) {
-        //TODO: add POJO codec
-        final IndexOptions indexOptions = new IndexOptions();
-        if (options.containsKey("unique") && options.getBoolean("unique")) {
-            indexOptions.unique(true);
-        }
-        if (options.containsKey("name")) {
-            indexOptions.name(options.getString("name"));
-        }
-        if (options.containsKey("expireAfterSeconds")) {
-            indexOptions.expireAfter(options.getLong("expireAfterSeconds"), TimeUnit.SECONDS);
-        }
-        return indexOptions;
     }
 
     public static String toJson(final Document document) {

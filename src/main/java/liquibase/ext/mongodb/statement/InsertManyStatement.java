@@ -41,9 +41,12 @@ import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyList;
 public class InsertManyStatement extends AbstractRunCommandStatement {
 
     public static final String RUN_COMMAND_NAME = "insert";
+    public static final String DOCUMENTS = "documents";
 
-    private final List<Document> documents;
-    private final Document options;
+    @Override
+    public String getRunCommandName() {
+        return RUN_COMMAND_NAME;
+    }
 
     public InsertManyStatement(final String collectionName, final String documents, final String options) {
         this(collectionName, new ArrayList<>(orEmptyList(documents)), orEmptyDocument(options));
@@ -51,21 +54,14 @@ public class InsertManyStatement extends AbstractRunCommandStatement {
 
     public InsertManyStatement(final String collectionName, final List<Document> documents, final Document options) {
         super(BsonUtils.toCommand(RUN_COMMAND_NAME, collectionName, combine(documents, options)));
-        this.documents = documents;
-        this.options = options;
     }
 
     private static Document combine(final List<Document> documents, final Document options) {
-        final Document combined = new Document(BsonUtils.DOCUMENTS, documents);
+        final Document combined = new Document(DOCUMENTS, documents);
         if (nonNull(options)) {
             combined.putAll(options);
         }
         return combined;
-    }
-
-    @Override
-    public String getRunCommandName() {
-        return RUN_COMMAND_NAME;
     }
 
 }

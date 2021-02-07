@@ -32,7 +32,8 @@ import lombok.Setter;
 
 @DatabaseChange(name = "createIndex",
         description = "Creates index for collection" +
-                "https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#db.collection.createIndex",
+                "https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#db.collection.createIndex\n" +
+                "https://docs.mongodb.com/manual/reference/command/createIndexes/",
         priority = ChangeMetaData.PRIORITY_DATABASE, appliesTo = "collection")
 @NoArgsConstructor
 @Getter

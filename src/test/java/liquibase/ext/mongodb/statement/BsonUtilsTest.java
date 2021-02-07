@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toList;
 import static liquibase.ext.mongodb.statement.BsonUtils.DOCUMENT_CODEC;
@@ -76,10 +75,4 @@ class BsonUtilsTest {
                 .isEqualTo(uuid1);
     }
 
-    @Test
-    void orEmptyIndexOptionsTest() {
-        assertThat(BsonUtils.orEmptyIndexOptions(
-                BsonUtils.orEmptyDocument("{expireAfterSeconds: NumberLong(\"60\")}")).getExpireAfter(TimeUnit.SECONDS))
-                .isEqualTo(60L);
-    }
 }

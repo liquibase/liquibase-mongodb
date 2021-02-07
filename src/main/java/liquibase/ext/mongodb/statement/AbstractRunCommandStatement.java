@@ -39,6 +39,8 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
 
     public static final String COMMAND_NAME = "runCommand";
     public static final String SHELL_DB_PREFIX = "db.";
+    public static final String OK = "ok";
+    public static final String WRITE_ERRORS = "writeErrors";
 
     @Getter
     protected final Document command;
@@ -66,8 +68,11 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
      * Check the response and throw an appropriate exception if the command was not successful
      */
     protected void checkResponse(final Document responseDocument) throws MongoException {
-        final List<Document> writeErrors = responseDocument.getList(BsonUtils.WRITE_ERRORS, Document.class);
-        if (nonNull(writeErrors) && !writeErrors.isEmpty()) {
+        final Double ok = responseDocument.getDouble(OK);
+        final List<Document> writeErrors = responseDocument.getList(WRITE_ERRORS, Document.class);
+
+        if (nonNull(ok) && !ok.equals(1.0d)
+                || nonNull(writeErrors) && !writeErrors.isEmpty()) {
             throw new MongoException("Command failed. The full response is " + responseDocument.toJson());
         }
     }

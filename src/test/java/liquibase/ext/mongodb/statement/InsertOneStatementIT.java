@@ -23,7 +23,6 @@ package liquibase.ext.mongodb.statement;
 import com.mongodb.MongoException;
 import com.mongodb.client.FindIterable;
 import liquibase.ext.AbstractMongoIntegrationTest;
-import liquibase.ext.mongodb.TestUtils;
 import lombok.SneakyThrows;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,8 +70,8 @@ class InsertOneStatementIT extends AbstractMongoIntegrationTest {
     @Test
     @SneakyThrows
     void toStringJs() {
-        String expected = TestUtils.formatDoubleQuoted(
-                "db.runCommand({'insert': '%s', 'documents': [{'key1': 'value1'}], 'ordered': false});", collectionName);
+        String expected = String.format(
+                "db.runCommand({\"insert\": \"%s\", \"documents\": [{\"key1\": \"value1\"}], \"ordered\": false});", collectionName);
         final InsertOneStatement statement = new InsertOneStatement(
                 collectionName,
                 new Document("key1", "value1"),

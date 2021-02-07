@@ -101,16 +101,4 @@ public final class TestUtils {
             parser.parse(changeSetPath, new ChangeLogParameters(database), resourceAccessor);
         return changeLog.getChangeSets();
     }
-
-    /**
-     * Helper to format and convert a string containing single quotes to one with double quotes.
-     * Use this to declare readable strings in tests
-     * @param singleQuoted a string containing single quotes
-     * @param args format args
-     * @return original string formatted with double quotes
-     */
-    public static final String formatDoubleQuoted(final String singleQuoted, final String... args) {
-        String formatted = String.format(singleQuoted, args);
-        return formatted.replaceAll("'","\"");
-    }
 }

@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static liquibase.ext.mongodb.TestUtils.formatDoubleQuoted;
 import static liquibase.ext.mongodb.TestUtils.COLLECTION_NAME_1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -50,10 +49,10 @@ class InsertManyStatementIT extends AbstractMongoIntegrationTest {
     @Test
     void toStringTest() {
 
-        String expected = formatDoubleQuoted(
-                "db.runCommand({'insert': '%s', " +
-                "'documents': [{'key1': 'value1'}, {'key1': 'value2'}], " +
-                "'ordered': false});", collectionName);
+        String expected = String.format(
+                "db.runCommand({\"insert\": \"%s\", " +
+                "\"documents\": [{\"key1\": \"value1\"}, {\"key1\": \"value2\"}], " +
+                "\"ordered\": false});", collectionName);
 
         final InsertManyStatement statement = new InsertManyStatement(
                 collectionName,
