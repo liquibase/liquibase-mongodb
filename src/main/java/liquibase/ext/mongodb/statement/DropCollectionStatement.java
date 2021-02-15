@@ -24,6 +24,7 @@ import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.bson.Document;
 
 import static liquibase.ext.mongodb.statement.BsonUtils.toCommand;
 
@@ -41,7 +42,11 @@ public class DropCollectionStatement extends AbstractRunCommandStatement
     public static final String RUN_COMMAND_NAME = "drop";
 
     public DropCollectionStatement(final String collectionName) {
-        super(toCommand(RUN_COMMAND_NAME, collectionName, null));
+        this(collectionName, new Document());
+    }
+
+    public DropCollectionStatement(final String collectionName, Document options) {
+        super(toCommand(RUN_COMMAND_NAME, collectionName, options));
     }
 
     @Override

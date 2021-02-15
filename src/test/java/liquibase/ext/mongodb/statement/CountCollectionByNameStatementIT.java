@@ -33,10 +33,16 @@ class CountCollectionByNameStatementIT extends AbstractMongoIntegrationTest {
     private static final CountCollectionByNameStatement COUNT_COLLECTION = new CountCollectionByNameStatement(COLLECTION_NAME);
 
     @Test
-    void queryForLong() {
+    void testQueryForLongIsOneWhenCollectionIsPresent() {
         connection.getMongoDatabase().createCollection(COLLECTION_NAME_1);
         assertThat(new CountCollectionByNameStatement(COLLECTION_NAME_1).queryForLong(database))
             .isEqualTo(1);
+    }
+
+    @Test
+    void testQueryForLongIsZeroWhenCollectionIsMissing() {
+        assertThat(new CountCollectionByNameStatement("missingCollection").queryForLong(database))
+                .isEqualTo(0);
     }
 
     @Test
