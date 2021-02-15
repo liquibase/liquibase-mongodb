@@ -20,24 +20,28 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.client.MongoCollection;
-import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
-import liquibase.nosql.statement.NoSqlExecuteStatement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bson.Document;
 
-import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
+import static liquibase.ext.mongodb.statement.BsonUtils.toCommand;
 
+/**
+ * Drops a collection
+ * See https://docs.mongodb.com/manual/reference/command/drop/ for supported options
+ */
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class DropCollectionStatement extends AbstractCollectionStatement
-        implements NoSqlExecuteStatement<MongoLiquibaseDatabase> {
+public class DropCollectionStatement extends AbstractRunCommandStatement {
 
-    public static final String COMMAND_NAME = "drop";
+    public static final String RUN_COMMAND_NAME = "drop";
 
     public DropCollectionStatement(final String collectionName) {
-        super(collectionName);
+        this(collectionName, new Document());
+    }
+
+    public DropCollectionStatement(final String collectionName, Document options) {
+        super(toCommand(RUN_COMMAND_NAME, collectionName, options));
     }
 
     @Override
@@ -46,20 +50,17 @@ public class DropCollectionStatement extends AbstractCollectionStatement
     }
 
     @Override
-    public String toJs() {
-        return
-                SHELL_DB_PREFIX +
-                        getCollectionName() +
-                        "." +
-                        getCommandName() +
-                        "(" +
-                        ");";
+    public String getRunCommandName() {
+        return RUN_COMMAND_NAME;
+    }
+
+    public String getCollectionName() {
+        return command.getString(RUN_COMMAND_NAME);
     }
 
     @Override
-    public void execute(final MongoLiquibaseDatabase database) {
-        final MongoCollection<Document> collection = getMongoDatabase(database).getCollection(getCollectionName());
-        collection.drop();
+    public String toJs() {
+        return String.format("db.%s.drop();", getCollectionName());
     }
 
 }

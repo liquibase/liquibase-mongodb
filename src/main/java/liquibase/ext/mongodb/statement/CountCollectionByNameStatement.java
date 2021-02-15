@@ -24,15 +24,18 @@ import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.nosql.statement.NoSqlQueryForLongStatement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.bson.Document;
 
-import java.util.stream.StreamSupport;
+import java.util.List;
 
+/**
+ * Queries the database for the number of collections that match the supplied collectionName
+ * i.e returns 1 if the collection is present; else 0
+ */
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class CountCollectionByNameStatement extends AbstractCollectionStatement
         implements NoSqlQueryForLongStatement<MongoLiquibaseDatabase> {
-
-    public static final String COMMAND_NAME = "getCollectionNames";
 
     public CountCollectionByNameStatement(final String collectionName) {
         super(collectionName);
@@ -40,13 +43,13 @@ public class CountCollectionByNameStatement extends AbstractCollectionStatement
 
     @Override
     public String getCommandName() {
-        return COMMAND_NAME;
+        return ListCollectionNamesStatement.COMMAND_NAME;
     }
 
     @Override
     public long queryForLong(final MongoLiquibaseDatabase database) {
-        return StreamSupport.stream(getMongoDatabase(database).listCollectionNames().spliterator(), false)
-                .filter(s -> s.equals(getCollectionName()))
-                .count();
+        Document filter = new Document("name", getCollectionName());
+        ListCollectionNamesStatement statement = new ListCollectionNamesStatement(filter);
+        return statement.queryForList(database).size();
     }
 }
