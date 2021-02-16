@@ -34,7 +34,8 @@ import static liquibase.ext.mongodb.statement.BsonUtils.toCommand;
 /**
  * Creates a index via the database runCommand method
  * For a list of supported options see the reference page:
- * @see <a href="https://docs.mongodb.com/manual/reference/command/createIndexes//">createIndexes</a>
+ *
+ * @see <a href="https://docs.mongodb.com/manual/reference/command/createIndexes/">createIndexes</a>
  */
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -45,17 +46,17 @@ public class CreateIndexStatement extends AbstractRunCommandStatement
     private static final String KEY = "key";
     private static final String INDEXES = "indexes";
 
-    @Override
-    public String getRunCommandName() {
-        return RUN_COMMAND_NAME;
-    }
-
     public CreateIndexStatement(final String collectionName, final Document keys, final Document options) {
         super(toCommand(RUN_COMMAND_NAME, collectionName, combine(keys, options)));
     }
 
     public CreateIndexStatement(final String collectionName, final String keys, final String options) {
         this(collectionName, orEmptyDocument(keys), orEmptyDocument(options));
+    }
+
+    @Override
+    public String getRunCommandName() {
+        return RUN_COMMAND_NAME;
     }
 
     private static Document combine(final Document key, final Document options) {

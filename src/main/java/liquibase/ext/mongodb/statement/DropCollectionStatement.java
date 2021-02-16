@@ -20,46 +20,32 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.client.MongoCollection;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.bson.Document;
 
-import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
+import static liquibase.ext.mongodb.statement.BsonUtils.toCommand;
 
+/**
+ * Drops a collection via the database runCommand method
+ * For a list of supported options see the reference page:
+ *
+ * @see <a href="https://docs.mongodb.com/manual/reference/command/drop/">drop</a>
+ */
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class DropCollectionStatement extends AbstractCollectionStatement
+public class DropCollectionStatement extends AbstractRunCommandStatement
         implements NoSqlExecuteStatement<MongoLiquibaseDatabase> {
 
-    public static final String COMMAND_NAME = "drop";
+    public static final String RUN_COMMAND_NAME = "drop";
 
     public DropCollectionStatement(final String collectionName) {
-        super(collectionName);
+        super(toCommand(RUN_COMMAND_NAME, collectionName, null));
     }
 
     @Override
-    public String getCommandName() {
-        return COMMAND_NAME;
+    public String getRunCommandName() {
+        return RUN_COMMAND_NAME;
     }
-
-    @Override
-    public String toJs() {
-        return
-                SHELL_DB_PREFIX +
-                        getCollectionName() +
-                        "." +
-                        getCommandName() +
-                        "(" +
-                        ");";
-    }
-
-    @Override
-    public void execute(final MongoLiquibaseDatabase database) {
-        final MongoCollection<Document> collection = getMongoDatabase(database).getCollection(getCollectionName());
-        collection.drop();
-    }
-
 }

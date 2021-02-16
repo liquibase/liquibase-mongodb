@@ -20,21 +20,36 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
+import com.mongodb.MongoCommandException;
 import liquibase.ext.AbstractMongoIntegrationTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static liquibase.ext.mongodb.TestUtils.COLLECTION_NAME_1;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class DropCollectionStatementIT extends AbstractMongoIntegrationTest {
 
     @Test
     void execute() {
-        mongoDatabase.createCollection(COLLECTION_NAME_1);
-        assertThat(mongoDatabase.listCollectionNames()).hasSize(1);
 
-        new DropCollectionStatement(COLLECTION_NAME_1).execute(database);
+        final List<String> collectionNames = new ArrayList<>();
+
+        new CreateCollectionStatement(COLLECTION_NAME_1).execute(database);
+        mongoDatabase.listCollectionNames().iterator().forEachRemaining(collectionNames::add);
+        assertThat(collectionNames).hasSize(1).containsExactly(COLLECTION_NAME_1);
+
+        final DropCollectionStatement dropCollectionStatement = new DropCollectionStatement(COLLECTION_NAME_1);
+        dropCollectionStatement.execute(database);
         assertThat(mongoDatabase.listCollectionNames()).isEmpty();
+
+        // try to delete a non existing collection
+        assertThatExceptionOfType(MongoCommandException.class).isThrownBy(() -> dropCollectionStatement.execute(database))
+                .withMessageStartingWith("Command failed with error")
+                .withMessageContaining("NamespaceNotFound");
     }
 
     @Test
@@ -42,6 +57,6 @@ class DropCollectionStatementIT extends AbstractMongoIntegrationTest {
         final DropCollectionStatement statement = new DropCollectionStatement(COLLECTION_NAME_1);
         assertThat(statement.toString())
             .isEqualTo(statement.toJs())
-            .isEqualTo("db.collectionName.drop();");
+            .isEqualTo("db.runCommand({\"drop\": \"collectionName\"});");
     }
 }
