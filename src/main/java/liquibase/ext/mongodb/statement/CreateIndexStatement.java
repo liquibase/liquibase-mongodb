@@ -32,7 +32,7 @@ import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyDocument;
 import static liquibase.ext.mongodb.statement.BsonUtils.toCommand;
 
 /**
- * Creates a index via the database runCommand method
+ * Creates an index via the database runCommand method
  * For a list of supported options see the reference page:
  *
  * @see <a href="https://docs.mongodb.com/manual/reference/command/createIndexes/">createIndexes</a>
