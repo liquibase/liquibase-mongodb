@@ -48,7 +48,7 @@ class CreateIndexStatementIT extends AbstractMongoIntegrationTest {
         final Document initialDocument = Document.parse("{name: \"test name\", surname: \"test surname\", locale: \"EN\"}");
         final String indexName = "locale_indx";
         mongoDatabase.createCollection(COLLECTION_NAME_1);
-        mongoDatabase.getCollection(COLLECTION_NAME_1).insertOne(initialDocument);
+        new InsertOneStatement(COLLECTION_NAME_1, initialDocument).execute(database);
         final CreateIndexStatement createIndexStatement = new CreateIndexStatement(COLLECTION_NAME_1, "{ locale: 1 }",
                 "{ name: \"" + indexName + "\", unique: true, expireAfterSeconds: NumberLong(\"30\") }");
         createIndexStatement.execute(database);

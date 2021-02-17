@@ -30,7 +30,10 @@ Liquibase turned to be the most feasible tool to extend as it allows to define c
 
 #### 4.3.1
 * Support for Liquibase 4.3.1
+* This an important release build with 4.2.0 mongo-driver-sync and is compatible with mongo-driver 3.x.x if provided
 * Fixed [Issue-90: Convert all statements to runCommand so it is compatible with majority JavaDriver versions](https://github.com/liquibase/liquibase-mongodb/issues/90)
+* Fixed [Issue-80: Move from deprecated mongo-java-driver](https://github.com/liquibase/liquibase-mongodb/issues/80)
+* Fixed [Issue-71: Support mongodb-driver-sync v4.x](https://github.com/liquibase/liquibase-mongodb/issues/71)
 
 #### 4.2.2.1
 * Fixed [Issue-64:Support for DNS Seed List Connection Format or Atlas Cluster](https://github.com/liquibase/liquibase-mongodb/issues/66)
@@ -133,9 +136,15 @@ mongodb+srv://:@cluster0.example.com/testdb?authSource=$external&authMechanism=M
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
 ### Prerequisites
+ 
+* Dependencies that have to be available in classpath if run via Liquibase CLI
 
 ```
-mongo-java-driver:3.12.7
+mongodb-driver-sync:4.2.0
+snakeyaml:1.27
+jackson-annotations:2.11.3
+jackson-core:2.11.3
+jackson-databind:2.11.3
 ```
 
 ### Installing
@@ -160,6 +169,20 @@ Run Integration tests by enabling `run-its` profile
 
 ```shell
 mvn clean install -Prun-its
+```
+
+#### Run integration test driver backward compatibility
+1. Produce test containing jar
+```shell
+mvn clean install -Ptest-jar
+```
+2. Go to test-project
+```shell
+cd test-project
+```
+3. Run backward compatibility test with provided 3x driver
+```shell
+mvn clean install -Prun-its,mongo-3x
 ```
 
 ### Quick Start Examples

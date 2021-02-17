@@ -41,7 +41,7 @@ class FindAllStatementIT extends AbstractMongoIntegrationTest {
             .map(Document::new)
             .collect(Collectors.toList());
         mongoDatabase.createCollection(COLLECTION_NAME_1);
-        mongoDatabase.getCollection(COLLECTION_NAME_1).insertMany(testObjects);
+        new InsertManyStatement(COLLECTION_NAME_1, testObjects).execute(database);
 
         final FindAllStatement statement = new FindAllStatement(COLLECTION_NAME_1);
         assertThat(statement.queryForList(database))
