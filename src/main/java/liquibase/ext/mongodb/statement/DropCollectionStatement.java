@@ -45,17 +45,8 @@ public class DropCollectionStatement extends AbstractRunCommandStatement {
     }
 
     @Override
-    public String getCommandName() {
-        return COMMAND_NAME;
-    }
-
-    @Override
     public String getRunCommandName() {
         return RUN_COMMAND_NAME;
-    }
-
-    public String getCollectionName() {
-        return command.getString(RUN_COMMAND_NAME);
     }
 
 }
