@@ -34,7 +34,7 @@ import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_
 /**
  * Gets a list of collection names via the database runCommand method
  * For a list of supported options see the reference page:
- * https://docs.mongodb.com/manual/reference/command/listCollections/
+ * @see <a href="https://docs.mongodb.com/manual/reference/command/listCollections/">listCollections</a>
  */
 @Getter
 @EqualsAndHashCode(callSuper = true)
