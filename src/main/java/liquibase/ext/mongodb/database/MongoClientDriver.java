@@ -24,7 +24,7 @@ public class MongoClientDriver implements Driver {
     public MongoClient connect(final ConnectionString connectionString) throws DatabaseException {
         final MongoClient client;
         try {
-           client = MongoClients.create(connectionString);
+            client = MongoClients.create(connectionString);
         } catch (final Exception e) {
             throw new DatabaseException("Connection could not be established to: "
                     + connectionString.getConnectionString(), e);
@@ -39,7 +39,7 @@ public class MongoClientDriver implements Driver {
     }
 
     @Override
-    public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) {
+    public DriverPropertyInfo[] getPropertyInfo(final String url, final Properties info) {
         return new DriverPropertyInfo[0];
     }
 

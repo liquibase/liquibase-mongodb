@@ -64,6 +64,6 @@ public class AdjustChangeLogLockCollectionStatement extends RunCommandStatement 
 
     @Override
     public Document run(final MongoLiquibaseDatabase database) {
-        return getMongoDatabase(database).runCommand(command);
+        return database.getMongoDatabase().runCommand(command);
     }
 }

@@ -80,7 +80,7 @@ public class FindOneAndUpdateStatement extends AbstractCollectionStatement
 
     @Override
     public int update(final MongoLiquibaseDatabase database) {
-        final MongoCollection<Document> collection = getMongoDatabase(database).getCollection(getCollectionName());
+        final MongoCollection<Document> collection = database.getMongoDatabase().getCollection(getCollectionName());
         return isNull(collection.findOneAndUpdate(filter, document, new FindOneAndUpdateOptions().sort(sort))) ? 0 : 1;
     }
 }

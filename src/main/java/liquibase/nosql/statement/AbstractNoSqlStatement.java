@@ -20,10 +20,9 @@ package liquibase.nosql.statement;
  * #L%
  */
 
-import liquibase.nosql.database.AbstractNoSqlDatabase;
 import liquibase.statement.AbstractSqlStatement;
 
-public abstract class AbstractNoSqlStatement<D extends AbstractNoSqlDatabase> extends AbstractSqlStatement {
+public abstract class AbstractNoSqlStatement extends AbstractSqlStatement {
 
     public abstract String getCommandName();
 
@@ -36,8 +35,6 @@ public abstract class AbstractNoSqlStatement<D extends AbstractNoSqlDatabase> ex
     public boolean skipOnUnsupported() {
         return false;
     }
-
-    public abstract D getDatabase(AbstractNoSqlDatabase database);
 
     public abstract String toJs();
 

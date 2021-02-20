@@ -74,7 +74,7 @@ public class UpdateManyStatement extends AbstractCollectionStatement
 
     @Override
     public int update(final MongoLiquibaseDatabase database) {
-        final MongoCollection<Document> collection = getMongoDatabase(database).getCollection(getCollectionName());
+        final MongoCollection<Document> collection = database.getMongoDatabase().getCollection(getCollectionName());
         return (int) collection.updateMany(filter, document).getMatchedCount();
     }
 }

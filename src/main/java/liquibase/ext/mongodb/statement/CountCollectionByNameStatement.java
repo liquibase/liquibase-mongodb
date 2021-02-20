@@ -45,7 +45,7 @@ public class CountCollectionByNameStatement extends AbstractCollectionStatement
 
     @Override
     public long queryForLong(final MongoLiquibaseDatabase database) {
-        return StreamSupport.stream(getMongoDatabase(database).listCollectionNames().spliterator(), false)
+        return StreamSupport.stream(database.getMongoDatabase().listCollectionNames().spliterator(), false)
                 .filter(s -> s.equals(getCollectionName()))
                 .count();
     }

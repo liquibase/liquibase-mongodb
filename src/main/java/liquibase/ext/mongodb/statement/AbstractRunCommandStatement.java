@@ -52,7 +52,7 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
     }
 
     public Document run(final MongoLiquibaseDatabase database) {
-        return getMongoDatabase(database).runCommand(command);
+        return database.getMongoDatabase().runCommand(command);
     }
 
     /**

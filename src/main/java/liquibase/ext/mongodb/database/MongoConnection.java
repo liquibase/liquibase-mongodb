@@ -54,14 +54,14 @@ public class MongoConnection extends AbstractNoSqlConnection {
 
     private ConnectionString connectionString;
 
-    protected MongoClient client;
+    protected MongoClient mongoClient;
 
-    protected MongoDatabase database;
+    protected MongoDatabase mongoDatabase;
 
     @Override
     public String getCatalog() throws DatabaseException {
         try {
-            return database.getName();
+            return mongoDatabase.getName();
         } catch (final Exception e) {
             throw new DatabaseException(e);
         }
@@ -84,7 +84,7 @@ public class MongoConnection extends AbstractNoSqlConnection {
 
     @Override
     public boolean isClosed() throws DatabaseException {
-        return isNull(client);
+        return isNull(mongoClient);
     }
 
     @Override
@@ -95,9 +95,9 @@ public class MongoConnection extends AbstractNoSqlConnection {
 
             this.connectionString = new ConnectionString(urlWithCredentials);
 
-            this.client = ((MongoClientDriver) driverObject).connect(connectionString);
+            this.mongoClient = ((MongoClientDriver) driverObject).connect(connectionString);
 
-            this.database = this.client.getDatabase(Objects.requireNonNull(this.connectionString.getDatabase()))
+            this.mongoDatabase = this.mongoClient.getDatabase(Objects.requireNonNull(this.connectionString.getDatabase()))
                     .withCodecRegistry(BsonUtils.uuidCodecRegistry());
         } catch (final Exception e) {
             throw new DatabaseException("Could not open connection to database: "
@@ -129,8 +129,8 @@ public class MongoConnection extends AbstractNoSqlConnection {
     public void close() throws DatabaseException {
         try {
             if (!isClosed()) {
-                client.close();
-                client = null;
+                mongoClient.close();
+                mongoClient = null;
             }
         } catch (final Exception e) {
             throw new DatabaseException(e);

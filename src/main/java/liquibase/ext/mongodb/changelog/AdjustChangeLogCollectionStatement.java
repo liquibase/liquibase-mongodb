@@ -59,7 +59,7 @@ public class AdjustChangeLogCollectionStatement extends RunCommandStatement {
     }
 
     private void adjustIndexes(final MongoLiquibaseDatabase database) {
-        final MongoCollection<Document> collection = getMongoDatabase(database).getCollection(getCollectionName());
+        final MongoCollection<Document> collection = database.getMongoDatabase().getCollection(getCollectionName());
         List<Document> indexes = new ArrayList<>();
         collection.listIndexes().into(indexes);
         // Only default _id_ exists
@@ -79,6 +79,6 @@ public class AdjustChangeLogCollectionStatement extends RunCommandStatement {
 
     @Override
     public Document run(final MongoLiquibaseDatabase database) {
-        return getMongoDatabase(database).runCommand(command);
+        return database.getMongoDatabase().runCommand(command);
     }
 }

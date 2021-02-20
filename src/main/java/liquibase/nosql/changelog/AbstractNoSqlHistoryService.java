@@ -28,8 +28,8 @@ import liquibase.exception.DatabaseException;
 import liquibase.exception.DatabaseHistoryException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.executor.ExecutorService;
-import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.logging.Logger;
+import liquibase.nosql.database.AbstractNoSqlDatabase;
 import liquibase.nosql.executor.NoSqlExecutor;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,7 +44,7 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.isNull;
 import static liquibase.plugin.Plugin.PRIORITY_SPECIALIZED;
 
-public abstract class AbstractNoSqlHistoryService<D extends MongoLiquibaseDatabase> extends AbstractChangeLogHistoryService {
+public abstract class AbstractNoSqlHistoryService<D extends AbstractNoSqlDatabase> extends AbstractChangeLogHistoryService {
 
     @Getter
     private List<RanChangeSet> ranChangeSetList;

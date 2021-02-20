@@ -68,7 +68,7 @@ public class CountDocumentsInCollectionStatement extends AbstractCollectionState
 
     @Override
     public long queryForLong(final MongoLiquibaseDatabase database) {
-        return getMongoDatabase(database).getCollection(getCollectionName()).countDocuments(filter);
+        return database.getMongoDatabase().getCollection(getCollectionName()).countDocuments(filter);
     }
 
 }

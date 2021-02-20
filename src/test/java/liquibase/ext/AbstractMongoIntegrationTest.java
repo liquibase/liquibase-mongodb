@@ -52,9 +52,10 @@ public abstract class AbstractMongoIntegrationTest {
 
         resetServices();
         final String url = loadProperty(PROPERTY_FILE, DB_CONNECTION_PATH);
+        //database = (MongoLiquibaseDatabase) DatabaseFactory.getInstance().openDatabase("jdbc:postgresql://xxxxxxxxxx:5432/xxxxxxxxxx", null, null, null , null);
         database = (MongoLiquibaseDatabase) DatabaseFactory.getInstance().openDatabase(url, null, null, null , null);
         connection = (MongoConnection) database.getConnection();
-        mongoDatabase = connection.getDatabase();
+        mongoDatabase = connection.getMongoDatabase();
         executor = (NoSqlExecutor) Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(EXECUTOR_NAME, database);
         deleteContainers();
     }

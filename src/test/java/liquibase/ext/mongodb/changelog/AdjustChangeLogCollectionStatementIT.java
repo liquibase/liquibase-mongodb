@@ -64,7 +64,7 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         new CreateChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
         adjustChangeLogCollectionStatement.execute(database);
 
-        Optional<Document> options = ofNullable(connection.getDatabase().listCollections().first()).map(c -> (Document) c.get("options"));
+        Optional<Document> options = ofNullable(connection.getMongoDatabase().listCollections().first()).map(c -> (Document) c.get("options"));
         assertThat(options.map(Document::toJson).orElse(""))
                 .isEqualToIgnoringWhitespace(CreateChangeLogCollectionStatement.OPTIONS);
     }
@@ -75,11 +75,11 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
 
         new CreateChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
 
-        MongoCollection<Document> collection = connection.getDatabase().getCollection(LOG_COLLECTION_NAME);
+        MongoCollection<Document> collection = connection.getMongoDatabase().getCollection(LOG_COLLECTION_NAME);
 
         // options not present
         final Document collectionInfo =
-                connection.getDatabase().listCollections().filter(Filters.eq("name", LOG_COLLECTION_NAME)).first();
+                connection.getMongoDatabase().listCollections().filter(Filters.eq("name", LOG_COLLECTION_NAME)).first();
 
         assertThat(collectionInfo)
                 .isNotNull()
@@ -95,14 +95,14 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         database.setSupportsValidator(FALSE);
         new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
         final Document collectionInfoExplicitNoAdjustment =
-                connection.getDatabase().listCollections().filter(Filters.eq("name", LOG_COLLECTION_NAME)).first();
+                connection.getMongoDatabase().listCollections().filter(Filters.eq("name", LOG_COLLECTION_NAME)).first();
 
         assertThat(collectionInfoExplicitNoAdjustment)
                 .isNotNull()
                 .returns(TRUE, c -> ((Document) c.get("options")).isEmpty());
 
         indexes.clear();
-        connection.getDatabase().getCollection(LOG_COLLECTION_NAME).listIndexes().into(indexes);
+        connection.getMongoDatabase().getCollection(LOG_COLLECTION_NAME).listIndexes().into(indexes);
         assertThat(indexes).hasSize(2);
         assertThat(indexes.stream().filter(i -> i.get("name").equals("ui_" + LOG_COLLECTION_NAME)).findFirst().orElse(null))
                 .isNotNull()
@@ -116,7 +116,7 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME).execute(database);
 
         final Document collectionInfoAdjusted =
-                connection.getDatabase().listCollections().filter(Filters.eq("name", LOG_COLLECTION_NAME)).first();
+                connection.getMongoDatabase().listCollections().filter(Filters.eq("name", LOG_COLLECTION_NAME)).first();
 
         assertThat(collectionInfoAdjusted)
                 .isNotNull()
@@ -126,7 +126,7 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
                 .returns("strict", c -> ((Document) c.get("options")).get("validationLevel"));
 
         indexes.clear();
-        connection.getDatabase().getCollection(LOG_COLLECTION_NAME).listIndexes().into(indexes);
+        connection.getMongoDatabase().getCollection(LOG_COLLECTION_NAME).listIndexes().into(indexes);
         assertThat(indexes).hasSize(2);
         assertThat(indexes.stream().filter(i -> i.get("name").equals("ui_" + LOG_COLLECTION_NAME)).findFirst().orElse(null))
                 .isNotNull();

@@ -75,7 +75,7 @@ class MongoStatementIT extends AbstractMongoIntegrationTest {
         Document document = converter.toDocument(ranChangeSet);
 
         new InsertOneStatement(collectionName,document , null).execute(database);
-        assertThat(connection.getDatabase().getCollection(collectionName).countDocuments()).isEqualTo(1L);
+        assertThat(connection.getMongoDatabase().getCollection(collectionName).countDocuments()).isEqualTo(1L);
 
         document.put("id", "2");
 
@@ -85,7 +85,7 @@ class MongoStatementIT extends AbstractMongoIntegrationTest {
         document = converter.toDocument(ranChangeSet);
 
         new InsertOneStatement(collectionName,document , null).execute(database);
-        assertThat(connection.getDatabase().getCollection(collectionName).countDocuments()).isEqualTo(2L);
+        assertThat(connection.getMongoDatabase().getCollection(collectionName).countDocuments()).isEqualTo(2L);
 
         final FindAllStatement findAllStatement = new FindAllStatement(collectionName);
 
@@ -118,13 +118,13 @@ class MongoStatementIT extends AbstractMongoIntegrationTest {
 
         assertThat(
                 connection
-                        .getDatabase()
+                        .getMongoDatabase()
                         .getCollection("insertOneTest1")
                     .countDocuments()).isEqualTo(1L);
 
         assertThat(
                 connection
-                        .getDatabase()
+                        .getMongoDatabase()
                         .getCollection("insertOneTest2")
                     .countDocuments()).isEqualTo(2L);
 
@@ -151,7 +151,7 @@ class MongoStatementIT extends AbstractMongoIntegrationTest {
 
         assertThat(
                 connection
-                        .getDatabase()
+                        .getMongoDatabase()
                         .getCollection("insertManyTest1")
                     .countDocuments()).isEqualTo(2L);
     }
@@ -180,7 +180,7 @@ class MongoStatementIT extends AbstractMongoIntegrationTest {
 
         assertThat(
                 connection
-                        .getDatabase()
+                        .getMongoDatabase()
                     .getCollection("createCollectionTest")).isNotNull();
     }
 

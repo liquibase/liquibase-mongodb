@@ -55,7 +55,7 @@ implements NoSqlQueryForObjectStatement<MongoLiquibaseDatabase> {
     @Override
     public <T> T queryForObject(final MongoLiquibaseDatabase database, final Class<T> requiredType) {
 
-        return getMongoDatabase(database).getCollection(getCollectionName(), requiredType)
+        return database.getMongoDatabase().getCollection(getCollectionName(), requiredType)
                 .find(Filters.eq(MongoChangeLogLock.Fields.id, 1)).first();
     }
 }

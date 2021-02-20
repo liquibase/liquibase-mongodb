@@ -71,7 +71,7 @@ implements NoSqlUpdateStatement<MongoLiquibaseDatabase> {
         final Document inputDocument = new MongoChangeLogLockToDocumentConverter().toDocument(entry);
         inputDocument.put(MongoChangeLogLock.Fields.locked, locked);
         final Optional<Document> changeLogLock = Optional.ofNullable(
-                getMongoDatabase(database).getCollection(collectionName)
+                database.getMongoDatabase().getCollection(collectionName)
                         .findOneAndReplace(Filters.eq(MongoChangeLogLock.Fields.id, entry.getId()), inputDocument,
                                 new FindOneAndReplaceOptions().upsert(true).returnDocument(ReturnDocument.AFTER))
         );

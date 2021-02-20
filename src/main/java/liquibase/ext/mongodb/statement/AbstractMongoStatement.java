@@ -20,33 +20,11 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoDatabase;
-import liquibase.ext.mongodb.database.MongoConnection;
-import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
-import liquibase.nosql.database.AbstractNoSqlDatabase;
 import liquibase.nosql.statement.AbstractNoSqlStatement;
 
 import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
 
-public abstract class AbstractMongoStatement extends AbstractNoSqlStatement<MongoLiquibaseDatabase> {
-
-    @Override
-    public MongoLiquibaseDatabase getDatabase(final AbstractNoSqlDatabase database) {
-        return (MongoLiquibaseDatabase) database;
-    }
-
-    public MongoConnection getConnection(final AbstractNoSqlDatabase database) {
-        return (MongoConnection) getDatabase(database).getConnection();
-    }
-
-    public MongoClient getClient(final AbstractNoSqlDatabase database) {
-        return getConnection(database).getClient();
-    }
-
-    public MongoDatabase getMongoDatabase(final AbstractNoSqlDatabase database) {
-        return getConnection(database).getDatabase();
-    }
+public abstract class AbstractMongoStatement extends AbstractNoSqlStatement {
 
     public String toJs() {
         return

@@ -75,7 +75,7 @@ public class FindAllStatement extends AbstractCollectionStatement
     @Override
     public List<Document> queryForList(final MongoLiquibaseDatabase database) {
         final ArrayList<Document> result = new ArrayList<>();
-        getMongoDatabase(database).getCollection(collectionName, Document.class)
+        database.getMongoDatabase().getCollection(collectionName, Document.class)
                 .find(filter).sort(sort).into(result);
         return result;
     }

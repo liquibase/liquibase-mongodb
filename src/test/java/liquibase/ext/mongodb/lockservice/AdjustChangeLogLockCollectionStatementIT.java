@@ -53,7 +53,7 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
         new CreateChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME).execute(database);
         adjustChangeLogLockCollectionStatement.execute(database);
 
-        Optional<Document> options = ofNullable(connection.getDatabase().listCollections().first()).map(c -> (Document)c.get("options"));
+        Optional<Document> options = ofNullable(connection.getMongoDatabase().listCollections().first()).map(c -> (Document)c.get("options"));
         assertThat(options.map(Document::toJson).orElse(""))
                 .isEqualToIgnoringWhitespace(CreateChangeLogLockCollectionStatement.OPTIONS);
 
@@ -65,7 +65,7 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
 
         new CreateChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME).execute(database);
 
-        MongoCollection<Document> collection = connection.getDatabase().getCollection(LOCK_COLLECTION_NAME);
+        MongoCollection<Document> collection = connection.getMongoDatabase().getCollection(LOCK_COLLECTION_NAME);
 
         List<Document> indexes = new ArrayList<>();
 
@@ -77,7 +77,7 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
 
         // Options not present
         final Document collectionInfo =
-                connection.getDatabase().listCollections().filter(Filters.eq("name", LOCK_COLLECTION_NAME)).first();
+                connection.getMongoDatabase().listCollections().filter(Filters.eq("name", LOCK_COLLECTION_NAME)).first();
 
         assertThat(collectionInfo)
                 .isNotNull()
@@ -87,7 +87,7 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
         database.setSupportsValidator(FALSE);
         new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME).execute(database);
         final Document collectionInfoExplicitNoAdjustment =
-                connection.getDatabase().listCollections().filter(Filters.eq("name", LOCK_COLLECTION_NAME)).first();
+                connection.getMongoDatabase().listCollections().filter(Filters.eq("name", LOCK_COLLECTION_NAME)).first();
 
         assertThat(collectionInfoExplicitNoAdjustment)
                 .isNotNull()
@@ -98,12 +98,12 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
         new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME).execute(database);
 
         indexes.clear();
-        connection.getDatabase().getCollection(LOCK_COLLECTION_NAME).listIndexes().into(indexes);
+        connection.getMongoDatabase().getCollection(LOCK_COLLECTION_NAME).listIndexes().into(indexes);
         assertThat(indexes).hasSize(1);
         assertThat(indexes.get(0).get("name")).isEqualTo("_id_");
 
         final Document collectionInfoAdjusted =
-                connection.getDatabase().listCollections().filter(Filters.eq("name", LOCK_COLLECTION_NAME)).first();
+                connection.getMongoDatabase().listCollections().filter(Filters.eq("name", LOCK_COLLECTION_NAME)).first();
 
         assertThat(collectionInfoAdjusted)
                 .isNotNull()

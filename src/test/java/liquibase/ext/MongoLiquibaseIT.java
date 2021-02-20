@@ -57,7 +57,7 @@ class MongoLiquibaseIT extends AbstractMongoIntegrationTest {
 
     protected Integer countCollections() {
         List<Object> list = new ArrayList<>();
-        connection.getDatabase().listCollectionNames().into(list);
+        connection.getMongoDatabase().listCollectionNames().into(list);
         return list.size();
     }
 

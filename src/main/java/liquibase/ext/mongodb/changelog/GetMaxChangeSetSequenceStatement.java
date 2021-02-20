@@ -60,7 +60,7 @@ public class GetMaxChangeSetSequenceStatement extends AbstractCollectionStatemen
 
     @Override
     public long queryForLong(final MongoLiquibaseDatabase database) {
-        final Document max = getMongoDatabase(database).getCollection(getCollectionName())
+        final Document max = database.getMongoDatabase().getCollection(getCollectionName())
                 .find().sort(Sorts.descending(MongoRanChangeSet.Fields.orderExecuted)).limit(1).first();
         return ofNullable(max).map(d->(long)d.getInteger(MongoRanChangeSet.Fields.orderExecuted))
                 .orElse(0L);

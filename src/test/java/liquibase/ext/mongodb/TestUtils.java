@@ -55,7 +55,7 @@ public final class TestUtils {
     //private static final String CMD_GET_ALL_ROLES = "{getAllRolesFromDatabase: 1,  showPrivileges:false, showBuiltinRoles: false }}";
 
     public static List<String> getCollections(final MongoConnection connection) {
-        return StreamSupport.stream(connection.getDatabase().listCollectionNames().spliterator(), false)
+        return StreamSupport.stream(connection.getMongoDatabase().listCollectionNames().spliterator(), false)
             .collect(Collectors.toList());
     }
 
@@ -72,17 +72,17 @@ public final class TestUtils {
     }
 
     public static void dropAllRoles(final MongoConnection connection) {
-        connection.getDatabase().runCommand(Document.parse(CMD_DROP_ALL_ROLES));
+        connection.getMongoDatabase().runCommand(Document.parse(CMD_DROP_ALL_ROLES));
     }
 
     public static List<Document> getAllRoles(final MongoConnection connection) {
-        return connection.getDatabase()
+        return connection.getMongoDatabase()
             .runCommand(Document.parse("{ rolesInfo: 1, showPrivileges:false, showBuiltinRoles: false }"))
             .getList("roles", Document.class);
     }
 
     public static void dropAllUsers(final MongoConnection connection) {
-        connection.getDatabase().runCommand(Document.parse(CMD_DROP_ALL_USERS));
+        connection.getMongoDatabase().runCommand(Document.parse(CMD_DROP_ALL_USERS));
     }
 
     public static void liquibaseUpdate(final Liquibase liquibase) throws LiquibaseException {

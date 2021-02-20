@@ -20,6 +20,7 @@ package liquibase.ext.mongodb.database;
  * #L%
  */
 
+import com.mongodb.client.MongoDatabase;
 import liquibase.CatalogAndSchema;
 import liquibase.Scope;
 import liquibase.changelog.ChangeLogHistoryServiceFactory;
@@ -62,6 +63,10 @@ public class MongoLiquibaseDatabase extends AbstractNoSqlDatabase {
             return MongoClientDriver.class.getName();
         }
         return null;
+    }
+
+    public MongoDatabase getMongoDatabase() {
+        return ((MongoConnection) getConnection()).getMongoDatabase();
     }
 
     @Override
