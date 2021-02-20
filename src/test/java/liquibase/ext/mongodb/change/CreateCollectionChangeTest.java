@@ -48,7 +48,8 @@ class CreateCollectionChangeTest extends AbstractMongoChangeTest {
                 .hasSize(1)
                 .first()
                 .isInstanceOf(DropCollectionStatement.class)
-                .returns("collection1", s -> ((DropCollectionStatement) s).getCollectionName());
+                .returns("drop", s -> ((DropCollectionStatement) s).getRunCommandName())
+                .returns("collection1", s -> ((DropCollectionStatement) s).getCommand().get("drop"));
     }
 
     @Test

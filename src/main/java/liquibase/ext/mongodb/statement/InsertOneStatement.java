@@ -43,4 +43,8 @@ public class InsertOneStatement extends InsertManyStatement {
     public InsertOneStatement(final String collectionName, final Document document, final Document options) {
         super(collectionName, singletonList(document), options);
     }
+
+    public InsertOneStatement(final String collectionName, final Document document) {
+        this(collectionName, document, new Document());
+    }
 }

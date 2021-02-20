@@ -65,7 +65,7 @@
 
             <xsd:sequence>
                 <xsd:element name="keys" type="xsd:string" minOccurs="1" maxOccurs="1"/>
-                <xsd:element name="options" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+                <xsd:element name="options" type="xsd:string" minOccurs="0" maxOccurs="1"/>
             </xsd:sequence>
 
             <xsd:attribute name="collectionName" type="xsd:string" use="required"/>

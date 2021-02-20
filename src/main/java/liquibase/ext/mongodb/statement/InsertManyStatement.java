@@ -56,6 +56,10 @@ public class InsertManyStatement extends AbstractRunCommandStatement {
         super(BsonUtils.toCommand(RUN_COMMAND_NAME, collectionName, combine(documents, options)));
     }
 
+    public InsertManyStatement(final String collectionName, final List<Document> documents) {
+        this( collectionName, documents, new Document());
+    }
+
     private static Document combine(final List<Document> documents, final Document options) {
         final Document combined = new Document(DOCUMENTS, documents);
         if (nonNull(options)) {

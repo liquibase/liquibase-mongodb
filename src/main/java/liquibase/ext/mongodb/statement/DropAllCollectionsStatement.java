@@ -20,11 +20,15 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
+import com.mongodb.client.MongoCollection;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.bson.Document;
+
+import java.util.function.Consumer;
 
 @AllArgsConstructor
 @Getter
@@ -40,10 +44,9 @@ public class DropAllCollectionsStatement extends AbstractMongoStatement implemen
 
     @Override
     public void execute(final MongoLiquibaseDatabase database) {
-        new ListCollectionNamesStatement().queryForList(database).stream()
-            .forEach(collectionName -> {
-                new DropCollectionStatement(collectionName).execute(database);
-            });
+        getMongoDatabase(database).listCollectionNames()
+            .map(DropCollectionStatement::new)
+            .forEach((Consumer<? super DropCollectionStatement>) s -> s.execute(database));
     }
 
 }

@@ -28,6 +28,13 @@ Liquibase turned to be the most feasible tool to extend as it allows to define c
 <a name="release-notes"></a>
 ## Release Notes
 
+#### 4.3.1
+* Support for Liquibase 4.3.1
+* This an important release build with 4.2.0 mongo-driver-sync and is compatible with mongo-driver 3.x.x if provided
+* Fixed [Issue-90: Convert all statements to runCommand so it is compatible with majority JavaDriver versions](https://github.com/liquibase/liquibase-mongodb/issues/90)
+* Fixed [Issue-80: Move from deprecated mongo-java-driver](https://github.com/liquibase/liquibase-mongodb/issues/80)
+* Fixed [Issue-71: Support mongodb-driver-sync v4.x](https://github.com/liquibase/liquibase-mongodb/issues/71)
+
 #### 4.2.2.1
 * Fixed [Issue-64:Support for DNS Seed List Connection Format or Atlas Cluster](https://github.com/liquibase/liquibase-mongodb/issues/66)
 * Fixed [Issue-69: Does it support preconditions](https://github.com/liquibase/liquibase-mongodb/issues/69)
@@ -89,17 +96,17 @@ Previous releases used by default : `databaseChangeLogLock, databaseChangeLog`
 A couple of Changes were implemented until identified that majority of the operations can be achieved using `db.runCommand()` and `db.adminCommand()`
 
 * [createCollection](https://docs.mongodb.com/manual/reference/method/db.createCollection/#db.createCollection) - 
-Creates a collection with validator
+Creates a collection with validator [create](https://docs.mongodb.com/manual/reference/command/create/)
 * [dropCollection](https://docs.mongodb.com/manual/reference/method/db.collection.drop/#db-collection-drop) - 
-Removes a collection or view from the database
+Removes a collection or view from the database [drop](https://docs.mongodb.com/manual/reference/command/drop/)
 * [createIndex](https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#db.collection.createIndex) - 
-Creates an index for a collection
+Creates an index for a collection [createIndexes](https://docs.mongodb.com/manual/reference/command/createIndexes/)
 * [dropIndex](https://docs.mongodb.com/manual/reference/method/db.collection.dropIndex/#db.collection.dropIndex) - 
-Drops index for a collection by keys
+Drops index for a collection by keys [dropIndexes](https://docs.mongodb.com/manual/reference/command/dropIndexes/)
 * [insertMany](https://docs.mongodb.com/manual/reference/method/db.collection.insertMany/#db.collection.insertMany) - 
-Inserts multiple documents into a collection
+Inserts multiple documents into a collection [insert](https://docs.mongodb.com/manual/reference/command/insert/)
 * [insertOne](https://docs.mongodb.com/manual/tutorial/insert-documents/#insert-a-single-document) - 
-Inserts a Single Document into a collection
+Inserts a Single Document into a collection [insert](https://docs.mongodb.com/manual/reference/command/insert/)
 * [__runCommand__](https://docs.mongodb.com/manual/reference/method/db.runCommand/#db-runcommand) - 
 Provides a helper to run specified database commands. This is the preferred method to issue database commands, as it provides a consistent interface between the shell and drivers
 * [__adminCommand__](https://docs.mongodb.com/manual/reference/method/db.adminCommand/#db.adminCommand) - 
@@ -129,9 +136,15 @@ mongodb+srv://:@cluster0.example.com/testdb?authSource=$external&authMechanism=M
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
 ### Prerequisites
+ 
+* Dependencies that have to be available in classpath if run via Liquibase CLI
 
 ```
-mongo-java-driver:3.12.7
+mongodb-driver-sync:4.2.0
+snakeyaml:1.27
+jackson-annotations:2.11.3
+jackson-core:2.11.3
+jackson-databind:2.11.3
 ```
 
 ### Installing
@@ -156,6 +169,20 @@ Run Integration tests by enabling `run-its` profile
 
 ```shell
 mvn clean install -Prun-its
+```
+
+#### Run integration test driver backward compatibility
+1. Produce test containing jar
+```shell
+mvn clean install -Ptest-jar
+```
+2. Go to test-project
+```shell
+cd test-project
+```
+3. Run backward compatibility test with provided 3x driver
+```shell
+mvn clean install -Prun-its,mongo-3x
 ```
 
 ### Quick Start Examples

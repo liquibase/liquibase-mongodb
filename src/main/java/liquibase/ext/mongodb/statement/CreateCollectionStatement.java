@@ -35,6 +35,10 @@ public class CreateCollectionStatement extends AbstractRunCommandStatement {
 
     public static final String RUN_COMMAND_NAME = "create";
 
+    public CreateCollectionStatement(final String collectionName) {
+        this(collectionName, (String) null);
+    }
+
     public CreateCollectionStatement(final String collectionName, final String options) {
         this(collectionName, BsonUtils.orEmptyDocument(options));
     }

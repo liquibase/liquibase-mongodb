@@ -26,22 +26,25 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bson.Document;
 
-import static java.util.Optional.ofNullable;
-import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
 import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyDocument;
+import static liquibase.ext.mongodb.statement.BsonUtils.toCommand;
 
+/**
+ * Drops an index via the database runCommand method
+ * For a list of supported options see the reference page:
+ *
+ * @see <a href="https://docs.mongodb.com/manual/reference/command/dropIndexes/">dropIndexes</a>
+ */
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class DropIndexStatement extends AbstractCollectionStatement
+public class DropIndexStatement extends AbstractRunCommandStatement
         implements NoSqlExecuteStatement<MongoLiquibaseDatabase> {
 
-    public static final String COMMAND_NAME = "dropIndex";
-
-    private final Document keys;
+    public static final String RUN_COMMAND_NAME = "dropIndexes";
+    private static final String INDEX = "index";
 
     public DropIndexStatement(final String collectionName, final Document keys) {
-        super(collectionName);
-        this.keys = keys;
+        super(toCommand(RUN_COMMAND_NAME, collectionName, combine(keys)));
     }
 
     public DropIndexStatement(final String collectionName, final String keys) {
@@ -49,25 +52,12 @@ public class DropIndexStatement extends AbstractCollectionStatement
     }
 
     @Override
-    public String getCommandName() {
-        return COMMAND_NAME;
+    public String getRunCommandName() {
+        return RUN_COMMAND_NAME;
     }
 
-    @Override
-    public String toJs() {
-        return
-                SHELL_DB_PREFIX
-                        + getCollectionName()
-                        + ". "
-                        + getCommandName()
-                        + "("
-                        + ofNullable(keys).map(Document::toJson).orElse(null)
-                        + ");";
-    }
-
-    @Override
-    public void execute(final MongoLiquibaseDatabase database) {
-        getMongoDatabase(database).getCollection(collectionName).dropIndex(keys);
+    private static Document combine(final Document keys) {
+        return new Document(INDEX, keys);
     }
 
 }

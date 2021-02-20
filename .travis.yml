@@ -10,4 +10,6 @@ before_script:
   - docker run -d -p 27017-27019:27017-27019 --name mongodb mongo
 
 script:
-  - mvn clean install -Prun-its
+  - mvn clean install -Prun-its,test-jar
+  - cd test-project
+  - mvn clean install -Prun-its,mongo-3x
