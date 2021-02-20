@@ -34,7 +34,7 @@ import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyList;
 /**
  * Inserts many documents via the database runCommand method
  * For a list of supported options see the reference page:
- * https://docs.mongodb.com/manual/reference/command/insert/
+ * @see <a href="https://docs.mongodb.com/manual/reference/command/insert/">insert</a>
  */
 @Getter
 @EqualsAndHashCode(callSuper = true)

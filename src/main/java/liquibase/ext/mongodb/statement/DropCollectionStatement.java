@@ -28,7 +28,7 @@ import static liquibase.ext.mongodb.statement.BsonUtils.toCommand;
 
 /**
  * Drops a collection
- * See https://docs.mongodb.com/manual/reference/command/drop/ for supported options
+ * See @see <a href="https://docs.mongodb.com/manual/reference/command/drop/">drop</a> for supported options
  */
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -56,11 +56,6 @@ public class DropCollectionStatement extends AbstractRunCommandStatement {
 
     public String getCollectionName() {
         return command.getString(RUN_COMMAND_NAME);
-    }
-
-    @Override
-    public String toJs() {
-        return String.format("db.%s.drop();", getCollectionName());
     }
 
 }

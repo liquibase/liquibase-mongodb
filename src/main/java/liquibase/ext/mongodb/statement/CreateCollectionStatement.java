@@ -27,7 +27,7 @@ import org.bson.Document;
 /**
  * Creates a collection via the database runCommand method
  * For a list of supported options see the reference page:
- * https://docs.mongodb.com/manual/reference/command/create/#create
+ * @see <a href="https://docs.mongodb.com/manual/reference/command/create/#create">create</a>
  */
 @Getter
 @EqualsAndHashCode(callSuper = true)
