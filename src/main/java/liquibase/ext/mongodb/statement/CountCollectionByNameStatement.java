@@ -32,24 +32,15 @@ import org.bson.Document;
  */
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class CountCollectionByNameStatement extends AbstractCollectionStatement
+public class CountCollectionByNameStatement extends ListCollectionNamesStatement
         implements NoSqlQueryForLongStatement<MongoLiquibaseDatabase> {
 
-    public static final String COMMAND_NAME = "getCollectionNames";
-
     public CountCollectionByNameStatement(final String collectionName) {
-        super(collectionName);
-    }
-
-    @Override
-    public String getCommandName() {
-        return COMMAND_NAME;
+        super(new Document(NAME, collectionName));
     }
 
     @Override
     public long queryForLong(final MongoLiquibaseDatabase database) {
-        Document filter = new Document("name", getCollectionName());
-        ListCollectionNamesStatement statement = new ListCollectionNamesStatement(filter);
-        return statement.queryForList(database).size();
+        return super.queryForList(database).size();
     }
 }

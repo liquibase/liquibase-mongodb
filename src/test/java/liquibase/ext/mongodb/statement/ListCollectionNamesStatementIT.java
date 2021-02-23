@@ -4,7 +4,7 @@ package liquibase.ext.mongodb.statement;
  * #%L
  * Liquibase MongoDB Extension
  * %%
- * Copyright (C) 2019 Mastercard
+ * Copyright (C) 2021 Mastercard
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -41,35 +41,36 @@ class ListCollectionNamesStatementIT extends AbstractMongoIntegrationTest {
     }
 
     @Test
-    void testCanListAllCollections() {
+    void testListAllCollections() {
         final int numberOfCollections = 25;
         IntStream.rangeClosed(1, numberOfCollections)
                 .forEach(indx -> mongoDatabase.createCollection(collectionName + indx));
 
-        List<String> collectionNames = new ListCollectionNamesStatement().queryForList(database);
-        assertThat(collectionNames.size())
-                .isEqualTo(numberOfCollections);
+        final List<String> collectionNames = new ListCollectionNamesStatement().queryForList(database);
+        assertThat(collectionNames)
+                .isNotNull()
+                .hasSize(numberOfCollections);
     }
 
     @Test
-    void testCanListCollectionsMatchingFilter() {
+    void testListCollectionsMatchingFilter() {
 
         mongoDatabase.createCollection(collectionName);
-        mongoDatabase.createCollection(collectionName+"other");
+        mongoDatabase.createCollection(collectionName + "other");
 
-        Document filter = new Document("name", collectionName);
-        List<String> collectionNames = new ListCollectionNamesStatement(filter).queryForList(database);
-        assertThat(collectionNames.size())
-                .isEqualTo(1);
-        assertThat(collectionNames).contains(collectionName);
+        final Document filter = new Document("name", collectionName);
+        final List<String> collectionNames = new ListCollectionNamesStatement(filter).queryForList(database);
+        assertThat(collectionNames)
+                .hasSize(1)
+                .containsExactly(collectionName);
     }
 
     @Test
     void toStringJs() {
-        String expected = String.format("db.runCommand({'listCollections': 1, 'filter': {'name': '%s'}});", collectionName)
-                .replaceAll("'","\"");
-        Document filter = new Document("name", collectionName);
-        ListCollectionNamesStatement statement = new ListCollectionNamesStatement(filter);
+        final String expected = "db.runCommand({\"listCollections\": 1, \"filter\": {\"name\": \"" + collectionName + "\"}, \"authorizedCollections\": true, \"nameOnly\": true});";
+
+        final Document filter = new Document("name", collectionName);
+        final ListCollectionNamesStatement statement = new ListCollectionNamesStatement(filter);
 
         assertThat(statement.toString())
                 .isEqualTo(statement.toJs())

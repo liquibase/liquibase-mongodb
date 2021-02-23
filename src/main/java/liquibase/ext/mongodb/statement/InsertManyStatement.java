@@ -30,10 +30,12 @@ import java.util.List;
 import static java.util.Objects.nonNull;
 import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyDocument;
 import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyList;
+import static liquibase.ext.mongodb.statement.BsonUtils.toCommand;
 
 /**
  * Inserts many documents via the database runCommand method
  * For a list of supported options see the reference page:
+ *
  * @see <a href="https://docs.mongodb.com/manual/reference/command/insert/">insert</a>
  */
 @Getter
@@ -53,11 +55,11 @@ public class InsertManyStatement extends AbstractRunCommandStatement {
     }
 
     public InsertManyStatement(final String collectionName, final List<Document> documents, final Document options) {
-        super(BsonUtils.toCommand(RUN_COMMAND_NAME, collectionName, combine(documents, options)));
+        super(toCommand(RUN_COMMAND_NAME, collectionName, combine(documents, options)));
     }
 
     public InsertManyStatement(final String collectionName, final List<Document> documents) {
-        this( collectionName, documents, new Document());
+        this(collectionName, documents, new Document());
     }
 
     private static Document combine(final List<Document> documents, final Document options) {

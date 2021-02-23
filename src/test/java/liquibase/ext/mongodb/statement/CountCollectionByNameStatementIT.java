@@ -29,14 +29,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CountCollectionByNameStatementIT extends AbstractMongoIntegrationTest {
     private static final String COLLECTION_NAME = TestUtils.COLLECTION_NAME_1;
-    private static final String COLLECTION_CMD = String.format("db.getCollectionNames(%s);", COLLECTION_NAME);
-    private static final CountCollectionByNameStatement COUNT_COLLECTION = new CountCollectionByNameStatement(COLLECTION_NAME);
+    private static final String COLLECTION_CMD = "db.runCommand({\"listCollections\": 1, \"filter\": {\"name\": \"collectionName\"}, \"authorizedCollections\": true, \"nameOnly\": true});";
 
     @Test
     void testQueryForLongIsOneWhenCollectionIsPresent() {
         connection.getMongoDatabase().createCollection(COLLECTION_NAME_1);
         assertThat(new CountCollectionByNameStatement(COLLECTION_NAME_1).queryForLong(database))
-            .isEqualTo(1);
+                .isEqualTo(1);
     }
 
     @Test
@@ -47,8 +46,9 @@ class CountCollectionByNameStatementIT extends AbstractMongoIntegrationTest {
 
     @Test
     void shouldReturnToString() {
-        assertThat(COUNT_COLLECTION.toJs())
-            .isEqualTo(COUNT_COLLECTION.toString())
-            .isEqualTo(COLLECTION_CMD, COLLECTION_NAME);
+        final CountCollectionByNameStatement countCollectionByNameStatement = new CountCollectionByNameStatement(COLLECTION_NAME);
+        assertThat(countCollectionByNameStatement.toJs())
+                .isEqualTo(countCollectionByNameStatement.toString())
+                .isEqualTo(COLLECTION_CMD);
     }
 }

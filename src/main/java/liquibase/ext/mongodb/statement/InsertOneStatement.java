@@ -30,6 +30,7 @@ import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyDocument;
 /**
  * Inserts a document via the database runCommand method
  * For a list of supported options see the reference page:
+ *
  * @see <a href="https://docs.mongodb.com/manual/reference/command/insert/">insert</a>
  */
 @Getter

@@ -47,12 +47,13 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
 
     @Override
     public void execute(final MongoLiquibaseDatabase database) {
-        final Document response = run(database);
-        checkResponse(response);
+        run(database);
     }
 
     public Document run(final MongoLiquibaseDatabase database) {
-        return database.getMongoDatabase().runCommand(command);
+        final Document response = database.getMongoDatabase().runCommand(command);
+        checkResponse(response);
+        return response;
     }
 
     /**

@@ -29,21 +29,26 @@ import org.bson.Document;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
+import static liquibase.ext.mongodb.statement.BsonUtils.toCommand;
 
 /**
  * Gets a list of collection names via the database runCommand method
  * For a list of supported options see the reference page:
+ *
  * @see <a href="https://docs.mongodb.com/manual/reference/command/listCollections/">listCollections</a>
  */
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class ListCollectionNamesStatement extends AbstractMongoStatement
+public class ListCollectionNamesStatement extends AbstractRunCommandStatement
         implements NoSqlQueryForListStatement<MongoLiquibaseDatabase, String> {
 
-    static final String COMMAND_NAME = "listCollections";
-
-    private final Document filter;
+    static final String RUN_COMMAND_NAME = "listCollections";
+    public static final String FILTER = "filter";
+    public static final String CURSOR = "cursor";
+    public static final String FIRST_BATCH = "firstBatch";
+    public static final String NAME = "name";
+    public static final String AUTHORIZED_COLLECTIONS = "authorizedCollections";
+    public static final String NAME_ONLY = "nameOnly";
 
     /**
      * Create a listCollections statement with no filter.
@@ -55,37 +60,33 @@ public class ListCollectionNamesStatement extends AbstractMongoStatement
 
     /**
      * Create a listCollections statement with the supplied filter.
+     *
      * @param filter the filter to apply
      */
     public ListCollectionNamesStatement(final Document filter) {
-        this.filter = filter;
+        super(toCommand(RUN_COMMAND_NAME, 1, combine(filter)));
     }
 
     @Override
-    public String getCommandName() {
-        return COMMAND_NAME;
+    public String getRunCommandName() {
+        return RUN_COMMAND_NAME;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<String> queryForList(final MongoLiquibaseDatabase database) {
-        Document command = createCommand();
-        Document response = database.getMongoDatabase().runCommand(command);
-        List<Document> firstBatch = response.get("cursor", Document.class).get("firstBatch", List.class);
+
+        final Document response = super.run(database);
+        final List<Document> firstBatch = response.get(CURSOR, Document.class).get(FIRST_BATCH, List.class);
         return firstBatch.stream()
-                .map(document -> document.getString("name"))
+                .map(document -> document.getString(NAME))
                 .collect(Collectors.toList());
     }
 
-    private Document createCommand() {
-        Document command = new Document(COMMAND_NAME, 1);
-        command.put("filter", filter);
-        return command;
+    private static Document combine(final Document filter) {
+        return new Document(FILTER, filter)
+                .append(AUTHORIZED_COLLECTIONS, true)
+                .append(NAME_ONLY, true);
     }
 
-    public String toJs() {
-        return
-                SHELL_DB_PREFIX + AbstractRunCommandStatement.COMMAND_NAME +
-                        "("+createCommand().toJson()+");";
-    }
 }
