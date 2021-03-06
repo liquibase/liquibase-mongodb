@@ -20,10 +20,7 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.FindOneAndUpdateOptions;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
-import liquibase.nosql.statement.NoSqlExecuteStatement;
 import liquibase.nosql.statement.NoSqlUpdateStatement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,56 +28,57 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import static java.util.Objects.isNull;
-import static java.util.Optional.ofNullable;
-import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
+import static java.util.Objects.nonNull;
+import static liquibase.ext.mongodb.statement.BsonUtils.toCommand;
 
+/**
+ * Finds and updates a single document via the database runCommand method
+ * NOTE: This does not return the original document,
+ * instead returns 1 if a document was updated, else 0
+ *
+ * For a list of supported options see the reference page:
+ * @see <a href="https://docs.mongodb.com/manual/reference/command/findAndModify//">findAndModify</a>
+ *
+ */
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class FindOneAndUpdateStatement extends AbstractCollectionStatement
-        implements NoSqlExecuteStatement<MongoLiquibaseDatabase>, NoSqlUpdateStatement<MongoLiquibaseDatabase> {
+public class FindOneAndUpdateStatement extends AbstractRunCommandStatement
+        implements NoSqlUpdateStatement<MongoLiquibaseDatabase> {
 
-    public static final String COMMAND_NAME = "updateLastTag";
-
-    private final Bson filter;
-    private final Bson document;
-    private final Bson sort;
+    public static final String RUN_COMMAND_NAME = "findAndModify";
+    public static final String QUERY = "query";
+    public static final String UPDATE = "update";
+    public static final String SORT = "sort";
+    public static final String VALUE = "value";
 
     public FindOneAndUpdateStatement(final String collectionName, final Bson filter, final Bson document, final Bson sort) {
-        super(collectionName);
-        this.filter = filter;
-        this.document = document;
-        this.sort = sort;
+        this(collectionName, combine(filter, document, sort));
+    }
+
+    public FindOneAndUpdateStatement(final String collectionName, Document options) {
+        super(toCommand(RUN_COMMAND_NAME, collectionName, options));
     }
 
     @Override
-    public String getCommandName() {
-        return COMMAND_NAME;
+    public String getRunCommandName() {
+        return RUN_COMMAND_NAME;
     }
 
-    @Override
-    public String toJs() {
-        return
-                SHELL_DB_PREFIX +
-                        getCollectionName() +
-                        "." +
-                        getCommandName() +
-                        "(" +
-                        ofNullable(filter).map(Bson::toString).orElse(null) +
-                        ", " +
-                        ofNullable(document).map(Bson::toString).orElse(null) +
-                        ", " +
-                        ofNullable(sort).map(Bson::toString).orElse(null) +
-                        ");";
+    private static Document combine(final Bson filter, final Bson document, final Bson sort) {
+        final Document combined = new Document(QUERY, filter);
+        if(nonNull(document)) { combined.put(UPDATE, document); }
+        if(nonNull(sort)) { combined.put(SORT, sort); }
+        return combined;
     }
 
-    @Override
-    public void execute(final MongoLiquibaseDatabase database) {
-        update(database);
-    }
-
+    /**
+     * Executes the findAndModify operation
+     * @param database the database to run against
+     * @return 1 if a document was modified else 0
+     */
     @Override
     public int update(final MongoLiquibaseDatabase database) {
-        final MongoCollection<Document> collection = database.getMongoDatabase().getCollection(getCollectionName());
-        return isNull(collection.findOneAndUpdate(filter, document, new FindOneAndUpdateOptions().sort(sort))) ? 0 : 1;
+        Document response = super.run(database);
+        return isNull(response.get(VALUE)) ? 0 : 1;
     }
 }
