@@ -28,6 +28,10 @@ Liquibase turned to be the most feasible tool to extend as it allows to define c
 <a name="release-notes"></a>
 ## Release Notes
 
+#### 4.3.1.1
+* Upgrade Mongo Java Driver from 4.2.1 to 4.2.2
+* Fixed [Issue-111: Is adminCommand really connected to the admin DB?](https://github.com/liquibase/liquibase-mongodb/issues/111)
+
 #### 4.3.1
 * Support for Liquibase 4.3.1
 * This an important release build with 4.2.0 mongo-driver-sync and is compatible with mongo-driver 3.x.x if provided

@@ -21,6 +21,7 @@ package liquibase.ext.mongodb.statement;
  */
 
 import com.mongodb.MongoException;
+import com.mongodb.client.MongoDatabase;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
 import lombok.AllArgsConstructor;
@@ -51,7 +52,11 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
     }
 
     public Document run(final MongoLiquibaseDatabase database) {
-        final Document response = database.getMongoDatabase().runCommand(command);
+        return run(database.getMongoDatabase());
+    }
+
+    public Document run(final MongoDatabase mongoDatabase) {
+        final Document response = mongoDatabase.runCommand(command);
         checkResponse(response);
         return response;
     }

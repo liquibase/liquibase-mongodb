@@ -24,12 +24,26 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet id="2" author="alex">
+    <property name="database.name" value="db1"/>
+
+    <changeSet id="1" author="alex">
 
         <ext:adminCommand>
 
             <ext:command>
                 { buildInfo: 1 }
+            </ext:command>
+
+        </ext:adminCommand>
+
+    </changeSet>
+
+    <changeSet id="2" author="alex">
+
+        <ext:adminCommand>
+
+            <ext:command>
+                { shardCollection: "${database.name}.player_info_static", key: {location: 1, _id: 1}, unique: true}
             </ext:command>
 
         </ext:adminCommand>
