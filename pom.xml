@@ -211,7 +211,7 @@
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
                     <configuration>
-                        <encoding>UTF-8</encoding>
+                        <encoding>${project.build.sourceEncoding}</encoding>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -297,7 +297,7 @@
                         <doctitle>Liquibase CDI ${project.version} API</doctitle>
                         <quiet>true</quiet>
                         <doclint>none</doclint>
-                        <encoding>UTF-8</encoding>
+                        <encoding>${project.build.sourceEncoding}</encoding>
                         <jarOutputDirectory>${project.basedir}/target</jarOutputDirectory>
                     </configuration>
                     <executions>

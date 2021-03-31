@@ -5,7 +5,7 @@
     <groupId>org.liquibase.ext.test</groupId>
     <artifactId>liquibase-mongodb-test-project</artifactId>
     <packaging>jar</packaging>
-    <version>4.3.1.2-SNAPSHOT</version>
+    <version>4.3.3-SNAPSHOT</version>
     <name>Liquibase MongoDB Extension Test Module</name>
     <description>Liquibase MongoDB Extension Test Module</description>
     <url>http://www.liquibase.org</url>
@@ -38,7 +38,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
-        <liquibase.version>4.3.1</liquibase.version>
+        <liquibase.version>4.3.2</liquibase.version>
         <jupiter.version>5.7.1</jupiter.version>
         <jupiter.surefire.version>1.3.2</jupiter.surefire.version>
         <mockito-core.version>3.8.0</mockito-core.version>
@@ -216,7 +216,7 @@
         <profile>
             <id>mongo-4x</id>
             <properties>
-                <mongodb-driver.version>4.2.0</mongodb-driver.version>
+                <mongodb-driver.version>4.2.2</mongodb-driver.version>
             </properties>
             <dependencies>
                 <dependency>
