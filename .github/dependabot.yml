@@ -1,0 +1,14 @@
+version: 2
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: org.liquibase:liquibase-core
+    versions:
+    - 4.3.4
+  - dependency-name: org.mockito:mockito-core
+    versions:
+    - 3.8.0
