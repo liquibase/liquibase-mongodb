@@ -46,7 +46,7 @@
         <!--mongodb-driver.version>3.12.7</mongodb-driver.version-->
         <lombok.version>1.18.20</lombok.version>
         <hamcrest.version>1.3</hamcrest.version>
-        <assertj.version>3.19.0</assertj.version>
+        <assertj.version>3.20.0</assertj.version>
         <license.licenseName>mastercard_apache_license</license.licenseName>
         <license.licenseResolver>${project.baseUri}/src/license</license.licenseResolver>
         <license.inceptionYear>2019</license.inceptionYear>
