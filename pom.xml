@@ -42,7 +42,7 @@
         <jupiter.surefire.version>1.3.2</jupiter.surefire.version>
         <mockito-core.version>3.11.2</mockito-core.version>
         <mockito-junit-jupiter.version>3.11.2</mockito-junit-jupiter.version>
-        <mongodb-driver.version>4.2.3</mongodb-driver.version>
+        <mongodb-driver.version>4.3.0</mongodb-driver.version>
         <!--mongodb-driver.version>3.12.7</mongodb-driver.version-->
         <lombok.version>1.18.20</lombok.version>
         <hamcrest.version>1.3</hamcrest.version>
