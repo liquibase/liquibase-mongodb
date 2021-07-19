@@ -33,6 +33,9 @@ import lombok.Setter;
 public abstract class AbstractNoSqlConnection implements DatabaseConnection {
 
     @Override
+    public abstract boolean supports(String url);
+
+    @Override
     public int getPriority() {
         return PRIORITY_DEFAULT + 500;
     }

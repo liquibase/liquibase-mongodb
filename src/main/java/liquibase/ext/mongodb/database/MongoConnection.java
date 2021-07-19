@@ -59,6 +59,14 @@ public class MongoConnection extends AbstractNoSqlConnection {
     protected MongoDatabase mongoDatabase;
 
     @Override
+    public boolean supports(String url) {
+        if (url == null) {
+            return false;
+        }
+        return url.toLowerCase().startsWith("mongodb");
+    }
+
+    @Override
     public String getCatalog() throws DatabaseException {
         try {
             return mongoDatabase.getName();
@@ -97,11 +105,15 @@ public class MongoConnection extends AbstractNoSqlConnection {
 
             this.mongoClient = ((MongoClientDriver) driverObject).connect(connectionString);
 
-            this.mongoDatabase = this.mongoClient.getDatabase(Objects.requireNonNull(this.connectionString.getDatabase()))
+            final String database = this.connectionString.getDatabase();
+            if (database == null) {
+                throw new IllegalArgumentException("Database not specified in URL");
+            }
+            this.mongoDatabase = this.mongoClient.getDatabase(Objects.requireNonNull(database))
                     .withCodecRegistry(BsonUtils.uuidCodecRegistry());
         } catch (final Exception e) {
             throw new DatabaseException("Could not open connection to database: "
-                    + ofNullable(connectionString).map(ConnectionString::getDatabase).orElse("UNKNOWN"), e);
+                    + ofNullable(connectionString).map(ConnectionString::getDatabase).orElse(url), e);
         }
     }
 
