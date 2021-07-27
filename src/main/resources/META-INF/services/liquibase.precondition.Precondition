@@ -1,2 +1,3 @@
 liquibase.ext.mongodb.precondition.DocumentExistsPrecondition
 liquibase.ext.mongodb.precondition.ExpectedDocumentCountPrecondition
+liquibase.ext.mongodb.precondition.CollectionExistsPrecondition

@@ -250,17 +250,19 @@ class MongoLiquibaseIT extends AbstractMongoIntegrationTest {
         liquibase.update("");
 
         List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
-        assertThat(changeSets).hasSize(8)
-                .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType)
+        assertThat(changeSets).hasSize(10)
+                .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType, MongoRanChangeSet::getLastCheckSum)
                 .containsExactly(
-                        tuple("1", 1, SKIPPED),
-                        tuple("2", 2, EXECUTED),
-                        tuple("3", 3, EXECUTED),
-                        tuple("4", 4, SKIPPED),
-                        tuple("5", 5, EXECUTED),
-                        tuple("6", 6, EXECUTED),
-                        tuple("7", 7, SKIPPED),
-                        tuple("8", 8, EXECUTED)
+                        tuple("1", 1, SKIPPED, CheckSum.parse("8:025f868444aa99ff8238b3aeb8348fe0")),
+                        tuple("2", 2, EXECUTED, CheckSum.parse("8:517a149b6d344ba6859c016767c0b8d1")),
+                        tuple("3", 3, EXECUTED, CheckSum.parse("8:02aeacdd13ced7e88bd8a6373832e69c")),
+                        tuple("4", 4, SKIPPED, CheckSum.parse("8:54a251bbf203b3523eef2abf23a8f78d")),
+                        tuple("5", 5, EXECUTED, CheckSum.parse("8:d3c5dd6de42b559b7b1086012b5b38b9")),
+                        tuple("6", 6, EXECUTED, CheckSum.parse("8:5fe0e992687d479011653c2bc8d3d10f")),
+                        tuple("7", 7, SKIPPED, CheckSum.parse("8:c5876904ee5ebcc255f25d6ae100b3f5")),
+                        tuple("8", 8, EXECUTED, CheckSum.parse("8:253b4eb9514ddca767da8da818992fb1")),
+                        tuple("9", 9, EXECUTED, CheckSum.parse("8:7814f3ccf6a3132bd0473e1fe29394a3")),
+                        tuple("10", 10, SKIPPED, CheckSum.parse("8:6e91149e36cdaecf7e919312556e0e6b"))
                 );
 
         assertThat(getCollections(connection))
@@ -269,8 +271,14 @@ class MongoLiquibaseIT extends AbstractMongoIntegrationTest {
 
         final FindAllStatement findAllResults = new FindAllStatement("results");
         assertThat(findAllResults.queryForList(database))
-                .hasSize(4).extracting(d -> d.get("info"))
-                .containsExactlyInAnyOrder("existsAnyDocumentInCollection1", "filterMatchedInCollection1", "changeSetExecutedMatch", "expectedDocumentCountfilterMatchedInCollection1");
+                .hasSize(5).extracting(d -> d.get("info"))
+                .containsExactlyInAnyOrder(
+                        "existsAnyDocumentInCollection1",
+                        "filterMatchedInCollection1",
+                        "changeSetExecutedMatch",
+                        "expectedDocumentCountFilterMatchedInCollection1",
+                        "expectedCollectionResultsExists"
+                );
 
     }
 
@@ -286,7 +294,7 @@ class MongoLiquibaseIT extends AbstractMongoIntegrationTest {
         assertThat(changeSets).hasSize(1)
                 .extracting(MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType, MongoRanChangeSet::getTag)
                 .containsExactly(
-                        tuple( 1, EXECUTED, "tag0")
+                        tuple(1, EXECUTED, "tag0")
                 );
 
         final FindAllStatement findAllResults = new FindAllStatement("results");
@@ -366,7 +374,7 @@ class MongoLiquibaseIT extends AbstractMongoIntegrationTest {
                 .containsExactlyInAnyOrder("DATABASECHANGELOG", "DATABASECHANGELOGLOCK", "results");
 
         // rollback to not existing
-        assertThatExceptionOfType(RollbackFailedException.class).isThrownBy(()-> liquibase.rollback("notExisting", ""))
+        assertThatExceptionOfType(RollbackFailedException.class).isThrownBy(() -> liquibase.rollback("notExisting", ""))
                 .withMessageContaining("Could not find tag 'notExisting' in the database");
 
         // rollback to tagged state. Tagged ChangeSet remains

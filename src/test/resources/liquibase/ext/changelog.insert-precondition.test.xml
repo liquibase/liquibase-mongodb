@@ -168,7 +168,7 @@
     
     <changeSet id="7" author="alex">
         <preConditions onFail="CONTINUE" onError="HALT">
-            <ext:expectedDocumentCount collectionName="collection1">
+            <ext:expectedDocumentCount collectionName="collection1" expectedCount="0">
                 <ext:filter>
                     <!--@formatter:off-->
                     {
@@ -179,7 +179,6 @@
                     }
                     <!--@formatter:on-->
                 </ext:filter>
-                <ext:expectedCount>0</ext:expectedCount>
             </ext:expectedDocumentCount>
         </preConditions>
         <comment>Will not be inserted as filter not matches</comment>
@@ -189,7 +188,7 @@
             <ext:document>
                 <!--@formatter:off-->
                 {
-                    info: "expectedDocumentCountfilterNotMatchedInCollection1"
+                    info: "expectedDocumentCountFilterNotMatchedInCollection1"
                 }
                 <!--@formatter:on-->
             </ext:document>
@@ -200,7 +199,7 @@
 
 	<changeSet id="8" author="alex">
         <preConditions onFail="CONTINUE" onError="HALT">
-            <ext:expectedDocumentCount collectionName="collection1">
+            <ext:expectedDocumentCount collectionName="collection1" expectedCount="1">
                 <ext:filter>
                     <!--@formatter:off-->
                     {
@@ -211,7 +210,6 @@
                     }
                     <!--@formatter:on-->
                 </ext:filter>
-                <ext:expectedCount>1</ext:expectedCount>
             </ext:expectedDocumentCount>
         </preConditions>
         <comment>Will be inserted as filter matches</comment>
@@ -221,7 +219,7 @@
             <ext:document>
                 <!--@formatter:off-->
                 {
-                    info: "expectedDocumentCountfilterMatchedInCollection1"
+                    info: "expectedDocumentCountFilterMatchedInCollection1"
                 }
                 <!--@formatter:on-->
             </ext:document>
@@ -229,4 +227,45 @@
         </ext:insertOne>
 
     </changeSet>
+
+    <changeSet id="9" author="alex">
+        <preConditions onFail="CONTINUE" onError="HALT">
+            <ext:collectionExists collectionName="results"/>
+        </preConditions>
+        <comment>Will be inserted as collection exists</comment>
+
+        <ext:insertOne collectionName="results">
+
+            <ext:document>
+                <!--@formatter:off-->
+                {
+                    info: "expectedCollectionResultsExists"
+                }
+                <!--@formatter:on-->
+            </ext:document>
+
+        </ext:insertOne>
+
+    </changeSet>
+
+    <changeSet id="10" author="alex">
+        <preConditions onFail="CONTINUE" onError="HALT">
+            <ext:collectionExists collectionName="results1"/>
+        </preConditions>
+        <comment>Will be inserted as collection exists</comment>
+
+        <ext:insertOne collectionName="results">
+
+            <ext:document>
+                <!--@formatter:off-->
+                {
+                    info: "expectedCollectionResults1NotExists"
+                }
+                <!--@formatter:on-->
+            </ext:document>
+
+        </ext:insertOne>
+
+    </changeSet>
+
 </databaseChangeLog>
