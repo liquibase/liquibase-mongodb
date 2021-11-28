@@ -25,12 +25,7 @@ import com.mongodb.MongoClientSettings;
 import lombok.NoArgsConstructor;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
-import org.bson.codecs.BsonValueCodecProvider;
-import org.bson.codecs.DocumentCodec;
-import org.bson.codecs.DocumentCodecProvider;
-import org.bson.codecs.UuidCodec;
-import org.bson.codecs.UuidCodecProvider;
-import org.bson.codecs.ValueCodecProvider;
+import org.bson.codecs.*;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 
@@ -52,7 +47,8 @@ public final class BsonUtils {
                     new ValueCodecProvider(),
                     new BsonValueCodecProvider(),
                     new DocumentCodecProvider(),
-                    new DBRefCodecProvider()));
+                    new DBRefCodecProvider(),
+                    new IterableCodecProvider()));
 
     public static final String ITEMS = "items";
 
