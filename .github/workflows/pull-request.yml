@@ -35,7 +35,7 @@ jobs:
       run: mvn -B surefire:test --file pom.xml
 
   integration-tests:
-    name: Integration Test - Java ${{ matrix.java }} against ${{ matrix.mongodb }}
+    name: Integration Test - Java ${{ matrix.java }} against MongoDB ${{ matrix.mongodb }}
     runs-on: ubuntu-latest
     needs: unit-test
     strategy:
