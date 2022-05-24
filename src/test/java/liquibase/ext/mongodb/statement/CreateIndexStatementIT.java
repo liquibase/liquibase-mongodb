@@ -60,7 +60,7 @@ class CreateIndexStatementIT extends AbstractMongoIntegrationTest {
 
         assertThat(document.get("unique")).isEqualTo(true);
         assertThat(document.get("key")).isEqualTo(Document.parse("{ locale: 1 }"));
-        assertThat(document.get("expireAfterSeconds")).isEqualTo(30L);
+        assertThat(document.get("expireAfterSeconds").toString()).isEqualTo("30");
 
         // Same index name exception
         final CreateIndexStatement createDuplicateNameIndexStatement = new CreateIndexStatement(COLLECTION_NAME_1, "{ otherField: 1 }", "{ name: \"" + indexName + "\" }");
