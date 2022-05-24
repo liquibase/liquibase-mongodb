@@ -126,7 +126,7 @@ jobs:
     strategy:
       matrix:
         java: [8, 11, 17]
-        mongodb: [4]
+        mongodb: [4, 5]
     services:
       mongodb:
         image: mongo:${{ matrix.mongodb }}
