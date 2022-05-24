@@ -1,4 +1,4 @@
-name: Run Unit Tests
+name: Build & Test
 
 on:
   pull_request:
@@ -32,7 +32,7 @@ jobs:
         cache: 'maven'
 
     - name: Unit Tests - Java ${{ matrix.java }}
-      run: mvn surefire:test --file pom.xml
+      run: mvn -B surefire:test --file pom.xml
 
   integration-tests:
     name: Integration Test - Java ${{ matrix.java }}
@@ -58,4 +58,4 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Integration Test - Java ${{ matrix.java }}
-        run: mvn clean test verify -Prun-its --file pom.xml
+        run: mvn -B clean test verify -Prun-its --file pom.xml
