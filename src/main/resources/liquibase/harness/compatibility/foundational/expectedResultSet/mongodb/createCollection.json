@@ -1,0 +1,50 @@
+{
+    "createCollection": [
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/createCollection.xml",
+            "comments":"create_collection_comment",
+            "author":"as",
+            "description":"createCollection collectionName=towns",
+            "contexts":"createCollectionContext",
+            "labels":"createcollectionlabel",
+            "md5sum":"8:6ce62ac2811ee1d17a3a9c6beb9e7140",
+            "id":"1",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/createCollection.xml",
+            "author":"as",
+            "description":"insertOne collectionName=towns",
+            "contexts":"insertOneContext",
+            "labels":"insertonelabel",
+            "md5sum":"8:a6e8c30b5cdba0667b8cc1988ca04c09",
+            "id":"2",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/createCollection.xml",
+            "author":"as",
+            "description":"createCollection collectionName=countries",
+            "md5sum":"8:07917d52a1193938378c1296468d8938",
+            "id":"3",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/createCollection.xml",
+            "author":"as",
+            "description":"insertMany collectionName=countries",
+            "md5sum":"8:72eb957ce141d1eda7c6918f23124cda",
+            "id":"4",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/createCollection.xml",
+            "author":"as",
+            "description":"createIndex collectionName=countries",
+            "md5sum":"8:93b494d7d641142f6d916ef0a8fd5377",
+            "id":"5",
+            "tag":"test_tag",
+            "execType":"EXECUTED"
+        }
+    ]
+}

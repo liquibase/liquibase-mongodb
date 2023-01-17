@@ -1,0 +1,9 @@
+inputFormat: xml
+context: testContext
+
+databasesUnderTest:
+  - name: mongodb
+    version:
+    url: mongodb://localhost:27017/lbcat
+    username:
+    password:
