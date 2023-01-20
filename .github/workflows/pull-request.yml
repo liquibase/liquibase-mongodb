@@ -63,39 +63,39 @@ jobs:
       - name: Integration Test - Java ${{ matrix.java }}
         run: mvn -B clean test verify -Prun-its --file pom.xml
 
-    harness-tests:
-      name: Harness Tests - Java ${{ matrix.java }}
-      runs-on: ubuntu-latest
-      strategy:
-        matrix:
-          java: [ 11, 17 ]
-          mongodb: [ 4 ]
-      services:
-        mongodb:
-          image: mongo:${{ matrix.mongodb }}
-          env:
-            MONGO_INITDB_DATABASE: lbcat
-          ports:
-            - 27020:27017
+  harness-tests:
+    name: Harness Tests - Java ${{ matrix.java }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 11, 17 ]
+        mongodb: [ 4 ]
+    services:
+      mongodb:
+        image: mongo:${{ matrix.mongodb }}
+        env:
+          MONGO_INITDB_DATABASE: lbcat
+        ports:
+          - 27020:27017
 
-      steps:
-        - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
 
-        - name: Set up JDK ${{ matrix.java }}
-          uses: actions/setup-java@v3
-          with:
-            java-version: ${{ matrix.java }}
-            distribution: 'temurin'
-            cache: 'maven'
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: 'maven'
 
-        - name: Build Cache
-          uses: actions/cache@v3.0.5
-          with:
-            key: build-${{ github.run_number }}-${{ github.run_attempt }}
-            path: |
-              **/target/**
-              ~/.m2/repository/org/liquibase/
+      - name: Build Cache
+        uses: actions/cache@v3.0.5
+        with:
+          key: build-${{ github.run_number }}-${{ github.run_attempt }}
+          path: |
+            **/target/**
+            ~/.m2/repository/org/liquibase/
 
 
-        - name: Harness Foundational Test Suite Run - Java ${{ matrix.java }}
-          run: mvn -Dtest="NoSqlCompatibilityTest" -DdbName=mongodb -DdbUrl=mongodb://localhost:27020/lbcat test
+      - name: Harness Foundational Test Suite Run - Java ${{ matrix.java }}
+        run: mvn -Dtest="NoSqlCompatibilityTest" -DdbName=mongodb -DdbUrl=mongodb://localhost:27020/lbcat test
