@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+         http://www.liquibase.org/xml/ns/dbchangelog-ext
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+  <changeSet id="1" author="as">
+    <ext:createCollection collectionName="countries"/>
+  </changeSet>
+
+
+  <changeSet id="2" author="as">
+    <ext:insertMany collectionName="countries">
+      <ext:documents>
+        [
+        {
+        _id : "us",
+        name : "United States",
+        exports : {
+        foods : [
+        {name : "bacon", tasty : "true" },
+        {name : "burger"}
+        ]
+        }
+        },
+        {
+        _id : "ca",
+        name : "Canada",
+        exports : {
+        foods : [
+        {name : "bacon", tasty : false },
+        {name : "syrup", tasty : true}
+        ]
+        }
+        },
+        {
+        _id : "mx",
+        name : "Mexico",
+        exports : {
+        foods : [
+        {name : "salsa", tasty : true, condiment : true}
+        ]
+        }
+        }
+        ]
+      </ext:documents>
+    </ext:insertMany>
+
+    <rollback>
+      <ext:runCommand>
+        <ext:command>
+          {
+          delete: "countries",
+          deletes: [ { q: { }, limit: 0 } ]
+          }
+        </ext:command>
+      </ext:runCommand>
+    </rollback>
+  </changeSet>
+
+  <changeSet id="3" author="as">
+    <ext:createIndex collectionName="countries">
+      <ext:keys>
+        { name: 1, type: 1}
+      </ext:keys>
+      <ext:options>
+        {unique: true, name: "ui_countries"}
+      </ext:options>
+    </ext:createIndex>
+  </changeSet>
+</databaseChangeLog>

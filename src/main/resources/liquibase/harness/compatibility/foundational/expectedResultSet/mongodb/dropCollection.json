@@ -1,0 +1,13 @@
+{
+    "dropCollection": [
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/dropCollection.xml",
+            "author":"as",
+            "description":"createCollection collectionName=towns; dropCollection collectionName=towns",
+            "md5sum":"8:17ca3575b5b2a8fc8ff685c841c6cdb2",
+            "id":"1",
+            "tag":"test_tag",
+            "execType":"EXECUTED"
+        }
+    ]
+}

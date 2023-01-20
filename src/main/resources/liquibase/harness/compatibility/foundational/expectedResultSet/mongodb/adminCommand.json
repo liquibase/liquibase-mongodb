@@ -1,0 +1,13 @@
+{
+    "adminCommand": [
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/adminCommand.xml",
+            "author":"as",
+            "description":"adminCommand",
+            "md5sum":"8:e17342ecb217a7588eb1d33af4fadff4",
+            "id":"1",
+            "tag":"test_tag",
+            "execType":"EXECUTED"
+        }
+    ]
+}

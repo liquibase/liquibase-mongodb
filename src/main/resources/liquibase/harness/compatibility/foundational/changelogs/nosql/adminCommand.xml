@@ -8,9 +8,22 @@
          http://www.liquibase.org/xml/ns/dbchangelog-ext
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-  <changeSet id="1" author="as" labels="createCollectionLabel" context="createCollectionContext">
-    <comment>create_collection_comment</comment>
-    <ext:createCollection collectionName="towns"/>
-  </changeSet>
+  <changeSet id="1" author="as">
+    <ext:adminCommand>
+      <ext:command>
+        { buildInfo: 1 }
+      </ext:command>
+    </ext:adminCommand>
 
+    <rollback>
+      <ext:runCommand>
+        <ext:command>
+          {
+          delete: "DATABASECHANGELOG",
+          deletes: [ { q: { }, limit: 0 } ]
+          }
+        </ext:command>
+      </ext:runCommand>
+    </rollback>
+  </changeSet>
 </databaseChangeLog>

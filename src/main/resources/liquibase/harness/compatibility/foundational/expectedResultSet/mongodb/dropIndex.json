@@ -1,0 +1,29 @@
+{
+    "dropIndex": [
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/dropIndex.xml",
+            "author":"as",
+            "description":"createCollection collectionName=countries",
+            "md5sum":"8:07917d52a1193938378c1296468d8938",
+            "id":"1",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/dropIndex.xml",
+            "author":"as",
+            "description":"insertMany collectionName=countries",
+            "md5sum":"8:72eb957ce141d1eda7c6918f23124cda",
+            "id":"2",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/dropIndex.xml",
+            "author":"as",
+            "description":"createIndex collectionName=countries; dropIndex collectionName=countries",
+            "md5sum":"8:cb2d36c90ca2afd7447550178a8d7096",
+            "id":"3",
+            "tag":"test_tag",
+            "execType":"EXECUTED"
+        }
+    ]
+}

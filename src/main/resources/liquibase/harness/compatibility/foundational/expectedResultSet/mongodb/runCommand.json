@@ -1,0 +1,13 @@
+{
+    "runCommand": [
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/runCommand.xml",
+            "author":"as",
+            "description":"runCommand",
+            "md5sum":"8:e912107c9bbb2f759ec01d51bb3e19cf",
+            "id":"1",
+            "tag":"test_tag",
+            "execType":"EXECUTED"
+        }
+    ]
+}

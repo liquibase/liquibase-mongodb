@@ -1,4 +1,4 @@
-package liquibase.harness.compatibility.foundational
+package liquibase.testutils
 
 import liquibase.changelog.ChangeLogParameters
 import liquibase.changelog.ChangeSet

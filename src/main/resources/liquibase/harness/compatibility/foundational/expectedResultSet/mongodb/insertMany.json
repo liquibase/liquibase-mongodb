@@ -1,0 +1,21 @@
+{
+    "insertMany": [
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/insertMany.xml",
+            "author":"as",
+            "description":"createCollection collectionName=countries",
+            "md5sum":"8:07917d52a1193938378c1296468d8938",
+            "id":"1",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/insertMany.xml",
+            "author":"as",
+            "description":"insertMany collectionName=countries",
+            "md5sum":"8:72eb957ce141d1eda7c6918f23124cda",
+            "id":"2",
+            "tag":"test_tag",
+            "execType":"EXECUTED"
+        }
+    ]
+}

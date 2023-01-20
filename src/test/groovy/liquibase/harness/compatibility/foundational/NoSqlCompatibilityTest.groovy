@@ -1,13 +1,11 @@
 package liquibase.harness.compatibility.foundational
 
-import liquibase.Liquibase
-import liquibase.ext.mongodb.change.CreateCollectionChange
+
 import liquibase.ext.mongodb.database.MongoConnection
-import liquibase.ext.mongodb.database.MongoLiquibaseDatabase
 import liquibase.harness.config.DatabaseUnderTest
 import liquibase.harness.config.TestConfig
 import liquibase.harness.util.rollback.RollbackStrategy
-import liquibase.resource.ClassLoaderResourceAccessor
+import liquibase.testutils.MongoTestUtils
 import org.json.JSONArray
 import org.json.JSONObject
 import org.skyscreamer.jsonassert.JSONCompareMode
@@ -43,7 +41,6 @@ class NoSqlCompatibilityTest extends Specification {
         String basePath = "liquibase/harness/compatibility/foundational/changelogs/nosql"
         ArrayList<String> changelogList = new ArrayList<>()
         changelogList.add("${basePath}/${testInput.change}.xml")
-//        changelogList.add("${basePath}/${testInput.change}.json")
 
         boolean shouldRunChangeSet
 
@@ -54,7 +51,7 @@ class NoSqlCompatibilityTest extends Specification {
                 "${testInput.database.databaseMinorVersion}"
 
         and: "check database under test is online"
-        def connection =  testInput.database.getConnection()
+        def connection = testInput.database.getConnection()
         shouldRunChangeSet = connection instanceof MongoConnection
         assert shouldRunChangeSet: "Database ${testInput.databaseName} ${testInput.version} is offline!"
 
@@ -64,15 +61,12 @@ class NoSqlCompatibilityTest extends Specification {
             MongoTestUtils.executeCommandScope("validate", argsMap)
         }
 
-        List<String> collectionNames = new  ArrayList<>()
+        List<String> collectionNames = new ArrayList<>()
 
         when: "execute changelogs using liquibase update command"
         for (int i = 0; i < changelogList.size(); i++) {
-            final MongoLiquibaseDatabase database = testInput.database
-            new Liquibase(changelogList.get(i), new ClassLoaderResourceAccessor(), database).update("")
-            final String collectionName = ((CreateCollectionChange) MongoTestUtils.getChangesets(changelogList.get(i), database)
-                    .get(0).getChanges().get(0)).getCollectionName()
-            collectionNames.add(collectionName)
+            argsMap.put("changeLogFile", changelogList.get(i))
+            MongoTestUtils.executeCommandScope("update", argsMap)
         }
 
         and: "execute Liquibase tag command. Tagging last row of DATABASECHANGELOG table"
@@ -96,7 +90,9 @@ class NoSqlCompatibilityTest extends Specification {
         assert compareJSONArrays(generatedResultSetArray, expectedResultSetArray, JSONCompareMode.LENIENT)
 
         and: "check for actual presence of created object"
-        assert (MongoTestUtils.getCollections(connection as MongoConnection)).containsAll(collectionNames);
+        if (!testInput.change.startsWith("drop")) {
+            assert (MongoTestUtils.getCollections(connection as MongoConnection)).containsAll(collectionNames)
+        }
 
         cleanup: "rollback changes if we ran changeSet"
         if (shouldRunChangeSet) {

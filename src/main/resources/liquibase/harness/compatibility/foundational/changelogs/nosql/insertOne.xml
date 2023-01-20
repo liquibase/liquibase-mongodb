@@ -13,4 +13,32 @@
     <ext:createCollection collectionName="towns"/>
   </changeSet>
 
+  <changeSet id="2" author="as" labels="insertOneLabel" context="insertOneContext">
+    <ext:insertOne collectionName="towns">
+      <ext:document>
+        {
+        name: "New York",
+        population: 222000000,
+        lastCensus: ISODate("2016-07-01"),
+        famousFor: [ "the MOMA", "food", "Derek Jeter" ],
+        mayor: {
+        name: "Bill de Blasio",
+        party: "D"
+        }
+        }
+      </ext:document>
+    </ext:insertOne>
+
+    <rollback>
+      <ext:runCommand>
+        <ext:command>
+          {
+          delete: "towns",
+          deletes: [{q: { name: "New York"}, limit: 1}]
+          }
+        </ext:command>
+      </ext:runCommand>
+    </rollback>
+  </changeSet>
+
 </databaseChangeLog>
