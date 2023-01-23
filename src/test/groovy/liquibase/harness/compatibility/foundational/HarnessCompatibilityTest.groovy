@@ -1,11 +1,10 @@
 package liquibase.harness.compatibility.foundational
 
-
 import liquibase.ext.mongodb.database.MongoConnection
 import liquibase.harness.config.DatabaseUnderTest
 import liquibase.harness.config.TestConfig
+import liquibase.harness.util.MongoTestUtils
 import liquibase.harness.util.rollback.RollbackStrategy
-import liquibase.testutils.MongoTestUtils
 import org.json.JSONArray
 import org.json.JSONObject
 import org.skyscreamer.jsonassert.JSONCompareMode
@@ -17,7 +16,7 @@ import static liquibase.harness.util.FileUtils.getJSONFileContent
 import static liquibase.harness.util.JSONUtils.compareJSONArrays
 
 @Unroll
-class NoSqlCompatibilityTest extends Specification {
+class HarnessCompatibilityTest extends Specification {
     @Shared
     RollbackStrategy strategy
     @Shared
