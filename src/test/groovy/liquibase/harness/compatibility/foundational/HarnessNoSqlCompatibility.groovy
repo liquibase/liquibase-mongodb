@@ -16,7 +16,7 @@ import static liquibase.harness.util.FileUtils.getJSONFileContent
 import static liquibase.harness.util.JSONUtils.compareJSONArrays
 
 @Unroll
-class HarnessCompatibilityTest extends Specification {
+class HarnessNoSqlCompatibility extends Specification {
     @Shared
     RollbackStrategy strategy
     @Shared

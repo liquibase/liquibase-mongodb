@@ -98,4 +98,4 @@ jobs:
 
 
       - name: Harness Foundational Test Suite Run - Java ${{ matrix.java }}
-        run: mvn -Dtest="HarnessCompatibilityTest" -DdbName=mongodb -DdbUrl=mongodb://localhost:27020/lbcat clean package
+        run: mvn -Dtest="HarnessNoSqlCompatibility" -DdbName=mongodb -DdbUrl=mongodb://localhost:27020/lbcat clean package
