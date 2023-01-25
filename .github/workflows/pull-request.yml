@@ -99,3 +99,9 @@ jobs:
 
       - name: Harness Foundational Test Suite Run - Java ${{ matrix.java }}
         run: mvn -Dtest="HarnessNoSqlCompatibility" -DdbName=mongodb -DdbUrl=mongodb://localhost:27020/lbcat clean package
+
+      - name: Archive Mongo Database Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: mongodb-test-results
+          path: build/spock-reports

@@ -82,17 +82,7 @@
       </ext:options>
     </ext:dropIndex>
 
-    <rollback>
-      <ext:runCommand>
-        <ext:command>
-          {
-          delete: "DATABASECHANGELOG",
-          deletes: [ { q: { }, limit: 0 } ]
-          }
-        </ext:command>
-      </ext:runCommand>
-    </rollback>
-
+    <rollback/>
   </changeSet>
 
 </databaseChangeLog>

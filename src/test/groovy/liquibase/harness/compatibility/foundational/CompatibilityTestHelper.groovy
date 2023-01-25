@@ -5,25 +5,15 @@ import groovy.transform.builder.Builder
 import liquibase.Scope
 import liquibase.database.Database
 import liquibase.database.DatabaseConnection
-import liquibase.database.jvm.JdbcConnection
 import liquibase.harness.config.DatabaseUnderTest
 import liquibase.harness.config.TestConfig
 import liquibase.harness.util.DatabaseConnectionUtil
 import liquibase.harness.util.FileUtils
 
-import java.sql.Connection
-import java.sql.DriverManager
-import java.sql.ResultSet
-import java.sql.SQLException
-
 class CompatibilityTestHelper {
 
     final static String baseChangelogPath = "liquibase/harness/compatibility/foundational/changelogs"
-    final static List supportedChangeLogFormats = ['xml', 'sql', 'json', 'yml', 'yaml'].asImmutable()
-
-    static boolean shouldOpenNewConnection(DatabaseConnection connection, String... dbNames) {
-        return connection.isClosed()||Arrays.stream(dbNames).anyMatch({ dbName -> connection.getDatabaseProductName().toLowerCase().contains(dbName) })
-    }
+    final static List supportedChangeLogFormats = ['xml', 'json', 'yml', 'yaml'].asImmutable()
 
     static List<TestInput> buildTestInput(String changelogPathSpecification) {
         String commandLineInputFormat = System.getProperty("inputFormat")
@@ -55,21 +45,6 @@ class CompatibilityTestHelper {
             }
         }
         return inputList
-    }
-
-    static ResultSet executeQuery(String pathToSql, TestInput testInput) throws SQLException {
-        Connection newConnection
-        ResultSet resultSet
-        if (shouldOpenNewConnection(testInput.database.getConnection(), "firebird")) {
-            newConnection = DriverManager.getConnection(testInput.url, testInput.username, testInput.password)
-            resultSet = newConnection.createStatement().executeQuery(pathToSql)
-            newConnection.close()
-        } else {
-            JdbcConnection connection = (JdbcConnection) testInput.database.connection
-            resultSet = connection.createStatement().executeQuery(pathToSql)
-            testInput.database.connection.autoCommit ?: testInput.database.connection.commit()
-        }
-        return resultSet
     }
 
     @Builder

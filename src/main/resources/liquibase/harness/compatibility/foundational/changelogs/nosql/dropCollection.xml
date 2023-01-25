@@ -11,18 +11,7 @@
   <changeSet id="1" author="as">
     <ext:createCollection collectionName="towns"/>
     <ext:dropCollection collectionName="towns"/>
-
-    <rollback>
-      <ext:runCommand>
-        <ext:command>
-          {
-          delete: "DATABASECHANGELOG",
-          deletes: [ { q: { }, limit: 0 } ]
-          }
-        </ext:command>
-      </ext:runCommand>
-    </rollback>
-
+    <rollback/>
   </changeSet>
 
 </databaseChangeLog>
