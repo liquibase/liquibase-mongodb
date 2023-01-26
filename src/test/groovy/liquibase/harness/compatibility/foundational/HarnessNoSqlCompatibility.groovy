@@ -1,5 +1,7 @@
 package liquibase.harness.compatibility.foundational
 
+
+import liquibase.ext.mongodb.change.CreateCollectionChange
 import liquibase.ext.mongodb.database.MongoConnection
 import liquibase.harness.config.DatabaseUnderTest
 import liquibase.harness.config.TestConfig
@@ -66,6 +68,11 @@ class HarnessNoSqlCompatibility extends Specification {
         for (int i = 0; i < changelogList.size(); i++) {
             argsMap.put("changeLogFile", changelogList.get(i))
             MongoTestUtils.executeCommandScope("update", argsMap)
+            if (!testInput.change.contains("Command")) {
+                final String collectionName = ((CreateCollectionChange) MongoTestUtils.getChangesets(changelogList.get(i), testInput.database)
+                        .get(0).getChanges().get(0)).getCollectionName()
+                collectionNames.add(collectionName)
+            }
         }
 
         and: "execute Liquibase tag command. Tagging last row of DATABASECHANGELOG table"
@@ -74,7 +81,9 @@ class HarnessNoSqlCompatibility extends Specification {
         MongoTestUtils.executeCommandScope("tag", argsMap)
 
         and: "execute Liquibase history command"
-        MongoTestUtils.executeCommandScope("history", argsMap)
+        for (int i = 0; i < changelogList.size(); i++) {
+            assert MongoTestUtils.executeCommandScope("history", argsMap).toString().contains(changelogList.get(i))
+        }
 
         and: "execute Liquibase status command"
         for (int i = 0; i < changelogList.size(); i++) {
@@ -90,7 +99,7 @@ class HarnessNoSqlCompatibility extends Specification {
 
         and: "check for actual presence of created object"
         if (!testInput.change.startsWith("drop")) {
-            assert (MongoTestUtils.getCollections(connection as MongoConnection)).containsAll(collectionNames)
+            assert MongoTestUtils.getCollections(connection as MongoConnection).containsAll(collectionNames)
         }
 
         cleanup: "rollback changes if we ran changeSet"
