@@ -54,7 +54,7 @@
         <license.trimHeaderLine>true</license.trimHeaderLine>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
         <maven-help-plugin.version>3.2.0</maven-help-plugin.version>
-        <jackson-core.version>2.14.1</jackson-core.version>
+        <jackson-core.version>2.14.2</jackson-core.version>
         <snakeyaml.version>1.33</snakeyaml.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
