@@ -249,7 +249,7 @@
                 <version>2.22.2</version>
                 <configuration>
 <!--                    <skipTests>false</skipTests>-->
-<!--                    <redirectTestOutputToFile>true</redirectTestOutputToFile>-->
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <reportFormat>plain</reportFormat>
                 </configuration>
                 <executions>

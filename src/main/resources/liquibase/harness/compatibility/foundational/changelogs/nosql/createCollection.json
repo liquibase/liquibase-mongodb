@@ -10,7 +10,7 @@
         "changes": [
           {
             "createCollection": {
-              "collectionName": "test_collection_json"
+              "collectionName": "towns_json"
             }
           }
         ]
