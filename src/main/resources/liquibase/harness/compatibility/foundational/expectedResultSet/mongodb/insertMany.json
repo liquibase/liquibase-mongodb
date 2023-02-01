@@ -14,6 +14,22 @@
             "description":"insertMany collectionName=countries",
             "md5sum":"8:72eb957ce141d1eda7c6918f23124cda",
             "id":"2",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/insertMany.json",
+            "author":"as",
+            "description":"createCollection collectionName=countries_json",
+            "md5sum":"8:8434f3e85c2f661325f3056e7fd50950",
+            "id":"1",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/insertMany.json",
+            "author":"as",
+            "description":"insertMany collectionName=countries_json",
+            "md5sum":"8:d265ad391180c1b1c014c5823df8f1eb",
+            "id":"2",
             "tag":"test_tag",
             "execType":"EXECUTED"
         }

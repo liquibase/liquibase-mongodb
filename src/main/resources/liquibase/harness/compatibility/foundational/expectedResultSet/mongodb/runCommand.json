@@ -4,7 +4,15 @@
             "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/runCommand.xml",
             "author":"as",
             "description":"runCommand",
-            "md5sum":"8:e912107c9bbb2f759ec01d51bb3e19cf",
+            "md5sum":"8:d01587a51e40ebc07fbd995aa1cb7afe",
+            "id":"1",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/runCommand.json",
+            "author":"as",
+            "description":"runCommand",
+            "md5sum":"8:a9f789a8482003bb149da01cdab92707",
             "id":"1",
             "tag":"test_tag",
             "execType":"EXECUTED"

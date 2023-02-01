@@ -19,6 +19,22 @@
             "labels":"insertonelabel",
             "md5sum":"8:a6e8c30b5cdba0667b8cc1988ca04c09",
             "id":"2",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/insertOne.json",
+            "author":"as",
+            "description":"createCollection collectionName=towns_json",
+            "md5sum":"8:d9a9bab47a6eab608f53ace261a5b9e7",
+            "id":"1",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/insertOne.json",
+            "author":"as",
+            "description":"insertOne collectionName=towns_json",
+            "md5sum":"8:59c5bd17b1f517c4dfd90ae3ecd756e9",
+            "id":"2",
             "tag":"test_tag",
             "execType":"EXECUTED"
         }

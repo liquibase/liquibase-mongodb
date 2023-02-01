@@ -9,6 +9,17 @@
             "labels":"createcollectionlabel",
             "md5sum":"8:6ce62ac2811ee1d17a3a9c6beb9e7140",
             "id":"1",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/createCollection.json",
+            "comments":"test_comment",
+            "author":"as",
+            "description":"createCollection collectionName=test_collection_json",
+            "contexts":"test_context",
+            "labels":"test_label",
+            "md5sum":"8:aae5fd52e701ca0e2685d722d0616834",
+            "id":"1",
             "tag":"test_tag",
             "execType":"EXECUTED"
         }

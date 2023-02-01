@@ -1,0 +1,18 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "as",
+        "changes": [
+          {
+            "runCommand": {
+              "command": "{ buildInfo: 1 }"
+            }
+          }
+        ],
+        "rollback": ""
+      }
+    }
+  ]
+}

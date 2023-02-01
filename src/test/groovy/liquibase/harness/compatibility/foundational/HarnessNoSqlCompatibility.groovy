@@ -42,6 +42,7 @@ class HarnessNoSqlCompatibility extends Specification {
         String basePath = "liquibase/harness/compatibility/foundational/changelogs/nosql"
         ArrayList<String> changelogList = new ArrayList<>()
         changelogList.add("${basePath}/${testInput.change}.xml")
+        changelogList.add("${basePath}/${testInput.change}.json")
 
         boolean shouldRunChangeSet
 
@@ -56,7 +57,7 @@ class HarnessNoSqlCompatibility extends Specification {
         shouldRunChangeSet = connection instanceof MongoConnection
         assert shouldRunChangeSet: "Database ${testInput.databaseName} ${testInput.version} is offline!"
 
-        and: "execute Liquibase validate command to ensure a chagelog is valid"
+        and: "execute Liquibase validate command to ensure that changelog is valid"
         for (int i = 0; i < changelogList.size(); i++) {
             argsMap.put("changeLogFile", changelogList.get(i))
             MongoTestUtils.executeCommandScope("validate", argsMap)

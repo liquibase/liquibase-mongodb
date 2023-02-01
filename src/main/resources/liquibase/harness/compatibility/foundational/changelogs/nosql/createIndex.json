@@ -1,0 +1,93 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "as",
+        "changes": [
+          {
+            "createCollection": {
+              "collectionName": "countries_json"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "2",
+        "author": "as",
+        "changes": [
+          {
+            "insertMany": {
+              "collectionName": "countries_json",
+              "documents": {
+                "$rawJson": [
+                  {
+                    "_id" : "us",
+                    "name" : "United States",
+                    "exports" : {
+                      "foods" : [
+                        {"name" : "bacon", "tasty" : "true" },
+                        {"name" : "burger"}
+                      ]
+                    }
+                  },
+                  {
+                    "_id" : "ca",
+                    "name" : "Canada",
+                    "exports" : {
+                      "foods" : [
+                        {"name" : "bacon", "tasty" : false },
+                        {"name" : "syrup", "tasty" : true}
+                      ]
+                    }
+                  },
+                  {
+                    "_id" : "mx",
+                    "name" : "Mexico",
+                    "exports" : {
+                      "foods" : [
+                        {"name" : "salsa", "tasty" : true, "condiment" : true}
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "rollback": {
+          "runCommand": {
+            "command": "{ delete: \"countries_json\", deletes: [{q: { }, limit: 0}] }"
+          }
+        }
+      }
+    },
+    {
+      "changeSet": {
+        "id": "3",
+        "author": "as",
+        "changes": [
+          {
+            "createIndex": {
+              "collectionName": "countries_json",
+              "keys": {
+                "$rawJson": {
+                  "name": 1,
+                  "type": 1
+                }
+              },
+              "options": {
+                "$rawJson": {
+                  "unique": true,
+                  "name": "ui_countries_json"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

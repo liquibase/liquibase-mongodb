@@ -22,6 +22,30 @@
             "description":"createIndex collectionName=countries; dropIndex collectionName=countries",
             "md5sum":"8:cb2d36c90ca2afd7447550178a8d7096",
             "id":"3",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/dropIndex.json",
+            "author":"as",
+            "description":"createCollection collectionName=countries_json",
+            "md5sum":"8:8434f3e85c2f661325f3056e7fd50950",
+            "id":"1",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/dropIndex.json",
+            "author":"as",
+            "description":"insertMany collectionName=countries_json",
+            "md5sum":"8:d265ad391180c1b1c014c5823df8f1eb",
+            "id":"2",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/dropIndex.json",
+            "author":"as",
+            "description":"createIndex collectionName=countries_json; dropIndex collectionName=countries_json",
+            "md5sum":"8:cb76d038e4a29be1fe784be0d519771d",
+            "id":"3",
             "tag":"test_tag",
             "execType":"EXECUTED"
         }

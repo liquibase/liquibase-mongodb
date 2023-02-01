@@ -1,0 +1,20 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "as",
+        "labels": "test_label",
+        "context": "test_context",
+        "comment": "test_comment",
+        "changes": [
+          {
+            "createCollection": {
+              "collectionName": "test_collection_json"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

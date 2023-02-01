@@ -12,7 +12,7 @@
     <ext:runCommand>
       <ext:command>
         {
-        dropAllUsersFromDatabase: 1
+        buildInfo: 1
         }
       </ext:command>
     </ext:runCommand>
