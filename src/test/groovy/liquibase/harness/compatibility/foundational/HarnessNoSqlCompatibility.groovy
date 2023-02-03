@@ -43,6 +43,7 @@ class HarnessNoSqlCompatibility extends Specification {
         ArrayList<String> changelogList = new ArrayList<>()
         changelogList.add("${basePath}/${testInput.change}.xml")
         changelogList.add("${basePath}/${testInput.change}.json")
+        changelogList.add("${basePath}/${testInput.change}.yaml")
 
         boolean shouldRunChangeSet
 

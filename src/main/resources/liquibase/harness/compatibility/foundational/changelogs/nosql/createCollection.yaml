@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: as
+      labels: createCollectionLabel
+      context: createCollectionContext
+      comment: create_collection_comment
+      changes:
+        - createCollection:
+            collectionName: towns_yaml

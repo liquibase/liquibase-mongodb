@@ -14,6 +14,14 @@
             "description":"runCommand",
             "md5sum":"8:a9f789a8482003bb149da01cdab92707",
             "id":"1",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/runCommand.yaml",
+            "author":"as",
+            "description":"runCommand",
+            "md5sum":"8:d5760c0bfccd190ddc3531082e91e013",
+            "id":"1",
             "tag":"test_tag",
             "execType":"EXECUTED"
         }
