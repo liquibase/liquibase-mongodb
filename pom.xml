@@ -44,7 +44,7 @@
         <mockito-junit-jupiter.version>4.8.0</mockito-junit-jupiter.version>
         <mongodb-driver.version>4.8.2</mongodb-driver.version>
         <!--mongodb-driver.version>3.12.7</mongodb-driver.version-->
-        <lombok.version>1.18.24</lombok.version>
+        <lombok.version>1.18.26</lombok.version>
         <hamcrest.version>1.3</hamcrest.version>
         <assertj.version>3.24.2</assertj.version>
         <license.licenseName>mastercard_apache_license</license.licenseName>
@@ -54,7 +54,7 @@
         <license.trimHeaderLine>true</license.trimHeaderLine>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
         <maven-help-plugin.version>3.2.0</maven-help-plugin.version>
-        <jackson-core.version>2.14.1</jackson-core.version>
+        <jackson-core.version>2.14.2</jackson-core.version>
         <snakeyaml.version>1.33</snakeyaml.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
