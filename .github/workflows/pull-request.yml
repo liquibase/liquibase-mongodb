@@ -99,7 +99,7 @@ jobs:
 
       - name: Stop Docker Databases
         if: always()
-        run: docker-compose -f ${{ steps.setup.outputs.dockerComposeFile }} down
+        run: docker-compose -f ./src/test/resources/docker/docker-compose.yml down
 
       - name: Archive Mongo Database Test Results
         uses: actions/upload-artifact@v3
