@@ -4,6 +4,6 @@ context: testContext
 databasesUnderTest:
   - name: mongodb
     version:
-    url: mongodb://localhost:27017/lbcat
-    username:
-    password:
+    url: mongodb://localhost:27020/lbcat
+    username: lbuser
+    password: LiquibasePass1

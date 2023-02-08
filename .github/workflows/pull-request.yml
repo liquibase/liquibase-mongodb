@@ -69,14 +69,6 @@ jobs:
     strategy:
       matrix:
         java: [ 11, 17 ]
-        mongodb: [ 4 ]
-    services:
-      mongodb:
-        image: mongo:${{ matrix.mongodb }}
-        env:
-          MONGO_INITDB_DATABASE: lbcat
-        ports:
-          - 27020:27017
 
     steps:
       - uses: actions/checkout@v2
@@ -96,9 +88,14 @@ jobs:
             **/target/**
             ~/.m2/repository/org/liquibase/
 
+      - name: Start Database
+        run: |
+          docker ps -a
+          docker-compose -f ./src/test/resources/docker/docker-compose.yml up -d
+          docker ps -a
 
       - name: Harness Foundational Test Suite Run - Java ${{ matrix.java }}
-        run: mvn -Dtest="HarnessNoSqlCompatibility" -DdbName=mongodb -DdbUrl=mongodb://localhost:27020/lbcat clean package
+        run: mvn -Dtest="HarnessNoSqlCompatibility" -DdbName=mongodb clean package
 
       - name: Archive Mongo Database Test Results
         uses: actions/upload-artifact@v3
