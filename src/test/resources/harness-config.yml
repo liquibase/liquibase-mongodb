@@ -6,4 +6,4 @@ databasesUnderTest:
     version:
     url: mongodb://localhost:27020/lbcat
     username: lbuser
-    password: LiquibasePass1
+    password: LiquibasePass2

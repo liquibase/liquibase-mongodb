@@ -97,6 +97,10 @@ jobs:
       - name: Harness Foundational Test Suite Run - Java ${{ matrix.java }}
         run: mvn -Dtest="HarnessNoSqlCompatibility" -DdbName=mongodb clean package
 
+      - name: Stop Docker Databases
+        if: always()
+        run: docker-compose -f ${{ steps.setup.outputs.dockerComposeFile }} down
+
       - name: Archive Mongo Database Test Results
         uses: actions/upload-artifact@v3
         with:
