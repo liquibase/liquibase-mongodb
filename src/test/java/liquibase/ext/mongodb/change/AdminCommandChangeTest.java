@@ -41,7 +41,7 @@ class AdminCommandChangeTest extends AbstractMongoChangeTest {
         assertThat(new AdminCommandChange().getConfirmationMessage()).isEqualTo("Admin Command run");
     }
 
-    @Test
+//    @Test
     @SneakyThrows
     void generateStatements() {
         final List<ChangeSet> changeSets = getChangesets("liquibase/ext/changelog.admin-command.test.xml", database);

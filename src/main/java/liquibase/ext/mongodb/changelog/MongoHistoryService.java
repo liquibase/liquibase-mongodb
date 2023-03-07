@@ -174,7 +174,7 @@ public class MongoHistoryService extends AbstractNoSqlHistoryService<MongoLiquib
                     , changeSet.getDescription()
                     , changeSet.getComments()
                     , changeSet.getContexts()
-                    , changeSet.getInheritableContexts()
+                    , changeSet.getInheritableContextFilter()
                     , changeSet.getLabels()
                     , getDeploymentId()
                     , nextSequenceValue

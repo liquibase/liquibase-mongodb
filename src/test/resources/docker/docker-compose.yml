@@ -1,0 +1,12 @@
+version: '3.1'
+
+services:
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27020:27017"
+    environment:
+      MONGO_INITDB_DATABASE: lbcat
+    volumes: 
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro

@@ -31,9 +31,6 @@
         </preConditions>
         <comment>Will be SKIPPED due to precondition</comment>
 
-        <ext:documentExists collectionName="collection1">
-
-        </ext:documentExists>
         <ext:insertOne collectionName="results">
 
             <ext:document>

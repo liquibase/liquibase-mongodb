@@ -70,10 +70,16 @@ implements NoSqlUpdateStatement<MongoLiquibaseDatabase> {
                 , MongoChangeLogLock.formLockedBy(), locked);
         final Document inputDocument = new MongoChangeLogLockToDocumentConverter().toDocument(entry);
         inputDocument.put(MongoChangeLogLock.Fields.locked, locked);
+
+        long qtDocuments = database.getMongoDatabase().getCollection(collectionName).countDocuments();
+        boolean upsert = qtDocuments == 0;
+
         final Optional<Document> changeLogLock = Optional.ofNullable(
-                database.getMongoDatabase().getCollection(collectionName)
-                        .findOneAndReplace(Filters.eq(MongoChangeLogLock.Fields.id, entry.getId()), inputDocument,
-                                new FindOneAndReplaceOptions().upsert(true).returnDocument(ReturnDocument.AFTER))
+                database.getMongoDatabase()
+                        .getCollection(collectionName)
+                        .findOneAndReplace(Filters.eq(MongoChangeLogLock.Fields.id,
+                                        entry.getId()), inputDocument,
+                                new FindOneAndReplaceOptions().upsert(upsert).returnDocument(ReturnDocument.AFTER))
         );
         return changeLogLock.map(e -> 1).orElse(0);
     }

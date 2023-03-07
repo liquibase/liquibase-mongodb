@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+         http://www.liquibase.org/xml/ns/dbchangelog-ext
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+  <changeSet id="1" author="as" labels="createCollectionLabel" context="createCollectionContext">
+    <comment>create_collection_comment</comment>
+    <ext:createCollection collectionName="towns"/>
+  </changeSet>
+
+  <changeSet id="2" author="as" labels="insertOneLabel" context="insertOneContext">
+    <ext:insertOne collectionName="towns">
+      <ext:document>
+        {
+        name: "New York",
+        population: 222000000,
+        lastCensus: ISODate("2016-07-01"),
+        famousFor: [ "the MOMA", "food", "Derek Jeter" ],
+        mayor: {
+        name: "Bill de Blasio",
+        party: "D"
+        }
+        }
+      </ext:document>
+    </ext:insertOne>
+
+    <rollback>
+      <ext:runCommand>
+        <ext:command>
+          {
+          delete: "towns",
+          deletes: [{q: { name: "New York"}, limit: 1}]
+          }
+        </ext:command>
+      </ext:runCommand>
+    </rollback>
+  </changeSet>
+
+</databaseChangeLog>

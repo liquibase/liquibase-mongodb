@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: as
+      changes:
+        - createCollection:
+            collectionName: countries_yaml
+
+  - changeSet:
+      id: 2
+      author: as
+      changes:
+        - insertMany:
+            collectionName: countries_yaml
+            documents: |
+              [
+              {
+              _id : "us",
+              name : "United States",
+              exports : {
+              foods : [
+              {name : "bacon", tasty : "true" },
+              {name : "burger"}
+              ]
+              }
+              },
+              {
+              _id : "ca",
+              name : "Canada",
+              exports : {
+              foods : [
+              {name : "bacon", tasty : false },
+              {name : "syrup", tasty : true}
+              ]
+              }
+              },
+              {
+              _id : "mx",
+              name : "Mexico",
+              exports : {
+              foods : [
+              {name : "salsa", tasty : true, condiment : true}
+              ]
+              }
+              }
+              ]
+        - rollback:
+            runCommand:
+              command: |
+                {
+                delete: "countries_yaml",
+                deletes: [ { q: { }, limit: 0 } ]
+                }
+
+  - changeSet:
+      id: 3
+      author: as
+      changes:
+        - createIndex:
+            collectionName: countries_yaml
+            keys: '{ name: 1, type: 1}'
+            options: '{unique: true, name: "ui_countries"}'

@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: as
+      changes:
+        - createCollection:
+            collectionName: towns_yaml
+
+  - changeSet:
+      id: 2
+      author: as
+      changes:
+        - insertOne:
+            collectionName: towns_yaml
+            document: |
+              {
+              name: "New York",
+              population: 222000000,
+              lastCensus: ISODate("2016-07-01"),
+              famousFor: [ "the MOMA", "food", "Derek Jeter" ],
+              mayor: {
+              name: "Bill de Blasio",
+              party: "D"
+              }
+              }
+        - rollback:

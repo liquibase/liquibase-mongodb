@@ -1,0 +1,23 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "as",
+        "changes": [
+          {
+            "createCollection": {
+              "collectionName": "towns_json"
+            }
+          },
+          {
+            "dropCollection": {
+              "collectionName": "towns_json"
+            }
+          }
+        ],
+        "rollback": ""
+      }
+    }
+  ]
+}

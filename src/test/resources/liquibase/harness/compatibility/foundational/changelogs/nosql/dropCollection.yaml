@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: as
+      changes:
+        - createCollection:
+            collectionName: towns_yaml
+        - dropCollection:
+            collectionName: towns_yaml
+        - rollback:
