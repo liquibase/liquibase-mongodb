@@ -23,7 +23,6 @@ package liquibase.ext.mongodb.lockservice;
 import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.exception.DatabaseException;
-import liquibase.exception.LiquibaseException;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.ext.mongodb.statement.CountCollectionByNameStatement;
 import liquibase.ext.mongodb.statement.DropCollectionStatement;
