@@ -27,7 +27,9 @@ import liquibase.database.Database;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.LockException;
 import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.executor.Executor;
 import liquibase.executor.ExecutorService;
+import liquibase.executor.LoggingExecutor;
 import liquibase.lockservice.DatabaseChangeLogLock;
 import liquibase.lockservice.LockService;
 import liquibase.logging.Logger;
@@ -83,8 +85,12 @@ public abstract class AbstractNoSqlLockService<D extends AbstractNoSqlDatabase> 
         return database;
     }
 
-    public NoSqlExecutor getExecutor() {
-        return (NoSqlExecutor) Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(NoSqlExecutor.EXECUTOR_NAME, getDatabase());
+    public NoSqlExecutor getExecutor() throws DatabaseException {
+        Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(NoSqlExecutor.EXECUTOR_NAME, getDatabase());
+        if (executor instanceof LoggingExecutor) {
+            throw new DatabaseException("Liquibase MongoDB Extension does not support *sql commands\nLook at the documentation for the whole list of supported commands");
+        }
+        return (NoSqlExecutor) executor ;
     }
 
     @Override

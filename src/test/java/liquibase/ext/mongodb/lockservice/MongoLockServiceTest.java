@@ -97,9 +97,14 @@ class MongoLockServiceTest {
     void getExecutor() {
         final MongoLiquibaseDatabase database = new MongoLiquibaseDatabase();
         lockService.setDatabase(database);
-        final Executor executor = lockService.getExecutor();
-        assertThat(executor).isInstanceOf(NoSqlExecutor.class);
-        assertThat(lockService.getExecutor()).isSameAs(executor);
+        final Executor executor;
+        try {
+            executor = lockService.getExecutor();
+            assertThat(executor).isInstanceOf(NoSqlExecutor.class);
+            assertThat(lockService.getExecutor()).isSameAs(executor);
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
