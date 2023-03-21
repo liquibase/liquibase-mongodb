@@ -23,6 +23,7 @@ package liquibase.ext.mongodb.lockservice;
 import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.exception.DatabaseException;
+import liquibase.exception.LiquibaseException;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.ext.mongodb.statement.CountCollectionByNameStatement;
 import liquibase.ext.mongodb.statement.DropCollectionStatement;
@@ -82,7 +83,16 @@ public class MongoLockService extends AbstractNoSqlLockService<MongoLiquibaseDat
 
     @Override
     protected Boolean existsRepository() throws DatabaseException {
-        return getExecutor().queryForLong(new CountCollectionByNameStatement(getDatabase().getDatabaseChangeLogLockTableName())) == 1L;
+        try {
+            return getExecutor().queryForLong(new CountCollectionByNameStatement(getDatabase().getDatabaseChangeLogLockTableName())) == 1L;
+        } catch (Exception e){
+            if("Could not query for long".equalsIgnoreCase(e.getMessage())){
+                //"Could not query for long" is not meaningful let's get underlying exception
+                throw new DatabaseException("Failed to create or initialize the lock table",e.getCause());
+            } else {
+                throw new DatabaseException("Failed to create or initialize the lock table",e);
+            }
+        }
     }
 
     @Override
