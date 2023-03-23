@@ -9,9 +9,13 @@ import liquibase.snapshot.SnapshotGenerator;
 import liquibase.snapshot.SnapshotGeneratorChain;
 import liquibase.structure.DatabaseObject;
 
+import java.util.ResourceBundle;
+
 import static liquibase.plugin.Plugin.PRIORITY_SPECIALIZED;
 
 public class NoSqlSnapshotGenerator implements SnapshotGenerator {
+    private static final ResourceBundle mongoBundle = ResourceBundle.getBundle("liquibase/i18n/liquibase-mongo");
+
     @Override
     public int getPriority(Class<? extends DatabaseObject> objectType, Database database) {
         if (database instanceof MongoLiquibaseDatabase) {
@@ -22,7 +26,7 @@ public class NoSqlSnapshotGenerator implements SnapshotGenerator {
 
     @Override
     public <T extends DatabaseObject> T snapshot(T example, DatabaseSnapshot snapshot, SnapshotGeneratorChain chain) throws DatabaseException, InvalidExampleException {
-        throw new DatabaseException("Liquibase MongoDB Extension does not support db-doc, diff*, generate-changelog, and snapshot* commands\nPlease refer to our documentation for the entire list of supported commands for MongoDB");
+        throw new DatabaseException(String.format(mongoBundle.getString("command.unsupported"), "db-doc, diff*, generate-changelog, and snapshot*"));
     }
 
     @Override

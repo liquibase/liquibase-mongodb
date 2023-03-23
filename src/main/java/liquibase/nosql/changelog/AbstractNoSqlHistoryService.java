@@ -39,6 +39,7 @@ import lombok.Setter;
 import java.time.Clock;
 import java.util.Date;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -52,6 +53,8 @@ public abstract class AbstractNoSqlHistoryService<D extends AbstractNoSqlDatabas
     private List<RanChangeSet> ranChangeSetList;
 
     private boolean serviceInitialized;
+
+    private static final ResourceBundle mongoBundle = ResourceBundle.getBundle("liquibase/i18n/liquibase-mongo");
 
     @Getter
     private Boolean hasDatabaseChangeLogTable;
@@ -93,7 +96,7 @@ public abstract class AbstractNoSqlHistoryService<D extends AbstractNoSqlDatabas
     public NoSqlExecutor getExecutor() throws DatabaseException {
         Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(NoSqlExecutor.EXECUTOR_NAME, getDatabase());
         if (executor instanceof LoggingExecutor) {
-            throw new DatabaseException("Liquibase MongoDB Extension does not support *sql commands\nPlease refer to our documentation for the entire list of supported commands for MongoDB");
+            throw new DatabaseException(String.format(mongoBundle.getString("command.unsupported"), "*sql"));
         }
         return (NoSqlExecutor) executor ;
     }
