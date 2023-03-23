@@ -88,7 +88,7 @@ public abstract class AbstractNoSqlLockService<D extends AbstractNoSqlDatabase> 
     public NoSqlExecutor getExecutor() throws DatabaseException {
         Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(NoSqlExecutor.EXECUTOR_NAME, getDatabase());
         if (executor instanceof LoggingExecutor) {
-            throw new DatabaseException("Liquibase MongoDB Extension does not support *sql commands\nLook at the documentation for the whole list of supported commands");
+            throw new DatabaseException("Liquibase MongoDB Extension does not support *sql commands\nPlease refer to our documentation for the entire list of supported commands for MongoDB");
         }
         return (NoSqlExecutor) executor ;
     }
