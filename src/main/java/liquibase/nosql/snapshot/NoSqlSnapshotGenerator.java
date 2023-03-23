@@ -2,6 +2,7 @@ package liquibase.nosql.snapshot;
 
 import liquibase.database.Database;
 import liquibase.exception.DatabaseException;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.snapshot.SnapshotGenerator;
@@ -13,7 +14,10 @@ import static liquibase.plugin.Plugin.PRIORITY_SPECIALIZED;
 public class NoSqlSnapshotGenerator implements SnapshotGenerator {
     @Override
     public int getPriority(Class<? extends DatabaseObject> objectType, Database database) {
-        return PRIORITY_SPECIALIZED;
+        if (database instanceof MongoLiquibaseDatabase) {
+            return PRIORITY_SPECIALIZED;
+        }
+        return PRIORITY_NONE;
     }
 
     @Override
