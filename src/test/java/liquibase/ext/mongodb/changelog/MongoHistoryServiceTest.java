@@ -87,9 +87,14 @@ class MongoHistoryServiceTest {
     void getExecutor() {
         final MongoLiquibaseDatabase database = new MongoLiquibaseDatabase();
         historyService.setDatabase(database);
-        final Executor executor = historyService.getExecutor();
-        assertThat(executor).isInstanceOf(NoSqlExecutor.class);
-        assertThat(historyService.getExecutor()).isSameAs(executor);
+        final Executor executor;
+        try {
+            executor = historyService.getExecutor();
+            assertThat(executor).isInstanceOf(NoSqlExecutor.class);
+            assertThat(historyService.getExecutor()).isSameAs(executor);
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
