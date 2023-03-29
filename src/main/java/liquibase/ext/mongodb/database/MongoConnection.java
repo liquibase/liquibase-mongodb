@@ -32,6 +32,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.Driver;
 import java.util.Collections;
 import java.util.Objects;
@@ -122,7 +124,14 @@ public class MongoConnection extends AbstractNoSqlConnection {
         if (nonNull(driverProperties)) {
 
             final Optional<String> user = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("user")));
-            final Optional<String> password = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("password")));
+            final Optional<String> password = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("password")))
+                    .map(s -> {
+                        try {
+                            return URLEncoder.encode(s, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
 
             if (user.isPresent()) {
                 // injects credentials

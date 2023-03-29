@@ -191,7 +191,10 @@ public class NoSqlExecutor extends AbstractExecutor {
         } else if (sql instanceof UpdateStatement) {
             execute((UpdateStatement) sql);
         } else {
-            throw new IllegalArgumentException("Mongodb cannot execute "+sql.getClass().getName()+" statements");
+            //TODO DAT-14066 fix error message
+            throw new DatabaseException("liquibase-mongodb extension cannot execute " + sql.getClass().getSimpleName() +
+                    ". Please check your classpath, changeType name, other changeSet attributes like 'runWith' " +
+                    "to make sure you have appropriate handler for this change.");
         }
     }
 
