@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.liquibase.org/xml/ns/mongodb"
+            xmlns="http://www.liquibase.org/xml/ns/mongodb"
+            elementFormDefault="qualified">
+
+    <xsd:element name="insertOne">
+
+        <xsd:complexType>
+
+            <xsd:all>
+                <xsd:element name="document" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+                <xsd:element name="options" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            </xsd:all>
+
+            <xsd:attribute name="collectionName" type="xsd:string" use="required"/>
+
+        </xsd:complexType>
+
+    </xsd:element>
+
+    <xsd:element name="insertMany">
+
+        <xsd:complexType>
+
+            <xsd:all>
+                <xsd:element name="documents" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+                <xsd:element name="options" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            </xsd:all>
+
+            <xsd:attribute name="collectionName" type="xsd:string" use="required"/>
+
+        </xsd:complexType>
+
+    </xsd:element>
+
+    <xsd:element name="createCollection">
+
+        <xsd:complexType>
+
+            <xsd:sequence>
+                <xsd:element name="options" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            </xsd:sequence>
+
+            <xsd:attribute name="collectionName" type="xsd:string" use="required"/>
+
+        </xsd:complexType>
+
+    </xsd:element>
+
+    <xsd:element name="dropCollection">
+
+        <xsd:complexType>
+
+            <xsd:attribute name="collectionName" type="xsd:string" use="required"/>
+
+        </xsd:complexType>
+
+    </xsd:element>
+
+    <xsd:element name="createIndex">
+
+        <xsd:complexType>
+
+            <xsd:sequence>
+                <xsd:element name="keys" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+                <xsd:element name="options" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            </xsd:sequence>
+
+            <xsd:attribute name="collectionName" type="xsd:string" use="required"/>
+
+        </xsd:complexType>
+
+    </xsd:element>
+
+    <xsd:element name="dropIndex">
+
+        <xsd:complexType>
+
+            <xsd:sequence>
+                <xsd:element name="keys" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+                <xsd:element name="options" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            </xsd:sequence>
+
+            <xsd:attribute name="collectionName" type="xsd:string" use="required"/>
+
+        </xsd:complexType>
+
+    </xsd:element>
+
+    <xsd:element name="runCommand">
+
+        <xsd:complexType>
+
+            <xsd:all>
+                <xsd:element name="command" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+            </xsd:all>
+
+        </xsd:complexType>
+
+    </xsd:element>
+
+    <xsd:element name="adminCommand">
+
+        <xsd:complexType>
+
+            <xsd:all>
+                <xsd:element name="command" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+            </xsd:all>
+
+        </xsd:complexType>
+
+    </xsd:element>
+
+    <xsd:element name="documentExists">
+        <xsd:complexType>
+
+            <xsd:sequence>
+                <xsd:element name="filter" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            </xsd:sequence>
+
+            <xsd:attribute name="collectionName" type="xsd:string" use="required"/>
+
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="expectedDocumentCount">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="filter" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            </xsd:sequence>
+
+            <xsd:attribute name="collectionName" type="xsd:string" use="required"/>
+            <xsd:attribute name="expectedCount" type="xsd:nonNegativeInteger" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="collectionExists">
+        <xsd:complexType>
+            <xsd:attribute name="collectionName" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+    
+</xsd:schema>

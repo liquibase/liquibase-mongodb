@@ -2,11 +2,11 @@
 <databaseChangeLog
   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:ext="http://www.liquibase.org/xml/ns/mongodb"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
-         http://www.liquibase.org/xml/ns/dbchangelog-ext
-         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+         http://www.liquibase.org/xml/ns/mongodb
+         http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd">
 
   <changeSet id="1" author="as">
     <ext:createCollection collectionName="towns"/>
