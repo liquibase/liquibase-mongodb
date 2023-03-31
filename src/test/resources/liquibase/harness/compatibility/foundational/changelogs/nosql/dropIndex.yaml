@@ -63,5 +63,4 @@ databaseChangeLog:
         - dropIndex:
             collectionName: countries_yaml
             keys: '{ name: 1, type: 1}'
-            options: '{unique: true, name: "ui_countries"}'
         - rollback:

@@ -94,12 +94,6 @@
                   "name": 1,
                   "type": 1
                 }
-              },
-              "options": {
-                "$rawJson": {
-                  "unique": true,
-                  "name": "ui_countries_json"
-                }
               }
             }
           }

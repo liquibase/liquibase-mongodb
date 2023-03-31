@@ -77,9 +77,6 @@
       <ext:keys>
         { name: 1, type: 1}
       </ext:keys>
-      <ext:options>
-        {unique: true, name: "ui_countries"}
-      </ext:options>
     </ext:dropIndex>
 
     <rollback/>
