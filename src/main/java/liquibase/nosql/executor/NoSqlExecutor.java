@@ -191,10 +191,13 @@ public class NoSqlExecutor extends AbstractExecutor {
         } else if (sql instanceof UpdateStatement) {
             execute((UpdateStatement) sql);
         } else {
-            //TODO DAT-14066 fix error message
-            throw new DatabaseException("liquibase-mongodb extension cannot execute " + sql.getClass().getSimpleName() +
-                    ". Please check your classpath, changeType name, other changeSet attributes like 'runWith' " +
-                    "to make sure you have appropriate handler for this change.");
+            throw new DatabaseException("liquibase-mongodb extension cannot execute changeset \n" +
+                    "Unknown type: " + sql.getClass().getName() +
+                    "\nPlease check the following common causes:\n" +
+                    "- Verify change set definitions for common error such as: changeType name, changeSet attributes spelling " +
+                    "(such as runWith,  context, etc.), and punctuation.\n" +
+                    "- Verify that changesets have all the required changeset attributes and do not have invalid attributes for the designated change type.\n" +
+                    "- Double-check to make sure your basic setup includes all needed extensions in your Java classpath");
         }
     }
 
