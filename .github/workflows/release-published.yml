@@ -50,5 +50,4 @@ jobs:
             AWS_DEFAULT_REGION: us-east-1
           # aws s3 sync syncs directories and S3 prefixes.
           run: |
-            aws s3 sync liquibase-mongodb/src/main/resources/liquibase.parser.core.xml/ s3://liquibaseorg-origin/xml/ns/mongodb/ --content-type application/octet-stream --only-show-errors
             aws s3 sync liquibase-mongodb/src/main/resources/www.liquibase.org/xml/ns/mongodb/ s3://liquibaseorg-origin/xml/ns/mongodb/ --content-type application/octet-stream --only-show-errors
