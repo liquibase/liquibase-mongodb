@@ -30,7 +30,6 @@ jobs:
 
     deploy_xsd:
       name: Upload xsds
-      needs: [ setup ]
       runs-on: ubuntu-20.04
       outputs:
         tag: ${{ steps.collect-data.outputs.tag }}
