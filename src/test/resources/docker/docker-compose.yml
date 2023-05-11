@@ -1,25 +1,12 @@
-version: "3"
+version: '3.1'
 
 services:
-  postgres:
-    image: postgres
-    container_name: postgres
-    ports:
-      - 5432:5432
-    environment:
-      - POSTGRES_USER=lbuser
-      - POSTGRES_PASSWORD=LiquibasePass1
-      - POSTGRES_DB=lbcat
 
-  ferretdb:
-    image: ghcr.io/ferretdb/ferretdb:latest
-    container_name: ferretdb
-    restart: on-failure
+  mongo:
+    image: mongo:latest
     ports:
-      - 27017:27017
+      - "27017:27017"
     environment:
-      - FERRETDB_POSTGRESQL_URL=postgres://lbcat:LiquibasePass1@postgres:5432/lbcat
-
-networks:
-  default:
-    name: ferretdb
+      MONGO_INITDB_DATABASE: lbcat
+    volumes:
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
