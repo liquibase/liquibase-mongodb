@@ -4,6 +4,6 @@ context: testContext
 databasesUnderTest:
   - name: mongodb
     version:
-    url: mongodb://lbuser:LiquibasePass1@localhost:27017/lbcat?authMechanism=PLAIN&authSource=admin
+    url: mongodb://lbuser:LiquibasePass1@localhost:27017/lbcat
     username:
     password:
