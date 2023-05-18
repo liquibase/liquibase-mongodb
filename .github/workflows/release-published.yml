@@ -63,11 +63,11 @@ jobs:
             search_dir=liquibase-mongodb/src/main/resources/www.liquibase.org/xml/ns/mongodb
             filenames=`ls -1 $search_dir`
             mkdir index-file
-            cp liquibase-mongodb/src/main/resources/www.liquibase.org/xml/ns/mongodb/index.htm index-file/
+            cp $search_dir/index.htm index-file/
             for entry in $filenames
             do
               if [[ "$entry" != "liquibase-mongodb-latest.xsd" ]] && [[ "$entry" != "index.htm" ]] ;then
                 sed -ie "s/<\/ul>/  <li><a href=\"\/xml\/ns\/mongodb\/${entry}\">${entry}<\/a><\/li>\n<\/ul>/" index-file/index.htm
               fi
             done
-            aws s3 sync index-file s3://liquibaseorg-origin/xml/ns/liquibase-mongodb/ --only-show-errors
+            aws s3 sync index-file s3://liquibaseorg-origin/xml/ns/mongodb/ --only-show-errors
