@@ -41,7 +41,7 @@ public class MongoLiquibaseDatabase extends AbstractNoSqlDatabase {
 
     public static final String MONGODB_PRODUCT_NAME = "MongoDB";
     public static final String MONGODB_PRODUCT_SHORT_NAME = "mongodb";
-    public static final String ADMIN_DATABSE_NAME = "admin";
+    public static final String ADMIN_DATABASE_NAME = "admin";
 
     @Setter
     private Boolean adjustTrackingTablesOnStartup;
@@ -95,7 +95,7 @@ public class MongoLiquibaseDatabase extends AbstractNoSqlDatabase {
 
     @Override
     public String getSystemSchema() {
-        return ADMIN_DATABSE_NAME;
+        return ADMIN_DATABASE_NAME;
     }
 
     /*********************************

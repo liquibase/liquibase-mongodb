@@ -24,15 +24,20 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import liquibase.Scope;
 import liquibase.exception.DatabaseException;
+import liquibase.ext.mongodb.configuration.MongoConfiguration;
 import liquibase.ext.mongodb.statement.BsonUtils;
+import liquibase.logging.Logger;
 import liquibase.nosql.database.AbstractNoSqlConnection;
 import liquibase.util.StringUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.http.client.utils.URIBuilder;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.sql.Driver;
 import java.util.Collections;
@@ -50,9 +55,12 @@ import static liquibase.ext.mongodb.database.MongoLiquibaseDatabase.MONGODB_PROD
 @NoArgsConstructor
 public class MongoConnection extends AbstractNoSqlConnection {
 
+    private final Logger log = Scope.getCurrentScope().getLog(getClass());
     public static final int DEFAULT_PORT = 27017;
     public static final String MONGO_PREFIX = MONGODB_PRODUCT_SHORT_NAME + "://";
     public static final String MONGO_DNS_PREFIX = MONGODB_PRODUCT_SHORT_NAME + "+srv://";
+
+    public static final String DEFAULT_CHARSET = "UTF-8";
 
     private ConnectionString connectionString;
 
@@ -103,7 +111,7 @@ public class MongoConnection extends AbstractNoSqlConnection {
         try {
             final String urlWithCredentials = injectCredentials(StringUtil.trimToEmpty(url), driverProperties);
 
-            this.connectionString = new ConnectionString(urlWithCredentials);
+            this.connectionString = new ConnectionString(resolveRetryWrites(urlWithCredentials));
 
             this.mongoClient = ((MongoClientDriver) driverObject).connect(connectionString);
 
@@ -117,6 +125,35 @@ public class MongoConnection extends AbstractNoSqlConnection {
             throw new DatabaseException("Could not open connection to database: "
                     + ofNullable(connectionString).map(ConnectionString::getDatabase).orElse(url), e);
         }
+    }
+
+    private String resolveRetryWrites(String url) throws URISyntaxException {
+        if (MongoConfiguration.RETRY_WRITES.getCurrentConfiguredValue().wasDefaultValueUsed()) {
+        //user didn't set retryWrites property, so no need to explicitly add default value to url as it already works like that
+            return url;
+        }
+        boolean retryWritesConfigValue = MongoConfiguration.RETRY_WRITES.getCurrentValue();
+        URIBuilder uriBuilder = new URIBuilder(url);
+        uriBuilder.getQueryParams().stream()
+                .filter(pair -> pair.getName().equalsIgnoreCase("retryWrites"))
+                .findFirst()
+                .map(nameValuePair1 -> {
+                    if (nameValuePair1.getValue().equalsIgnoreCase(String.valueOf(retryWritesConfigValue))) {
+                        log.info("retryWrites query param is already set to '" + retryWritesConfigValue+"' no need to override it");
+                    } else {
+                        log.warning(String.format("overriding retryWrites query param from '%s' to '%b'",
+                                nameValuePair1.getValue(), retryWritesConfigValue));
+                        uriBuilder.setParameter("retryWrites", String.valueOf(retryWritesConfigValue));
+                    }
+                    return uriBuilder;
+                }).orElseGet(() -> {
+                            log.info("Adding retryWrites=" + retryWritesConfigValue + " to URL");
+                            uriBuilder.addParameter("retryWrites", String.valueOf(retryWritesConfigValue));
+                            return uriBuilder;
+                        }
+                );
+        return uriBuilder.build().toString();
+
     }
 
     private String injectCredentials(final String url, final Properties driverProperties) {
@@ -140,7 +177,7 @@ public class MongoConnection extends AbstractNoSqlConnection {
 
     private static String encode(String s) {
         try {
-            return URLEncoder.encode(s, "UTF-8");
+            return URLEncoder.encode(s, DEFAULT_CHARSET);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
