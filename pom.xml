@@ -43,7 +43,7 @@
         <mockito-core.version>4.11.0</mockito-core.version>
         <mockito-junit-jupiter.version>4.8.0</mockito-junit-jupiter.version>
         <mongodb-driver.version>4.9.1</mongodb-driver.version>
-        <lombok.version>1.18.26</lombok.version>
+        <lombok.version>1.18.28</lombok.version>
         <hamcrest.version>1.3</hamcrest.version>
         <assertj.version>3.24.2</assertj.version>
         <license.licenseName>mastercard_apache_license</license.licenseName>
