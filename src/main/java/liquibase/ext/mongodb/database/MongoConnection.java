@@ -132,23 +132,23 @@ public class MongoConnection extends AbstractNoSqlConnection {
         //user didn't set retryWrites property, so no need to explicitly add default value to url as it already works like that
             return url;
         }
-        boolean retryWritesConfigValue = MongoConfiguration.RETRY_WRITES.getCurrentValue();
+        String retryWritesConfigValue = String.valueOf(MongoConfiguration.RETRY_WRITES.getCurrentValue());
         URIBuilder uriBuilder = new URIBuilder(url);
         uriBuilder.getQueryParams().stream()
                 .filter(pair -> pair.getName().equalsIgnoreCase("retryWrites"))
                 .findFirst()
                 .map(nameValuePair1 -> {
-                    if (nameValuePair1.getValue().equalsIgnoreCase(String.valueOf(retryWritesConfigValue))) {
+                    if (nameValuePair1.getValue().equalsIgnoreCase(retryWritesConfigValue)) {
                         log.info("retryWrites query param is already set to '" + retryWritesConfigValue+"' no need to override it");
                     } else {
                         log.warning(String.format("overriding retryWrites query param from '%s' to '%b'",
                                 nameValuePair1.getValue(), retryWritesConfigValue));
-                        uriBuilder.setParameter("retryWrites", String.valueOf(retryWritesConfigValue));
+                        uriBuilder.setParameter("retryWrites", retryWritesConfigValue);
                     }
                     return uriBuilder;
                 }).orElseGet(() -> {
                             log.info("Adding retryWrites=" + retryWritesConfigValue + " to URL");
-                            uriBuilder.addParameter("retryWrites", String.valueOf(retryWritesConfigValue));
+                            uriBuilder.addParameter("retryWrites", retryWritesConfigValue);
                             return uriBuilder;
                         }
                 );
