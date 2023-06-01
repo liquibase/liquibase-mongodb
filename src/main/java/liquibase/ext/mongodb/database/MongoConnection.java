@@ -24,6 +24,7 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import liquibase.GlobalConfiguration;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.mongodb.configuration.MongoConfiguration;
@@ -34,10 +35,8 @@ import liquibase.util.StringUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.http.client.utils.URIBuilder;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.sql.Driver;
 import java.util.Collections;
@@ -54,13 +53,9 @@ import static liquibase.ext.mongodb.database.MongoLiquibaseDatabase.MONGODB_PROD
 @Setter
 @NoArgsConstructor
 public class MongoConnection extends AbstractNoSqlConnection {
-
-    private final Logger log = Scope.getCurrentScope().getLog(getClass());
     public static final int DEFAULT_PORT = 27017;
     public static final String MONGO_PREFIX = MONGODB_PRODUCT_SHORT_NAME + "://";
     public static final String MONGO_DNS_PREFIX = MONGODB_PRODUCT_SHORT_NAME + "+srv://";
-
-    public static final String DEFAULT_CHARSET = "UTF-8";
 
     private ConnectionString connectionString;
 
@@ -127,32 +122,21 @@ public class MongoConnection extends AbstractNoSqlConnection {
         }
     }
 
-    private String resolveRetryWrites(String url) throws URISyntaxException {
+    private String resolveRetryWrites(String url) {
+        final Logger log = Scope.getCurrentScope().getLog(getClass());
         if (MongoConfiguration.RETRY_WRITES.getCurrentConfiguredValue().wasDefaultValueUsed()) {
         //user didn't set retryWrites property, so no need to explicitly add default value to url as it already works like that
             return url;
         }
         String retryWritesConfigValue = String.valueOf(MongoConfiguration.RETRY_WRITES.getCurrentValue());
-        URIBuilder uriBuilder = new URIBuilder(url);
-        uriBuilder.getQueryParams().stream()
-                .filter(pair -> pair.getName().equalsIgnoreCase("retryWrites"))
-                .findFirst()
-                .map(nameValuePair1 -> {
-                    if (nameValuePair1.getValue().equalsIgnoreCase(retryWritesConfigValue)) {
-                        log.info("retryWrites query param is already set to '" + retryWritesConfigValue+"' no need to override it");
-                    } else {
-                        log.warning(String.format("overriding retryWrites query param from '%s' to '%b'",
-                                nameValuePair1.getValue(), retryWritesConfigValue));
-                        uriBuilder.setParameter("retryWrites", retryWritesConfigValue);
-                    }
-                    return uriBuilder;
-                }).orElseGet(() -> {
-                            log.info("Adding retryWrites=" + retryWritesConfigValue + " to URL");
-                            uriBuilder.addParameter("retryWrites", retryWritesConfigValue);
-                            return uriBuilder;
-                        }
-                );
-        return uriBuilder.build().toString();
+        if(!url.toLowerCase().contains("retrywrites")){
+            log.info("Adding retryWrites=" + retryWritesConfigValue + " to URL");
+            url+=(url.contains("?")?"&":"?") + "retryWrites="+retryWritesConfigValue;
+        } else {
+            log.info("Overriding retryWrites=" + retryWritesConfigValue + " in the URL");
+            url = url.replaceFirst("(?i)\\bretryWrites=.*?(&|$)", "retryWrites="+retryWritesConfigValue+"$1");
+        }
+        return url;
 
     }
 
@@ -177,7 +161,7 @@ public class MongoConnection extends AbstractNoSqlConnection {
 
     private static String encode(String s) {
         try {
-            return URLEncoder.encode(s, DEFAULT_CHARSET);
+            return URLEncoder.encode(s, GlobalConfiguration.FILE_ENCODING.getCurrentValue().name());
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

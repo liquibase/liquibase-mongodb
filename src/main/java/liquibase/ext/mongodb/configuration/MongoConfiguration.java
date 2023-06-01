@@ -31,7 +31,7 @@ public class MongoConfiguration implements AutoloadedConfigurations {
                 .build();
 
         RETRY_WRITES = builder.define("retryWrites", Boolean.class)
-                .setDescription("Disabling this property will add retryWrites=false to connection URL" +
+                .setDescription("Setting this property to false will add retryWrites=false to connection URL." +
                         "This will permit usage on Mongo Versions not supporting retryWrites, like Amazon DocumentDB")
                 .setDefaultValue(TRUE)
                 .build();
