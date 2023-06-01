@@ -129,12 +129,16 @@ public class MongoConnection extends AbstractNoSqlConnection {
             return url;
         }
         String retryWritesConfigValue = String.valueOf(MongoConfiguration.RETRY_WRITES.getCurrentValue());
-        if(!url.toLowerCase().contains("retrywrites")){
+        if(url.contains("retryWrites")){
+            if(url.contains("retryWrites="+retryWritesConfigValue)){
+                log.info("retryWrites query param is already set to" + retryWritesConfigValue + ", no need to override it");
+            } else {
+                log.warning(String.format("overriding retryWrites query param value to '%s'", retryWritesConfigValue));
+                url = url.replaceFirst("\\bretryWrites=.*?(&|$)", "retryWrites=" + retryWritesConfigValue + "$1");
+            }
+        } else {
             log.info("Adding retryWrites=" + retryWritesConfigValue + " to URL");
             url+=(url.contains("?")?"&":"?") + "retryWrites="+retryWritesConfigValue;
-        } else {
-            log.info("Overriding retryWrites=" + retryWritesConfigValue + " in the URL");
-            url = url.replaceFirst("(?i)\\bretryWrites=.*?(&|$)", "retryWrites="+retryWritesConfigValue+"$1");
         }
         return url;
 
