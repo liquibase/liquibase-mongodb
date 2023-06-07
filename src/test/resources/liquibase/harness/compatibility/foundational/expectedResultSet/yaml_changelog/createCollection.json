@@ -1,0 +1,16 @@
+{
+    "createCollection": [
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/createCollection.yaml",
+            "comments":"create_collection_comment",
+            "author":"as",
+            "description":"createCollection collectionName=towns_yaml",
+            "contexts":"createCollectionContext",
+            "labels":"createcollectionlabel",
+            "md5sum":"8:44f7966f4ac500d31c8cae6bf3233997",
+            "id":"1",
+            "tag":"test_tag",
+            "execType":"EXECUTED"
+        }
+    ]
+}

@@ -1,4 +1,4 @@
-inputFormat: xml
+inputFormat: xml,json,yaml
 context: testContext
 
 databasesUnderTest:

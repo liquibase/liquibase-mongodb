@@ -30,20 +30,15 @@ class HarnessNoSqlCompatibility extends Specification {
         strategy.prepareForRollback(databases)
     }
 
-    def "apply #testInput.change against #testInput.databaseName #testInput.version"() {
+    def "apply #testInput.change #testInput.inputFormat against #testInput.databaseName #testInput.version"() {
         given: "read input data"
         String expectedResultSet = getJSONFileContent(testInput.change, testInput.databaseName, testInput.version,
-                "liquibase/harness/compatibility/foundational/expectedResultSet")
+                "liquibase/harness/compatibility/foundational/expectedResultSet/" + testInput.inputFormat + "_changelog")
         Map<String, Object> argsMap = new HashMap()
         argsMap.put("url", testInput.url)
         argsMap.put("username", testInput.username)
         argsMap.put("password", testInput.password)
-
-        String basePath = "liquibase/harness/compatibility/foundational/changelogs/nosql"
-        ArrayList<String> changelogList = new ArrayList<>()
-        changelogList.add("${basePath}/${testInput.change}.xml")
-        changelogList.add("${basePath}/${testInput.change}.json")
-        changelogList.add("${basePath}/${testInput.change}.yaml")
+        argsMap.put("changeLogFile", testInput.pathToChangeLogFile)
 
         boolean shouldRunChangeSet
 
@@ -59,22 +54,16 @@ class HarnessNoSqlCompatibility extends Specification {
         assert shouldRunChangeSet: "Database ${testInput.databaseName} ${testInput.version} is offline!"
 
         and: "execute Liquibase validate command to ensure that changelog is valid"
-        for (int i = 0; i < changelogList.size(); i++) {
-            argsMap.put("changeLogFile", changelogList.get(i))
-            MongoTestUtils.executeCommandScope("validate", argsMap)
-        }
+        MongoTestUtils.executeCommandScope("validate", argsMap)
 
         List<String> collectionNames = new ArrayList<>()
 
         when: "execute changelogs using liquibase update command"
-        for (int i = 0; i < changelogList.size(); i++) {
-            argsMap.put("changeLogFile", changelogList.get(i))
-            MongoTestUtils.executeCommandScope("update", argsMap)
-            if (!testInput.change.contains("Command")) {
-                final String collectionName = ((CreateCollectionChange) MongoTestUtils.getChangesets(changelogList.get(i), testInput.database)
-                        .get(0).getChanges().get(0)).getCollectionName()
-                collectionNames.add(collectionName)
-            }
+        MongoTestUtils.executeCommandScope("update", argsMap)
+        if (!testInput.change.contains("Command")) {
+            final String collectionName = ((CreateCollectionChange) MongoTestUtils.getChangesets(testInput.pathToChangeLogFile, testInput.database)
+                    .get(0).getChanges().get(0)).getCollectionName()
+            collectionNames.add(collectionName)
         }
 
         and: "execute Liquibase tag command. Tagging last row of DATABASECHANGELOG table"
@@ -83,15 +72,11 @@ class HarnessNoSqlCompatibility extends Specification {
         MongoTestUtils.executeCommandScope("tag", argsMap)
 
         and: "execute Liquibase history command"
-        for (int i = 0; i < changelogList.size(); i++) {
-            assert MongoTestUtils.executeCommandScope("history", argsMap).toString().contains(changelogList.get(i))
-        }
+        assert MongoTestUtils.executeCommandScope("history", argsMap).toString().contains(testInput.pathToChangeLogFile)
 
         and: "execute Liquibase status command"
-        for (int i = 0; i < changelogList.size(); i++) {
-            argsMap.put("changeLogFile", changelogList.get(i))
-            assert MongoTestUtils.executeCommandScope("status", argsMap).toString().contains("is up to date")
-        }
+        argsMap.put("changeLogFile", testInput.pathToChangeLogFile)
+        assert MongoTestUtils.executeCommandScope("status", argsMap).toString().contains("is up to date")
 
         then: "obtain result set, compare it to expected result set"
         def generatedResultSet = ((MongoConnection) connection).getMongoDatabase().getCollection("DATABASECHANGELOG").find().iterator().collect()
@@ -106,10 +91,7 @@ class HarnessNoSqlCompatibility extends Specification {
 
         cleanup: "rollback changes if we ran changeSet"
         if (shouldRunChangeSet) {
-            for (int i = 0; i < changelogList.size(); i++) {
-                argsMap.put("changeLogFile", changelogList.get(i))
-                strategy.performRollback(argsMap)
-            }
+            strategy.performRollback(argsMap)
         }
 
         where: "test input in next data table"
