@@ -4,7 +4,6 @@
             "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/dropCollection.yaml",
             "author":"as",
             "description":"createCollection collectionName=towns_yaml; dropCollection collectionName=towns_yaml",
-            "md5sum":"8:3b6188f42d7b57c319d991615bab0841",
             "id":"1",
             "tag":"test_tag",
             "execType":"EXECUTED"

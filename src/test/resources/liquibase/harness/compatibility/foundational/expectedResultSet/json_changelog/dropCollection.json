@@ -4,7 +4,6 @@
             "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/dropCollection.json",
             "author":"as",
             "description":"createCollection collectionName=towns_json; dropCollection collectionName=towns_json",
-            "md5sum":"8:a33efc698b455c7502cc37fd2984572d",
             "id":"1",
             "execType":"EXECUTED"
         }

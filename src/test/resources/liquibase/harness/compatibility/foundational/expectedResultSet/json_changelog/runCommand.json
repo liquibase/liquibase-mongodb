@@ -4,7 +4,6 @@
             "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/runCommand.json",
             "author":"as",
             "description":"runCommand",
-            "md5sum":"8:a9f789a8482003bb149da01cdab92707",
             "id":"1",
             "execType":"EXECUTED"
         }

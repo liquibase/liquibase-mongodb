@@ -4,7 +4,6 @@
             "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/insertOne.yaml",
             "author":"as",
             "description":"createCollection collectionName=towns_yaml",
-            "md5sum":"8:44f7966f4ac500d31c8cae6bf3233997",
             "id":"1",
             "execType":"EXECUTED"
         },
@@ -12,7 +11,6 @@
             "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/insertOne.yaml",
             "author":"as",
             "description":"insertOne collectionName=towns_yaml",
-            "md5sum":"8:0fa3bfa35321e307179c506520dc627c",
             "id":"2",
             "tag":"test_tag",
             "execType":"EXECUTED"

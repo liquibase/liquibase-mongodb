@@ -7,7 +7,6 @@
             "description":"createCollection collectionName=towns",
             "contexts":"createCollectionContext",
             "labels":"createcollectionlabel",
-            "md5sum":"8:6ce62ac2811ee1d17a3a9c6beb9e7140",
             "id":"1",
             "execType":"EXECUTED"
         }

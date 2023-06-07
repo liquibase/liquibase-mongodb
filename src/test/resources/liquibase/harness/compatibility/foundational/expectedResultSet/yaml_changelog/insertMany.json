@@ -4,7 +4,6 @@
             "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/insertMany.yaml",
             "author":"as",
             "description":"createCollection collectionName=countries_yaml",
-            "md5sum":"8:81b30397399a66a7d7c2f4c16d3eb422",
             "id":"1",
             "execType":"EXECUTED"
         },
@@ -12,7 +11,6 @@
             "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/insertMany.yaml",
             "author":"as",
             "description":"insertMany collectionName=countries_yaml",
-            "md5sum":"8:6a5735c222cb76f12bcfff5effd487f7",
             "id":"2",
             "tag":"test_tag",
             "execType":"EXECUTED"
