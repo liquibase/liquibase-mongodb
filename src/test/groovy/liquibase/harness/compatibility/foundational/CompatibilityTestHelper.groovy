@@ -16,6 +16,13 @@ class CompatibilityTestHelper {
 
     static List<TestInput> buildTestInput(String changelogPathSpecification) {
         String commandLineInputFormat = System.getProperty("inputFormat")
+        String commandLineChangeObjects = System.getProperty("changeObjects")
+        List commandLineChangeObjectList = Collections.emptyList()
+        if (commandLineChangeObjects) {
+            commandLineChangeObjectList = Arrays.asList(commandLineChangeObjects.contains(",")
+                    ? commandLineChangeObjects.split(",")
+                    : commandLineChangeObjects)
+        }
         String specificChangelogPath = baseChangelogPath + changelogPathSpecification
         if (commandLineInputFormat) {
             if (!supportedChangeLogFormats.contains(commandLineInputFormat)) {
@@ -30,17 +37,20 @@ class CompatibilityTestHelper {
         DatabaseConnectionUtil databaseConnectionUtil = new DatabaseConnectionUtil()
         for (DatabaseUnderTest databaseUnderTest : databaseConnectionUtil
                 .initializeDatabasesConnection(TestConfig.instance.getFilteredDatabasesUnderTest())) {
-            for (def changeLogEntry : FileUtils.resolveInputFilePaths(databaseUnderTest, specificChangelogPath, "xml").entrySet()) {
-                inputList.add(TestInput.builder()
-                        .databaseName(databaseUnderTest.name)
-                        .url(databaseUnderTest.url)
-                        .dbSchema(databaseUnderTest.dbSchema)
-                        .username(databaseUnderTest.username)
-                        .password(databaseUnderTest.password)
-                        .version(databaseUnderTest.version)
-                        .change(changeLogEntry.key)
-                        .database(databaseUnderTest.database)
-                        .build())
+            for (def changeLogEntry : FileUtils.resolveInputFilePaths(databaseUnderTest, specificChangelogPath, TestConfig.instance.inputFormat).entrySet()) {
+                if (!commandLineChangeObjectList || commandLineChangeObjectList.contains(changeLogEntry.key)) {
+                    inputList.add(TestInput.builder()
+                            .databaseName(databaseUnderTest.name)
+                            .url(databaseUnderTest.url)
+                            .dbSchema(databaseUnderTest.dbSchema)
+                            .username(databaseUnderTest.username)
+                            .password(databaseUnderTest.password)
+                            .version(databaseUnderTest.version)
+                            .change(changeLogEntry.key)
+                            .pathToChangeLogFile(changeLogEntry.value)
+                            .database(databaseUnderTest.database)
+                            .build())
+                }
             }
         }
         return inputList
@@ -56,6 +66,7 @@ class CompatibilityTestHelper {
         String url
         String dbSchema
         String change
+        String pathToChangeLogFile
         Database database
     }
 }
