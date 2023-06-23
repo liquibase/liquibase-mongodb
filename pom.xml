@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.liquibase.ext</groupId>
     <artifactId>liquibase-mongodb</artifactId>
     <packaging>jar</packaging>
-    <version>4.21.1-SNAPSHOT</version>
+    <version>4.22.0</version>
     <name>Liquibase MongoDB Extension</name>
     <description>Liquibase Extension for MongoDB</description>
     <url>http://www.liquibase.org</url>
@@ -25,7 +24,7 @@
     <scm>
         <connection>scm:git:http://github.com/liquibase/liquibase-mongodb.git</connection>
         <url>https://github.com/liquibase/liquibase-mongodb</url>
-        <tag>HEAD</tag>
+        <tag>liquibase-mongodb-4.22.0</tag>
     </scm>
     <developers>
         <developer>
