@@ -64,7 +64,7 @@
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
-            <version>4.20.0</version>
+            <version>4.21.1</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
