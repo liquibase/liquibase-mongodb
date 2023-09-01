@@ -124,18 +124,17 @@ public abstract class AbstractNoSqlLockService<D extends AbstractNoSqlDatabase> 
         boolean locked = false;
 
         final long timeToGiveUp = getClock().instant().plusSeconds(getChangeLogLockWaitTime() * 60).toEpochMilli();
+        locked = acquireLock();
         while (!locked && (getClock().instant().toEpochMilli() < timeToGiveUp)) {
-            locked = acquireLock();
-            if (!locked) {
-                getLogger().info("Waiting for changelog lock....");
-                try {
-                    //noinspection BusyWait
-                    Thread.sleep(getChangeLogLockRecheckTime() * 1000);
-                } catch (InterruptedException e) {
-                    // Restore thread interrupt status
-                    Thread.currentThread().interrupt();
-                }
+            getLogger().info("Waiting for changelog lock....");
+            try {
+                //noinspection BusyWait
+                Thread.sleep(getChangeLogLockRecheckTime() * 1000);
+            } catch (InterruptedException e) {
+                // Restore thread interrupt status
+                Thread.currentThread().interrupt();
             }
+            locked = acquireLock();
         }
 
         if (!locked) {

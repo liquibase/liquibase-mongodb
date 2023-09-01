@@ -15,6 +15,7 @@ import liquibase.ext.mongodb.statement.CountCollectionByNameStatement;
 import liquibase.ext.mongodb.statement.DropCollectionStatement;
 import liquibase.ext.mongodb.statement.FindAllStatement;
 import liquibase.lockservice.DatabaseChangeLogLock;
+import liquibase.lockservice.LockService;
 import liquibase.lockservice.LockServiceFactory;
 import liquibase.nosql.executor.NoSqlExecutor;
 import lombok.SneakyThrows;
@@ -311,8 +312,71 @@ class MongoLockServiceTest {
 
         verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
-        verify(executorMock, times(2)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
+        verify(executorMock, times(3)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verify(executorMock, times(1)).queryForList(any(FindAllStatement.class), eq(Document.class));
+        verifyNoMoreInteractions(executorMock);
+
+        assertThat(lockService.getHasDatabaseChangeLogLockTable()).isTrue();
+        assertThat(lockService.hasChangeLogLock()).isFalse();
+    }
+
+    @SneakyThrows
+    @Test
+    void waitForLockWithNoWaitAndNoLockInDatabase() {
+        Scope.getCurrentScope().getSingleton(ExecutorService.class).setExecutor(EXECUTOR_NAME, database, executorMock);
+        lockService.setDatabase(database);
+
+        // Repository already exists
+        doReturn(1L).when(executorMock).queryForLong(any(CountCollectionByNameStatement.class));
+        // acquire the lock
+        doReturn(1).when(executorMock).update(any(ReplaceChangeLogLockStatement.class));
+
+        assertThat(lockService.getHasDatabaseChangeLogLockTable()).isNull();
+        assertThat(lockService.hasChangeLogLock()).isFalse();
+
+        lockService.setChangeLogLockWaitTime(0L);
+        lockService.waitForLock();
+
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
+        verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
+        verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
+        verify(executorMock, times(0)).queryForList(any(FindAllStatement.class), eq(Document.class));
+
+        verifyNoMoreInteractions(executorMock);
+
+        assertThat(lockService.getHasDatabaseChangeLogLockTable()).isTrue();
+        assertThat(lockService.hasChangeLogLock()).isTrue();
+    }
+
+    @SneakyThrows
+    @Test
+    void waitForLockWithNoWaitAndLockInDatabase() {
+        final MongoChangeLogLock lockedLock = new MongoChangeLogLock(1, new Date(), "lockedByMock", true);
+
+        Scope.getCurrentScope().getSingleton(ExecutorService.class).setExecutor(EXECUTOR_NAME, database, executorMock);
+        lockService.setDatabase(database);
+
+        doReturn(lockService.getConverter().toDocument(lockedLock))
+                .when(executorMock).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
+        doReturn(Collections.singletonList((Object) lockService.getConverter().toDocument(lockedLock)))
+                .when(executorMock).queryForList(any(FindAllStatement.class), eq(Document.class));
+
+        // Repository already exists
+        doReturn(1L).when(executorMock).queryForLong(any(CountCollectionByNameStatement.class));
+
+        assertThat(lockService.getHasDatabaseChangeLogLockTable()).isNull();
+        assertThat(lockService.hasChangeLogLock()).isFalse();
+
+        lockService.setChangeLogLockWaitTime(0L);
+        assertThatExceptionOfType(LockException.class).isThrownBy(lockService::waitForLock)
+                .withMessageStartingWith("Could not acquire change log lock.  Currently locked by lockedByMock since");
+
+
+        verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
+        verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
+        verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
+        //verify(executorMock, times(0)).queryForList(any(FindAllStatement.class), eq(Document.class));
+
         verifyNoMoreInteractions(executorMock);
 
         assertThat(lockService.getHasDatabaseChangeLogLockTable()).isTrue();
