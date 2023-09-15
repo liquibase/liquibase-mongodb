@@ -53,18 +53,7 @@ jobs:
                   "enabled": "true",
                   "updatePolicy": "always"
                 }
-              },
-                {
-                  "id": "liquibase-super-pom",
-                  "url": "https://maven.pkg.github.com/liquibase/liquibase-super-pom",
-                  "releases": {
-                    "enabled": "true"
-                  },
-                  "snapshots": {
-                    "enabled": "true",
-                    "updatePolicy": "always"
-                  }
-                }
+              }
             ]
           servers: |
             [
@@ -75,11 +64,6 @@ jobs:
               },
               {
                 "id": "liquibase",
-                "username": "liquibot",
-                "password": "${{ secrets.LIQUIBOT_PAT }}"
-              },
-              {
-                "id": "liquibase-super-pom",
                 "username": "liquibot",
                 "password": "${{ secrets.LIQUIBOT_PAT }}"
               }
@@ -157,18 +141,7 @@ jobs:
                   "enabled": "true",
                   "updatePolicy": "always"
                 }
-              },
-                {
-                  "id": "liquibase-super-pom",
-                  "url": "https://maven.pkg.github.com/liquibase/liquibase-super-pom",
-                  "releases": {
-                    "enabled": "true"
-                  },
-                  "snapshots": {
-                    "enabled": "true",
-                    "updatePolicy": "always"
-                  }
-                }
+              }
             ]
           servers: |
             [
@@ -179,11 +152,6 @@ jobs:
               },
               {
                 "id": "liquibase",
-                "username": "liquibot",
-                "password": "${{ secrets.LIQUIBOT_PAT }}"
-              },
-              {
-                "id": "liquibase-super-pom",
                 "username": "liquibot",
                 "password": "${{ secrets.LIQUIBOT_PAT }}"
               }
@@ -260,18 +228,7 @@ jobs:
                   "enabled": "true",
                   "updatePolicy": "always"
                 }
-              },
-                {
-                  "id": "liquibase-super-pom",
-                  "url": "https://maven.pkg.github.com/liquibase/liquibase-super-pom",
-                  "releases": {
-                    "enabled": "true"
-                  },
-                  "snapshots": {
-                    "enabled": "true",
-                    "updatePolicy": "always"
-                  }
-                }
+              }
             ]
           servers: |
             [
@@ -282,11 +239,6 @@ jobs:
               },
               {
                 "id": "liquibase",
-                "username": "liquibot",
-                "password": "${{ secrets.LIQUIBOT_PAT }}"
-              },
-              {
-                "id": "liquibase-super-pom",
                 "username": "liquibot",
                 "password": "${{ secrets.LIQUIBOT_PAT }}"
               }
@@ -343,18 +295,7 @@ jobs:
                   "enabled": "true",
                   "updatePolicy": "always"
                 }
-              },
-                {
-                  "id": "liquibase-super-pom",
-                  "url": "https://maven.pkg.github.com/liquibase/liquibase-super-pom",
-                  "releases": {
-                    "enabled": "true"
-                  },
-                  "snapshots": {
-                    "enabled": "true",
-                    "updatePolicy": "always"
-                  }
-                }
+              }
             ]
           servers: |
             [
@@ -365,11 +306,6 @@ jobs:
               },
               {
                 "id": "liquibase",
-                "username": "liquibot",
-                "password": "${{ secrets.LIQUIBOT_PAT }}"
-              },
-              {
-                "id": "liquibase-super-pom",
                 "username": "liquibot",
                 "password": "${{ secrets.LIQUIBOT_PAT }}"
               }
