@@ -28,6 +28,9 @@ Liquibase turned to be the most feasible tool to extend as it allows to define c
 <a name="release-notes"></a>
 ## Release Notes
 
+#### 4.24.0
+* Support for Liquibase 4.24.0
+
 #### 4.21.0
 * Support for Liquibase 4.20.0
 
