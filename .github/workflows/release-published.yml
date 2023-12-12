@@ -7,7 +7,7 @@ on:
 
 jobs:
   release:
-    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@v0.5.7
+    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@v0.5.8
     secrets: inherit
 
   deploy_xsd:
