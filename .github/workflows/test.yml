@@ -171,7 +171,7 @@ jobs:
         run: docker-compose -f ./src/test/resources/docker/docker-compose.yml down
 
       - name: Archive Mongo Database Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: mongodb-test-results
           path: build/spock-reports
