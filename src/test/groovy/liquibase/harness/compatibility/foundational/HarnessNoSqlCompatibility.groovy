@@ -102,6 +102,6 @@ class HarnessNoSqlCompatibility extends Specification {
 
     def cleanupSpec() {
         strategy.cleanupDatabase(databases)
-        MongoTestUtils.executeCommandScope("drop-all", argsMap)
+        MongoTestUtils.executeCommandScope("dropAll", argsMap)
     }
 }
