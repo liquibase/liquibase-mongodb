@@ -157,14 +157,6 @@ jobs:
             **/target/**
             ~/.m2/repository/org/liquibase/
 
-      - name: Clean Mongo Atlas 7 Database
-        uses: liquibase-github-actions/drop-all@v4.26.0
-        with:
-          url: "${{secrets.TH_MONGO_ATLAS_URL}}"
-          username: "${{secrets.TH_DB_ADMIN}}"
-          password: "${{secrets.TH_DB_PASSWD}}"
-          licenseKey: "${{secrets.LICENSE_KEY}}"
-
       - name: Start Database
         run: |
           docker ps -a
@@ -173,9 +165,6 @@ jobs:
 
       - name: Harness Foundational Test Suite Run on Docker - Java ${{ matrix.java }}
         run: mvn -Dtest="HarnessNoSqlCompatibility" -DdbName=mongodb clean package
-
-      - name: Harness Foundational Test Suite Run on Atlas 7 - Java ${{ matrix.java }}
-        run: mvn -Dtest="HarnessNoSqlCompatibility" -DconfigFile=/harness-config-cloud.yml -DdbName=mongodb  -DdbVersion=atlas -DdbUsername=${{secrets.TH_DB_ADMIN}} -DdbPassword=${{secrets.TH_DB_PASSWD}} -DdbUrl='${{secrets.TH_MONGO_ATLAS_URL}}' clean package
 
       - name: Stop Docker Databases
         if: always()
