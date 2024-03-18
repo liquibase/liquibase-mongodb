@@ -3,11 +3,6 @@ name: "Nightly build"
 
 on:
   workflow_dispatch:
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
   schedule:
     - cron: '0 7 * * 1-5'
 
@@ -25,14 +20,6 @@ jobs:
      steps:
        - name: Checkout
          uses: actions/checkout@v4
-
-#       - name: Clean Mongo Atlas 7 Database
-#         uses: liquibase-github-actions/drop-all@v4.26.0
-#         with:
-#           url: "${{secrets.TH_MONGO_ATLAS_URL}}"
-#           username: "${{secrets.TH_DB_ADMIN}}"
-#           password: "${{secrets.TH_DB_PASSWD}}"
-#           licenseKey: "${{secrets.LICENSE_KEY}}"
 
        - name: Harness Foundational Test Suite Run on Atlas 7
          run: mvn -Dtest="HarnessNoSqlCompatibility" -DconfigFile=/harness-config-cloud.yml  -DdbName=mongodb -DdbUsername=${{secrets.TH_DB_ADMIN}} -DdbPassword=${{secrets.TH_DB_PASSWD}} -DdbUrl='${{secrets.TH_MONGO_ATLAS_URL}}' clean package
