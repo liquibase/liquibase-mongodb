@@ -29,8 +29,10 @@ import org.junit.jupiter.api.Test;
 import static liquibase.ext.mongodb.TestUtils.COLLECTION_NAME_1;
 import static liquibase.ext.mongodb.TestUtils.EMPTY_OPTION;
 import static liquibase.ext.mongodb.TestUtils.getCollections;
+import static liquibase.ext.mongodb.TestUtils.getMajorMongoDBServerVersion;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 
 class CreateCollectionStatementIT extends AbstractMongoIntegrationTest {
@@ -70,8 +72,15 @@ class CreateCollectionStatementIT extends AbstractMongoIntegrationTest {
         final CreateCollectionStatement statement = new CreateCollectionStatement(collectionName, "{}");
         statement.execute(database);
 
-        assertThatExceptionOfType(MongoCommandException.class)
-                .isThrownBy(() -> statement.execute(database))
-                .withMessageContaining("already exists");
+
+        int mongoDBServerVersion = getMajorMongoDBServerVersion(database.getMongoDatabase());
+
+        if (mongoDBServerVersion == 5 || mongoDBServerVersion == 6) {
+            assertThatExceptionOfType(MongoCommandException.class)
+                    .isThrownBy(() -> statement.execute(database))
+                    .withMessageContaining("already exists");
+        } else if (mongoDBServerVersion == 7) {
+            assertThatNoException().isThrownBy(() -> statement.execute(database));
+        }
     }
 }

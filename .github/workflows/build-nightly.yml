@@ -2,12 +2,30 @@
 name: "Nightly build"
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 7 * * 1-5'
 
 jobs:
     nightly-build:
-      uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@v0.6.3
+      uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@v0.6.6
       with:
         nightly: true
       secrets: inherit
+
+    mongo-atlas-tests:
+     name: MongoDB Atlas 7 Test
+     runs-on: ubuntu-latest
+
+     steps:
+       - name: Checkout
+         uses: actions/checkout@v4
+
+       - name: Harness Foundational Test Suite Run on Atlas 7
+         run: mvn -Dtest="HarnessNoSqlCompatibility" -DconfigFile=/harness-config-cloud.yml  -DdbName=mongodb -DdbUsername=${{secrets.TH_DB_ADMIN}} -DdbPassword=${{secrets.TH_DB_PASSWD}} -DdbUrl='${{secrets.TH_MONGO_ATLAS_URL}}' clean package
+
+       - name: Archive Mongo Atlas Test Results
+         uses: actions/upload-artifact@v4
+         with:
+           name: mongodb-test-results
+           path: build/spock-reports

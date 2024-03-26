@@ -1,0 +1,32 @@
+{
+    "createIndex": [
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/createIndex.xml",
+            "author":"as",
+            "description":"createCollection collectionName=countries",
+            "id":"1",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/createIndex.xml",
+            "author":"as",
+            "description":"insertMany collectionName=countries",
+            "id":"2",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/createIndex.xml",
+            "author":"as",
+            "description":"createIndex collectionName=countries",
+            "id":"3",
+            "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/createIndex.xml",
+            "author":"as",
+            "description":"createIndex collectionName=salesData",
+            "id":"4",
+            "execType":"EXECUTED"
+        }
+    ]
+}

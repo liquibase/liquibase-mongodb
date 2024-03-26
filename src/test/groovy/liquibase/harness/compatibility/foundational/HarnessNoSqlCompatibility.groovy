@@ -24,6 +24,9 @@ class HarnessNoSqlCompatibility extends Specification {
     @Shared
     List<DatabaseUnderTest> databases
 
+    @Shared
+    Map<String, Object> argsMap = new HashMap()
+
     def setupSpec() {
         databases = TestConfig.instance.getFilteredDatabasesUnderTest()
         strategy = MongoTestUtils.chooseRollbackStrategy()
@@ -34,7 +37,6 @@ class HarnessNoSqlCompatibility extends Specification {
         given: "read input data"
         String expectedResultSet = getJSONFileContent(testInput.change, testInput.databaseName, testInput.version,
                 "liquibase/harness/compatibility/foundational/expectedResultSet/" + testInput.inputFormat + "_changelog")
-        Map<String, Object> argsMap = new HashMap()
         argsMap.put("url", testInput.url)
         argsMap.put("username", testInput.username)
         argsMap.put("password", testInput.password)
@@ -100,5 +102,6 @@ class HarnessNoSqlCompatibility extends Specification {
 
     def cleanupSpec() {
         strategy.cleanupDatabase(databases)
+        MongoTestUtils.executeCommandScope("dropAll", argsMap)
     }
 }

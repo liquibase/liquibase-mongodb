@@ -3,7 +3,19 @@ context: testContext
 
 databasesUnderTest:
   - name: mongodb
-    version:
+    version: 5
+    url: mongodb://lbuser:LiquibasePass1@localhost:27015/lbcat
+    username:
+    password:
+
+  - name: mongodb
+    version: 6
+    url: mongodb://lbuser:LiquibasePass1@localhost:27016/lbcat
+    username:
+    password:
+
+  - name: mongodb
+    version: 7
     url: mongodb://lbuser:LiquibasePass1@localhost:27017/lbcat
     username:
     password:

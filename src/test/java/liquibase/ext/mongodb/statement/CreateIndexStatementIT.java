@@ -20,6 +20,7 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
+import com.mongodb.MongoCommandException;
 import com.mongodb.MongoException;
 import liquibase.ext.AbstractMongoIntegrationTest;
 import org.bson.Document;
@@ -58,21 +59,29 @@ class CreateIndexStatementIT extends AbstractMongoIntegrationTest {
                 .findAny()
                 .orElseThrow(() -> new IllegalStateException("Index not found"));
 
-        assertThat(document.get("unique")).isEqualTo(true);
-        assertThat(document.get("key")).isEqualTo(Document.parse("{ locale: 1 }"));
-        assertThat(document.get("expireAfterSeconds")).isEqualTo(30L);
+        assertThat(document)
+                .containsEntry("unique", true)
+                .containsEntry("key", Document.parse("{ locale: 1 }"))
+                .containsEntry("expireAfterSeconds", 30);
 
         // Same index name exception
         final CreateIndexStatement createDuplicateNameIndexStatement = new CreateIndexStatement(COLLECTION_NAME_1, "{ otherField: 1 }", "{ name: \"" + indexName + "\" }");
         assertThatExceptionOfType(MongoException.class).isThrownBy(() -> createDuplicateNameIndexStatement.execute(database))
                 .withMessageStartingWith("Command failed with error")
-                .withMessageContaining("Index must have unique name");
+                .withMessageContaining("An existing index has the same name as the requested index. When index names are not specified, they are auto generated and can cause conflicts. Please refer to our documentation.");
 
-        // Same index name exception
+        // Same index name success
         final CreateIndexStatement createSameFieldsIndexStatement = new CreateIndexStatement(COLLECTION_NAME_1, "{ locale: 1 }", "{ name: \"otherName\" }");
-        assertThatExceptionOfType(MongoException.class).isThrownBy(() -> createSameFieldsIndexStatement.execute(database))
-                .withMessageStartingWith("Command failed with error")
-                .withMessageContaining("Index")
-                .withMessageContaining("already exists with different options");
+        createSameFieldsIndexStatement.execute(database);
+
+        final Document document1 = StreamSupport.stream(mongoDatabase.getCollection(COLLECTION_NAME_1).listIndexes().spliterator(), false)
+                .filter(doc -> doc.get("name").equals("otherName"))
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException("Index not found"));
+
+        assertThat(document1)
+                .containsEntry("v", 2)
+                .containsEntry("key", Document.parse("{ locale: 1 }"))
+                .containsEntry("name", "otherName");
     }
 }

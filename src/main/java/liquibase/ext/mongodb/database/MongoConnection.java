@@ -27,6 +27,7 @@ import com.mongodb.client.MongoDatabase;
 import liquibase.GlobalConfiguration;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
+import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.ext.mongodb.configuration.MongoConfiguration;
 import liquibase.ext.mongodb.statement.BsonUtils;
 import liquibase.logging.Logger;
@@ -68,7 +69,42 @@ public class MongoConnection extends AbstractNoSqlConnection {
         if (url == null) {
             return false;
         }
-        return url.toLowerCase().startsWith("mongodb");
+
+         boolean isMongodbConnection = url.toLowerCase().startsWith("mongodb");
+
+        showErrorMessageIfSomeRequiredDependenciesAreNotPresent(isMongodbConnection);
+
+        return isMongodbConnection;
+    }
+
+    private static void showErrorMessageIfSomeRequiredDependenciesAreNotPresent(boolean isMongodbConnection) {
+        if (isMongodbConnection) {
+            final String errorMessagePrefix = "The required dependencies (JAR files) are not available on the classpath:";
+            String errorMessage = errorMessagePrefix;
+
+            try {
+                Class.forName("com.mongodb.ConnectionString");
+            } catch (ClassNotFoundException e) {
+                errorMessage += "\n- mongodb-driver-core.jar";
+            }
+
+            try {
+                Class.forName("com.mongodb.client.MongoClients");
+            } catch (ClassNotFoundException e) {
+                errorMessage += "\n- mongodb-driver-sync.jar";
+            }
+
+            try {
+                Class.forName("org.bson.Transformer");
+            } catch (ClassNotFoundException e) {
+                errorMessage += "\n- bson.jar";
+            }
+
+            if (!errorMessage.equals(errorMessagePrefix)) {
+                errorMessage += "\nDownload the required dependencies and place them in the 'liquibase/lib' folder";
+                throw new UnexpectedLiquibaseException(errorMessage);
+            }
+        }
     }
 
     @Override

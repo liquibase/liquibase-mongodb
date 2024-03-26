@@ -74,4 +74,15 @@
     </mongodb:createIndex>
   </changeSet>
 
+  <changeSet id="4" author="as">
+    <mongodb:createIndex collectionName="salesData">
+      <mongodb:keys>
+        { tenantId: 1,
+        "customFields.$**": 1 }
+      </mongodb:keys>
+      <mongodb:options>
+        {name: "compoundWildcardIndex"}
+      </mongodb:options>
+    </mongodb:createIndex>
+  </changeSet>
 </databaseChangeLog>

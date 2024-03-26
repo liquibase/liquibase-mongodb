@@ -20,6 +20,7 @@ package liquibase.ext.mongodb;
  * #L%
  */
 
+import com.mongodb.client.MongoDatabase;
 import liquibase.Liquibase;
 import liquibase.changelog.ChangeLogParameters;
 import liquibase.changelog.ChangeSet;
@@ -100,5 +101,11 @@ public final class TestUtils {
         final DatabaseChangeLog changeLog =
             parser.parse(changeSetPath, new ChangeLogParameters(database), resourceAccessor);
         return changeLog.getChangeSets();
+    }
+
+    public static int getMajorMongoDBServerVersion(MongoDatabase mongoDatabase) {
+        Document result = mongoDatabase.runCommand(new Document("buildInfo", 1));
+        List<Integer> versionArray = (List<Integer>) result.get("versionArray");
+        return versionArray.get(0);
     }
 }

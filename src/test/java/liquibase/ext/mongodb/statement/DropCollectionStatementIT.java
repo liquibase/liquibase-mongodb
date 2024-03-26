@@ -28,8 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static liquibase.ext.mongodb.TestUtils.COLLECTION_NAME_1;
+import static liquibase.ext.mongodb.TestUtils.getMajorMongoDBServerVersion;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 class DropCollectionStatementIT extends AbstractMongoIntegrationTest {
 
@@ -47,9 +49,15 @@ class DropCollectionStatementIT extends AbstractMongoIntegrationTest {
         assertThat(mongoDatabase.listCollectionNames()).isEmpty();
 
         // try to delete a non existing collection
-        assertThatExceptionOfType(MongoCommandException.class).isThrownBy(() -> dropCollectionStatement.execute(database))
-                .withMessageStartingWith("Command failed with error")
-                .withMessageContaining("NamespaceNotFound");
+        int mongoDBServerVersion = getMajorMongoDBServerVersion(database.getMongoDatabase());
+
+        if (mongoDBServerVersion == 5 || mongoDBServerVersion == 6) {
+            assertThatExceptionOfType(MongoCommandException.class).isThrownBy(() -> dropCollectionStatement.execute(database))
+                    .withMessageStartingWith("Command failed with error")
+                    .withMessageContaining("NamespaceNotFound");
+        } else if (mongoDBServerVersion == 7) {
+            assertThatNoException().isThrownBy(() -> dropCollectionStatement.execute(database));
+        }
     }
 
     @Test

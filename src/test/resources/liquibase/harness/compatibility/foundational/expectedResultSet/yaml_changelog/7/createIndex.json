@@ -20,6 +20,14 @@
             "description":"createIndex collectionName=countries_yaml",
             "id":"3",
             "execType":"EXECUTED"
+        },
+        {
+            "fileName":"liquibase\/harness\/compatibility\/foundational\/changelogs\/nosql\/createIndex.yaml",
+            "author":"as",
+            "description":"createIndex collectionName=salesData_yaml",
+            "id":"4",
+            "tag":"test_tag",
+            "execType":"EXECUTED"
         }
     ]
 }

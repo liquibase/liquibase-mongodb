@@ -10,11 +10,11 @@ on:
 
 jobs:
   build-test:
-    uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@v0.6.3
+    uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@v0.6.6
     secrets: inherit
 
   integration-tests:
-    name: Integration Test - Java ${{ matrix.java }}
+    name: Integration Test - Java ${{ matrix.java }} MongoDB ${{ matrix.mongodb }}
     runs-on: ubuntu-latest
     env:
       LIQUIBOT_TOKEN: ${{ secrets.LIQUIBOT_PAT }}
@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         java: [8, 11, 17]
-        mongodb: [4]
+        mongodb: [5, 6, 7]
     services:
       mongodb:
         image: mongo:${{ matrix.mongodb }}
@@ -87,7 +87,7 @@ jobs:
         run: mvn -B clean test verify -Prun-its --file pom.xml
 
   harness-tests:
-    name: Harness Tests - Java ${{ matrix.java }}
+    name: Harness Tests - Java ${{ matrix.java }} MongoDB ${{ matrix.mongodb }}
     runs-on: ubuntu-latest
     env:
       LIQUIBOT_TOKEN: ${{ secrets.LIQUIBOT_PAT }}
@@ -95,6 +95,7 @@ jobs:
     strategy:
       matrix:
         java: [ 11, 17 ]
+        mongodb: [5, 6, 7]
 
     steps:
       - uses: actions/checkout@v4
@@ -150,7 +151,7 @@ jobs:
             ]
 
       - name: Build Cache
-        uses: actions/cache@v4.0.0
+        uses: actions/cache@v4.0.2
         with:
           key: build-${{ github.run_number }}-${{ github.run_attempt }}
           path: |
@@ -160,15 +161,15 @@ jobs:
       - name: Start Database
         run: |
           docker ps -a
-          docker-compose -f ./src/test/resources/docker/docker-compose.yml up -d
+          docker-compose -f ./src/test/resources/docker/docker-compose.yml up -d mongo-${{ matrix.mongodb }}
           docker ps -a
 
-      - name: Harness Foundational Test Suite Run - Java ${{ matrix.java }}
-        run: mvn -Dtest="HarnessNoSqlCompatibility" -DdbName=mongodb clean package
+      - name: Harness Foundational Test Suite Run on Docker - Java ${{ matrix.java }}
+        run: mvn -Dtest="HarnessNoSqlCompatibility" -DdbName=mongodb clean package -DdbVersion=${{ matrix.mongodb }}
 
       - name: Stop Docker Databases
         if: always()
-        run: docker-compose -f ./src/test/resources/docker/docker-compose.yml down
+        run: docker-compose -f ./src/test/resources/docker/docker-compose.yml down mongo-${{ matrix.mongodb }}
 
       - name: Archive Mongo Database Test Results
         uses: actions/upload-artifact@v4

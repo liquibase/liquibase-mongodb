@@ -2,8 +2,26 @@ version: '3.1'
 
 services:
 
-  mongo:
-    image: mongo:latest
+  mongo-5:
+    image: mongo:5
+    ports:
+      - "27015:27017"
+    environment:
+      MONGO_INITDB_DATABASE: lbcat
+    volumes:
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  mongo-6:
+    image: mongo:6
+    ports:
+      - "27016:27017"
+    environment:
+      MONGO_INITDB_DATABASE: lbcat
+    volumes:
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  mongo-7:
+    image: mongo:7
     ports:
       - "27017:27017"
     environment:
