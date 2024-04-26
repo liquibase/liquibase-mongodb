@@ -110,7 +110,7 @@ class MongoLiquibaseDatabaseTest {
         assertThat(database.getDefaultSchemaName()).isEqualTo("schema1");
         // when catalog is defined catalog is returned
         database.setDefaultCatalogName("catalog1");
-        assertThat(database.getDefaultSchemaName()).isEqualTo("catalog1");
+        assertThat(database.getDefaultCatalogName()).isEqualTo("catalog1");
     }
 
     @Test
@@ -118,7 +118,7 @@ class MongoLiquibaseDatabaseTest {
         database.setDefaultSchemaName("schema1");
         database.setDefaultCatalogName("catalog1");
         assertThat(database.getDefaultSchema()).extracting(CatalogAndSchema::getCatalogName, CatalogAndSchema::getSchemaName)
-                .containsExactly("catalog1", "catalog1");
+                .containsExactly("catalog1", "schema1");
     }
 
 }
