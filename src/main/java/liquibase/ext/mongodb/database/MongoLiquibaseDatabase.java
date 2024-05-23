@@ -20,13 +20,10 @@ package liquibase.ext.mongodb.database;
  * #L%
  */
 
-import com.mongodb.MongoException;
-import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import liquibase.CatalogAndSchema;
 import liquibase.Scope;
 import liquibase.changelog.ChangeLogHistoryServiceFactory;
-import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.executor.Executor;
@@ -36,9 +33,6 @@ import liquibase.ext.mongodb.statement.DropAllCollectionsStatement;
 import liquibase.nosql.database.AbstractNoSqlDatabase;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.bson.BsonDocument;
-import org.bson.BsonInt64;
-import org.bson.conversions.Bson;
 
 import static liquibase.nosql.executor.NoSqlExecutor.EXECUTOR_NAME;
 
@@ -127,17 +121,7 @@ public class MongoLiquibaseDatabase extends AbstractNoSqlDatabase {
 
     @Override
     public void checkDatabaseConnection() throws DatabaseException {
-        DatabaseConnection connection = getConnection();
-        try {
-            if (connection instanceof MongoConnection) {
-                MongoClient mongoClient = ((MongoConnection) connection).getMongoClient();
-                Bson command = new BsonDocument("ping", new BsonInt64(1));
-                MongoDatabase adminDb = mongoClient.getDatabase(ADMIN_DATABASE_NAME);
-                adminDb.runCommand(command);
-            }
-        } catch (MongoException e) {
-            throw new DatabaseException(e);
-        }
+        MongoConnection.showErrorMessageIfSomeRequiredDependenciesAreNotPresent(true);
+        MongoLiquibaseDatabaseUtil.sendPingSignal(getConnection());
     }
-
 }
