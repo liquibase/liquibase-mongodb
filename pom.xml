@@ -23,7 +23,7 @@
     </developers>
 
     <properties>
-        <liquibase.version>4.27.0</liquibase.version>
+        <liquibase.version>4.28.0</liquibase.version>
         <jupiter.surefire.version>1.3.2</jupiter.surefire.version>
         <mockito-core.version>4.11.0</mockito-core.version>
         <mockito-junit-jupiter.version>4.8.0</mockito-junit-jupiter.version>
