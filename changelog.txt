@@ -1,0 +1,82 @@
+Liquibase MongoDB Extension Changelog
+===========================================
+
+#### 4.24.0
+* Support for Liquibase 4.24.0
+
+#### 4.21.0
+* Support for Liquibase 4.20.0
+
+#### 4.4.0
+* Updated code to work with core 4.4.0 [PR #147](https://github.com/liquibase/liquibase-mongodb/pull/147)
+* Bump mockito-core from 3.10.0 to 3.11.0 [PR#151](https://github.com/liquibase/liquibase-mongodb/pull/151)
+* Bump mockito-junit-jupiter from 3.10.0 to 3.11.0 [PR#152](https://github.com/liquibase/liquibase-mongodb/pull/152)
+* Bump snakeyaml from 1.28 to 1.29 [PR#153](https://github.com/liquibase/liquibase-mongodb/pull/153)
+* Bump assertj-core from 3.19.0 to 3.20.0[PR#157](https://github.com/liquibase/liquibase-mongodb/pull/157)
+
+
+#### 4.3.1.1
+* Upgrade Mongo Java Driver from 4.2.1 to 4.2.2
+* Fixed [Issue-111: Is adminCommand really connected to the admin DB?](https://github.com/liquibase/liquibase-mongodb/issues/111)
+
+#### 4.3.1
+* Support for Liquibase 4.3.1
+* This an important release build with 4.2.0 mongo-driver-sync and is compatible with mongo-driver 3.x.x if provided
+* Fixed [Issue-90: Convert all statements to runCommand so it is compatible with majority JavaDriver versions](https://github.com/liquibase/liquibase-mongodb/issues/90)
+* Fixed [Issue-80: Move from deprecated mongo-java-driver](https://github.com/liquibase/liquibase-mongodb/issues/80)
+* Fixed [Issue-71: Support mongodb-driver-sync v4.x](https://github.com/liquibase/liquibase-mongodb/issues/71)
+
+#### 4.2.2.1
+* Fixed [Issue-64:Support for DNS Seed List Connection Format or Atlas Cluster](https://github.com/liquibase/liquibase-mongodb/issues/66)
+* Fixed [Issue-69: Does it support preconditions](https://github.com/liquibase/liquibase-mongodb/issues/69)
+* Fixed [Issue-70: Is there a way to tag the current database state?](https://github.com/liquibase/liquibase-mongodb/issues/70)
+* Added DocumentExistsPrecondition, ExpectedDocumentCountPrecondition
+* Fixed [Issue-74: createIndex with TTL (expireAfterSeconds) is ignored and normal index created](https://github.com/liquibase/liquibase-mongodb/issues/74)
+* Fixed [Issue-79: CreateCollection silently drops supported options](https://github.com/liquibase/liquibase-mongodb/issues/79)
+
+#### 4.2.2
+* Support for Liquibase 4.2.2
+
+#### 4.2.1
+* Support for Liquibase 4.2.1
+
+#### 4.1.1.2
+* Fixed [Rollback doesn't work with liquibase-mongodb-4.0.0.2 extension](https://github.com/liquibase/liquibase-mongodb/issues/38)
+* Added dropCollection and dropIndex Changes
+* Added NoSql JSON Parser which can pass raw JSON for a property like this:
+```json
+{
+    "options" :
+        {
+            "$rawJson" : { ... }
+        }
+}
+```
+For the command line is required to copy to `[liquibase]/lib`
+libraries : `jackson-annotations-2.11.3.jar, jackson-core-2.11.3.jar, jackson-databind-2.11.3.jar`
+
+* New properties added
+```properties
+# If disabled can be used on API which do not support validators (Azure Cosmos DB with Mongo API, Amazon DocumentDB)
+liquibase.mongodb.supportsValidator=true
+# If enabled will adjust indexes and validators for Liquibase tracking tables LOCK and CHANGELOG. Can be disabled if sure Liquibase not updated.
+liquibase.mongodb.adjustTrackingTablesOnStartup=true
+```
+* Overridden Liquibase table names removed. Now will be used the default ones in Liquibase. If previous releases used then table names should be explicitly passed as parameters.
+Currently, by default as Liquibase default :`DATABASECHANGELOGLOCK, DATABASECHANGELOG`
+Previous releases used by default : `databaseChangeLogLock, databaseChangeLog`
+
+#### 4.1.1
+* Support for Liquibase 4.1.1
+
+#### 4.1.0
+* Support for Liquibase 4.1.0
+
+#### 4.0.0
+* Works with Liquibase v4.0.0
+
+#### 3.10.0
+* Support for Liquibase 3.10
+
+#### 3.9.0
+* First release
