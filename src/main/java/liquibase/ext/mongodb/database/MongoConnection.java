@@ -77,7 +77,7 @@ public class MongoConnection extends AbstractNoSqlConnection {
         return isMongodbConnection;
     }
 
-    private static void showErrorMessageIfSomeRequiredDependenciesAreNotPresent(boolean isMongodbConnection) {
+    public static void showErrorMessageIfSomeRequiredDependenciesAreNotPresent(boolean isMongodbConnection) {
         if (isMongodbConnection) {
             final String errorMessagePrefix = "The required dependencies (JAR files) are not available on the classpath:";
             String errorMessage = errorMessagePrefix;
