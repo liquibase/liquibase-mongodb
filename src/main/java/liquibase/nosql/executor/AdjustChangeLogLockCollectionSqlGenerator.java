@@ -17,12 +17,20 @@ import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_
 public class AdjustChangeLogLockCollectionSqlGenerator extends AbstractSqlGenerator<AdjustChangeLogLockCollectionStatement> {
 
     @Override
-    public ValidationErrors validate(AdjustChangeLogLockCollectionStatement statement, Database database, SqlGeneratorChain<AdjustChangeLogLockCollectionStatement> sqlGeneratorChain) {
+    public ValidationErrors validate(
+            AdjustChangeLogLockCollectionStatement statement,
+            Database database,
+            SqlGeneratorChain<AdjustChangeLogLockCollectionStatement> sqlGeneratorChain
+    ) {
         return null;
     }
 
     @Override
-    public Sql[] generateSql(AdjustChangeLogLockCollectionStatement statement, Database database, SqlGeneratorChain<AdjustChangeLogLockCollectionStatement> sqlGeneratorChain) {
+    public Sql[] generateSql(
+            AdjustChangeLogLockCollectionStatement statement,
+            Database database,
+            SqlGeneratorChain<AdjustChangeLogLockCollectionStatement> sqlGeneratorChain
+    ) {
         String sqlString = SHELL_DB_PREFIX + COMMAND_NAME
                 + "("
                 + BsonUtils.toJson(statement.getCommand())
