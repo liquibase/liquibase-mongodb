@@ -2,6 +2,13 @@
 
 [![Build Status](https://github.com/liquibase/liquibase-mongodb/actions/workflows/build-nightly.yml/badge.svg)](https://github.com/liquibase/liquibase-mongodb/actions/workflows/build-nightly.yml)
 
+## Note
+> :flags: This repository has been modified to support Update Sql command for Mongo DB. 
+
+```bash
+liquibase update-sql --changelog-file=example-changelog.xml
+```
+
 ## Table of contents
 
 1. [Introduction](#introduction)
