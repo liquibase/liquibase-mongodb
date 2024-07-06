@@ -29,12 +29,20 @@ public class ReplaceChangeLogLockSqlGenerator extends AbstractSqlGenerator<Repla
 
 
     @Override
-    public ValidationErrors validate(ReplaceChangeLogLockStatement statement, Database database, SqlGeneratorChain<ReplaceChangeLogLockStatement> sqlGeneratorChain) {
+    public ValidationErrors validate(
+            ReplaceChangeLogLockStatement statement,
+            Database database,
+            SqlGeneratorChain<ReplaceChangeLogLockStatement> sqlGeneratorChain
+    ) {
         return null;
     }
 
     @Override
-    public Sql[] generateSql(ReplaceChangeLogLockStatement statement, Database database, SqlGeneratorChain<ReplaceChangeLogLockStatement> sqlGeneratorChain) {
+    public Sql[] generateSql(
+            ReplaceChangeLogLockStatement statement,
+            Database database,
+            SqlGeneratorChain<ReplaceChangeLogLockStatement> sqlGeneratorChain
+    ) {
         Document updateCommand = toUpdateCommand(statement);
         String sqlString = SHELL_DB_PREFIX + COMMAND_NAME
                 + "("
