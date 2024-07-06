@@ -88,12 +88,13 @@ public abstract class AbstractNoSqlLockService<D extends AbstractNoSqlDatabase> 
         return database;
     }
 
-    public NoSqlExecutor getExecutor() throws DatabaseException {
+    public Executor getExecutor() throws DatabaseException {
         Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(NoSqlExecutor.EXECUTOR_NAME, getDatabase());
-        if (executor instanceof LoggingExecutor) {
-            throw new DatabaseException(String.format(mongoBundle.getString("command.unsupported"), "*sql"));
-        }
-        return (NoSqlExecutor) executor ;
+        // SY-TODO: should support logging executors..
+//        if (executor instanceof LoggingExecutor) {
+//            throw new DatabaseException(String.format(mongoBundle.getString("command.unsupported"), "*sql"));
+//        }
+        return executor ;
     }
 
     @Override
@@ -165,6 +166,7 @@ public abstract class AbstractNoSqlLockService<D extends AbstractNoSqlDatabase> 
             if (isLocked()) {
                 return false;
             } else {
+                getExecutor().comment("Lock Database");
                 getLogger().info("Lock Database");
 
                 final int rowsUpdated = replaceLock(true);
@@ -204,6 +206,7 @@ public abstract class AbstractNoSqlLockService<D extends AbstractNoSqlDatabase> 
         try {
             if (hasDatabaseChangeLogLockTable()) {
 
+                getExecutor().comment("Release Database Lock");
                 getLogger().info("Release Database Lock");
 
                 database.rollback();
