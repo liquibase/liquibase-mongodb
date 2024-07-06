@@ -25,6 +25,8 @@ import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.LockException;
+import liquibase.executor.ExecutorService;
+import liquibase.executor.LoggingExecutor;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.ext.mongodb.statement.CountCollectionByNameStatement;
 import liquibase.ext.mongodb.statement.DropCollectionStatement;
@@ -45,6 +47,9 @@ import static java.lang.Boolean.FALSE;
 public class MongoLockService extends AbstractNoSqlLockService<MongoLiquibaseDatabase> {
 
     private final Logger log = Scope.getCurrentScope().getLog(getClass());
+
+    public static final int LOCK_OPERATION_SUCCESSFUL = 1;
+
 
     @Getter
     private final MongoChangeLogLockToDocumentConverter converter;
@@ -69,6 +74,12 @@ public class MongoLockService extends AbstractNoSqlLockService<MongoLiquibaseDat
     @Override
     protected int replaceLock(final boolean locked) throws DatabaseException {
         try {
+            boolean loggingExecutor = isLoggingExecutor(getDatabase());
+            if (loggingExecutor) {
+                log.info("Logging executor is active. Statement will not run.");
+                return LOCK_OPERATION_SUCCESSFUL;
+            }
+
             return getExecutor().update(
                     new ReplaceChangeLogLockStatement(getDatabaseChangeLogLockTableName(), locked)
             );
@@ -95,8 +106,12 @@ public class MongoLockService extends AbstractNoSqlLockService<MongoLiquibaseDat
 
         final SqlStatement findAllStatement = new FindAllStatement(getDatabaseChangeLogLockTableName());
 
-        return getExecutor().queryForList(findAllStatement, Document.class).stream().map(Document.class::cast)
-                .map(getConverter()::fromDocument).filter(MongoChangeLogLock::getLocked).collect(Collectors.toList());
+        List<Document> locks = getExecutor().queryForList(findAllStatement, Document.class);
+
+        return locks.stream()
+                .map(getConverter()::fromDocument)
+                .filter(MongoChangeLogLock::getLocked)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -146,6 +161,13 @@ public class MongoLockService extends AbstractNoSqlLockService<MongoLiquibaseDat
     @Override
     protected Logger getLogger() {
         return log;
+    }
+
+    public boolean isLoggingExecutor(Database database) {
+        final ExecutorService executorService = Scope.getCurrentScope().getSingleton(ExecutorService.class);
+
+        return executorService.executorExists("logging", database) &&
+                (executorService.getExecutor("logging", database) instanceof LoggingExecutor);
     }
 
 }
