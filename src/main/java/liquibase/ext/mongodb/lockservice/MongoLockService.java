@@ -50,6 +50,8 @@ public class MongoLockService extends AbstractNoSqlLockService<MongoLiquibaseDat
 
     public static final int LOCK_OPERATION_SUCCESSFUL = 1;
 
+    public static final int LOCK_OPERATION_FAILED = 0;
+
 
     @Getter
     private final MongoChangeLogLockToDocumentConverter converter;
@@ -74,15 +76,17 @@ public class MongoLockService extends AbstractNoSqlLockService<MongoLiquibaseDat
     @Override
     protected int replaceLock(final boolean locked) throws DatabaseException {
         try {
-            boolean loggingExecutor = isLoggingExecutor(getDatabase());
-            if (loggingExecutor) {
-                log.info("Logging executor is active. Statement will not run.");
+            int lockResult = getExecutor().update(
+                    new ReplaceChangeLogLockStatement(getDatabaseChangeLogLockTableName(), locked)
+            );
+
+            boolean loggingExecutorActive = isLoggingExecutorActive();
+            if (lockResult == LOCK_OPERATION_FAILED && loggingExecutorActive) {
+                log.info("Logging executor is active. Assumed operation ran successful.");
                 return LOCK_OPERATION_SUCCESSFUL;
             }
 
-            return getExecutor().update(
-                    new ReplaceChangeLogLockStatement(getDatabaseChangeLogLockTableName(), locked)
-            );
+            return lockResult;
         } catch (DatabaseException e) {
             // Mongo driver does not allow to release lock if thread is interrupted
             // Next code clears interrupted flag if it is happened due to of the timeout
@@ -163,7 +167,8 @@ public class MongoLockService extends AbstractNoSqlLockService<MongoLiquibaseDat
         return log;
     }
 
-    public boolean isLoggingExecutor(Database database) {
+    public boolean isLoggingExecutorActive() {
+        Database database = getDatabase();
         final ExecutorService executorService = Scope.getCurrentScope().getSingleton(ExecutorService.class);
 
         return executorService.executorExists("logging", database) &&
