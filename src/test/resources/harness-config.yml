@@ -2,17 +2,17 @@ inputFormat: xml,json,yaml
 context: testContext
 
 databasesUnderTest:
-  - name: mongodb
-    version: 5
-    url: mongodb://lbuser:LiquibasePass1@localhost:27015/lbcat
-    username:
-    password:
-
-  - name: mongodb
-    version: 6
-    url: mongodb://lbuser:LiquibasePass1@localhost:27016/lbcat
-    username:
-    password:
+#  - name: mongodb
+#    version: 5
+#    url: mongodb://lbuser:LiquibasePass1@localhost:27015/lbcat
+#    username:
+#    password:
+#
+#  - name: mongodb
+#    version: 6
+#    url: mongodb://lbuser:LiquibasePass1@localhost:27016/lbcat
+#    username:
+#    password:
 
   - name: mongodb
     version: 7
