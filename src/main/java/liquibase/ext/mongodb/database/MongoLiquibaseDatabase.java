@@ -122,6 +122,6 @@ public class MongoLiquibaseDatabase extends AbstractNoSqlDatabase {
     @Override
     public void checkDatabaseConnection() throws DatabaseException {
         MongoConnection.showErrorMessageIfSomeRequiredDependenciesAreNotPresent(true);
-        MongoLiquibaseDatabaseUtil.checkCollectionsExist(this);
+        MongoLiquibaseDatabaseUtil.checkDatabaseAccessibility((MongoConnection) getConnection());
     }
 }
