@@ -43,25 +43,25 @@ class HarnessNoSqlCompatibility extends Specification {
         argsMap.put("changeLogFile", testInput.pathToChangeLogFile)
 
         boolean shouldRunChangeSet
-//
-//        and: "fail test if expectedResultSet is not provided"
-//        shouldRunChangeSet = expectedResultSet != null
-//        assert shouldRunChangeSet: "No expectedResultSet for ${testInput.change} against " +
-//                "${testInput.database.shortName} ${testInput.database.databaseMajorVersion}." +
-//                "${testInput.database.databaseMinorVersion}"
-//
-//        and: "check database under test is online"
-//        def connection = testInput.database.getConnection()
-//        shouldRunChangeSet = connection instanceof MongoConnection
-//        assert shouldRunChangeSet: "Database ${testInput.databaseName} ${testInput.version} is offline!"
-//
-//        and: "execute Liquibase validate command to ensure that changelog is valid"
-//        MongoTestUtils.executeCommandScope("validate", argsMap)
+
+        and: "fail test if expectedResultSet is not provided"
+        shouldRunChangeSet = expectedResultSet != null
+        assert shouldRunChangeSet: "No expectedResultSet for ${testInput.change} against " +
+                "${testInput.database.shortName} ${testInput.database.databaseMajorVersion}." +
+                "${testInput.database.databaseMinorVersion}"
+
+        and: "check database under test is online"
+        def connection = testInput.database.getConnection()
+        shouldRunChangeSet = connection instanceof MongoConnection
+        assert shouldRunChangeSet: "Database ${testInput.databaseName} ${testInput.version} is offline!"
+
+        and: "execute Liquibase validate command to ensure that changelog is valid"
+        MongoTestUtils.executeCommandScope("validate", argsMap)
 
         List<String> collectionNames = new ArrayList<>()
 
         when: "execute changelogs using liquibase update command"
-        MongoTestUtils.executeCommandScope("connect", argsMap)
+        MongoTestUtils.executeCommandScope("update", argsMap)
         if (!testInput.change.contains("Command")) {
             final String collectionName = ((CreateCollectionChange) MongoTestUtils.getChangesets(testInput.pathToChangeLogFile, testInput.database)
                     .get(0).getChanges().get(0)).getCollectionName()

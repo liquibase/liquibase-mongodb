@@ -1,22 +1,42 @@
 package liquibase.ext.mongodb.database;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoIterable;
 import liquibase.CatalogAndSchema;
-import liquibase.configuration.LiquibaseConfiguration;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.ObjectQuotingStrategy;
-import liquibase.ext.mongodb.configuration.MongoConfiguration;
+import liquibase.exception.DatabaseException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static java.lang.Boolean.FALSE;
 import static liquibase.servicelocator.PrioritizedService.PRIORITY_DATABASE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class MongoLiquibaseDatabaseTest {
+
+    @Mock
+    protected MongoConnection connectionMock;
+
+    @Mock
+    protected MongoClient clientMock;
+
+    @Mock
+    protected MongoIterable<String> iterableMock;
+
+    @Mock
+    protected MongoCursor<String> mongoCursor;
 
     protected MongoLiquibaseDatabase database;
 
@@ -121,4 +141,19 @@ class MongoLiquibaseDatabaseTest {
                 .containsExactly("catalog1", "catalog1");
     }
 
+    @SneakyThrows
+    @Test
+    void checkDatabaseConnection() {
+        database.setConnection(connectionMock);
+        ConnectionString connectionString = new ConnectionString("mongodb://lbuser:LiquibasePass1@localhost:27017/lbcat");
+        when(connectionMock.getConnectionString()).thenReturn(connectionString);
+        when(connectionMock.getMongoClient()).thenReturn(clientMock);
+        when(clientMock.listDatabaseNames()).thenReturn(iterableMock);
+        when(iterableMock.iterator()).thenReturn(mongoCursor);
+        when(mongoCursor.hasNext()).thenReturn(false);
+
+        assertThatExceptionOfType(DatabaseException.class)
+                .isThrownBy(() ->         database.checkDatabaseConnection())
+                .withMessageContaining("User doesn't have access to database 'lbcat'");
+    }
 }

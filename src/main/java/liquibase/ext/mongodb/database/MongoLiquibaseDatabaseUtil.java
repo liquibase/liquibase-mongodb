@@ -15,7 +15,7 @@ public class MongoLiquibaseDatabaseUtil {
                     return;
                 }
             }
-            throw new DatabaseException(String.format("User '%s' doesn't have access to database '%s'", connection.getConnectionUserName(), urlDatabaseName));
+            throw new DatabaseException(String.format("User doesn't have access to database '%s'", urlDatabaseName));
         } catch (MongoException e) {
             throw new DatabaseException(e);
         }
