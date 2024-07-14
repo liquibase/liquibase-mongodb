@@ -4,7 +4,9 @@ import liquibase.database.Database;
 import liquibase.ext.mongodb.statement.InsertOneStatement;
 import liquibase.nosql.statement.AbstractNoSqlStatement;
 import liquibase.sql.Sql;
+import liquibase.sqlgenerator.SqlGenerator;
 import liquibase.sqlgenerator.SqlGeneratorChain;
+import liquibase.statement.SqlStatement;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +16,7 @@ import static org.mockito.Mockito.mock;
 
 class NoSqlGeneratorTest {
 
-    private NoSqlGenerator generator = new NoSqlGenerator();
+    private SqlGenerator generator = new NoSqlGenerator();
 
 
     @Test
@@ -24,7 +26,7 @@ class NoSqlGeneratorTest {
         SqlGeneratorChain sqlGeneratorChain = mock(SqlGeneratorChain.class);
 
         Document document = new Document("sample-key", "sample-value");
-        InsertOneStatement oneStatement = new InsertOneStatement("sample-collection", document);
+        SqlStatement oneStatement = new InsertOneStatement("sample-collection", document);
 
         // when
         Sql[] generatedSqls = generator.generateSql(oneStatement, database, sqlGeneratorChain);
@@ -41,7 +43,7 @@ class NoSqlGeneratorTest {
     @Test
     void supports() {
         // given
-        AbstractNoSqlStatement sqlStatement = mock(AbstractNoSqlStatement.class);
+        SqlStatement sqlStatement = mock(AbstractNoSqlStatement.class);
         Database database = mock(Database.class);
 
         // when
