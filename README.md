@@ -2,13 +2,6 @@
 
 [![Build Status](https://github.com/liquibase/liquibase-mongodb/actions/workflows/build-nightly.yml/badge.svg)](https://github.com/liquibase/liquibase-mongodb/actions/workflows/build-nightly.yml)
 
-## Note
-> :flags: This repository has been modified to support Update Sql command for Mongo DB. 
-
-```bash
-liquibase update-sql --changelog-file=example-changelog.xml
-```
-
 ## Table of contents
 
 1. [Introduction](#introduction)
@@ -56,6 +49,12 @@ Inserts a Single Document into a collection [insert](https://docs.mongodb.com/ma
 Provides a helper to run specified database commands. This is the preferred method to issue database commands, as it provides a consistent interface between the shell and drivers
 * [__adminCommand__](https://docs.mongodb.com/manual/reference/method/db.adminCommand/#db.adminCommand) - 
 Provides a helper to run specified database commands against the admin database
+
+You can use `update-sql` command at command line also. When you run the update-sql command, a changelog file that includes db.runCommand s will be created.
+
+```bash
+liquibase update-sql --changelog-file=example-changelog.xml
+```
 
 <a name="connection-string"></a>
 ## Connection String Formats
