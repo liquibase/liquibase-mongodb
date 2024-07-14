@@ -89,12 +89,7 @@ public abstract class AbstractNoSqlLockService<D extends AbstractNoSqlDatabase> 
     }
 
     public Executor getExecutor() throws DatabaseException {
-        Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(NoSqlExecutor.EXECUTOR_NAME, getDatabase());
-        // SY-TODO: should support logging executors..
-//        if (executor instanceof LoggingExecutor) {
-//            throw new DatabaseException(String.format(mongoBundle.getString("command.unsupported"), "*sql"));
-//        }
-        return executor ;
+        return Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(NoSqlExecutor.EXECUTOR_NAME, getDatabase());
     }
 
     @Override
