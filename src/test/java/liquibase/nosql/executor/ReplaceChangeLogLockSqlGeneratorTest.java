@@ -37,6 +37,7 @@ class ReplaceChangeLogLockSqlGeneratorTest {
         when(clock.instant())
                 .thenReturn(date.toInstant());
 
+        // when
         Sql[] generatedSqls = generator.generateSql(lockStatement, database, sqlGeneratorChain);
 
         // then

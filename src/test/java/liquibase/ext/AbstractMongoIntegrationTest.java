@@ -24,25 +24,27 @@ import com.mongodb.client.MongoDatabase;
 import liquibase.Scope;
 import liquibase.changelog.ChangeLogHistoryServiceFactory;
 import liquibase.database.DatabaseFactory;
+import liquibase.executor.Executor;
 import liquibase.executor.ExecutorService;
 import liquibase.ext.mongodb.database.MongoConnection;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.ext.mongodb.statement.DropAllCollectionsStatement;
 import liquibase.lockservice.LockServiceFactory;
-import liquibase.nosql.executor.NoSqlExecutor;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 
-import static liquibase.ext.mongodb.TestUtils.*;
+import static liquibase.ext.mongodb.TestUtils.DB_CONNECTION_PATH;
+import static liquibase.ext.mongodb.TestUtils.PROPERTY_FILE;
+import static liquibase.ext.mongodb.TestUtils.loadProperty;
 import static liquibase.nosql.executor.NoSqlExecutor.EXECUTOR_NAME;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public abstract class AbstractMongoIntegrationTest {
 
     protected MongoConnection connection;
-    protected NoSqlExecutor executor;
+    protected Executor executor;
     protected MongoLiquibaseDatabase database;
     protected MongoDatabase mongoDatabase;
 
@@ -56,7 +58,7 @@ public abstract class AbstractMongoIntegrationTest {
         database = (MongoLiquibaseDatabase) DatabaseFactory.getInstance().openDatabase(url, null, null, null , null);
         connection = (MongoConnection) database.getConnection();
         mongoDatabase = connection.getMongoDatabase();
-        executor = (NoSqlExecutor) Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(EXECUTOR_NAME, database);
+        executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(EXECUTOR_NAME, database);
         deleteContainers();
     }
 
