@@ -13,9 +13,12 @@ import liquibase.sql.Sql;
 import liquibase.sqlgenerator.SqlGenerator;
 import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.AbstractSqlGenerator;
+import lombok.Getter;
+import lombok.Setter;
 import org.bson.BsonDocument;
 import org.bson.Document;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -26,6 +29,13 @@ import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_
 public class ReplaceChangeLogLockSqlGenerator extends AbstractSqlGenerator<ReplaceChangeLogLockStatement> {
 
     public static final int DEFAULT_LOCK_ID = 1;
+
+    /**
+     * Clock field in order to make it testable
+     */
+    @Getter
+    @Setter
+    private Clock clock = Clock.systemDefaultZone();
 
 
     @Override
@@ -56,7 +66,7 @@ public class ReplaceChangeLogLockSqlGenerator extends AbstractSqlGenerator<Repla
     private Document toUpdateCommand(ReplaceChangeLogLockStatement statement) {
         MongoChangeLogLock lockModel = new MongoChangeLogLock(
                 DEFAULT_LOCK_ID,
-                new Date(),
+                new Date(clock.instant().toEpochMilli()),
                 MongoChangeLogLock.formLockedBy(),
                 statement.isLocked()
         );
