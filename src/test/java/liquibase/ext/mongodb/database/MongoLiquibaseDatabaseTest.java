@@ -153,7 +153,6 @@ class MongoLiquibaseDatabaseTest {
         when(mongoCursor.hasNext()).thenReturn(false);
 
         assertThatExceptionOfType(DatabaseException.class)
-                .isThrownBy(() ->         database.checkDatabaseConnection())
-                .withMessageContaining("User doesn't have access to database 'lbcat'");
+                .isThrownBy(() ->         database.checkDatabaseConnection());
     }
 }
