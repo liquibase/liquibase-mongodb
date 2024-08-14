@@ -1,5 +1,54 @@
 Liquibase MongoDB Extension Changelog
 ===========================================
+#### 4.29.1
+
+### Changes
+
+## Security Driver and Other Updates
+(#549) build(deps): bump org.mongodb:mongodb-driver-sync from 5.1.2 to 5.1.3 @dependabot
+(#547) build(deps-dev): bump org.slf4j:slf4j-simple from 2.0.13 to 2.0.14 @dependabot
+(#548) build(deps-dev): bump org.slf4j:slf4j-api from 2.0.13 to 2.0.14 @dependabot
+
+**Full Changelog**: liquibase-mongodb-v4.29.0...liquibase-mongodb-4.29.1
+
+#### v4.29.0
+
+### Changes
+(#540) build(deps): bump org.mongodb:mongodb-driver-sync from 5.1.0 to 5.1.1 @dependabot
+(#539) build(deps): bump liquibase/build-logic from 0.7.7 to 0.7.8 @dependabot
+
+## Bug Fixes
+(#543) [DAT-17886] fix dependency causing incorrect result for Pro 'connect' command @KushnirykOleh
+
+## Security Driver and Other Updates
+(#542) build(deps): bump org.mongodb:mongodb-driver-sync from 5.1.1 to 5.1.2 @dependabot
+
+**Full Changelog**: liquibase-mongodb-v4.28.0...liquibase-mongodb-4.29.0
+
+#### v4.28.0
+
+### Changes
+(#490) DAT-15853 DevOps :: Deprecate Snyk and replace with GHAS @jandroav
+(#467) DAT-16149 DevOps :: Extensions Release Failing @jandroav
+(#464) Update codeql.yml @jandroav
+(#463) Delete .github/workflows/snyk-nightly.yml @jandroav
+(#460) DAT-16080 DevOps :: Extension Nightly Builds Failing @jandroav
+
+## New Features
+(#517) [DAT-16600] Implement method to send ping signal to DB server for connect command @vitaliimak
+(#534) [DAT-15397] Move release notes into separate file @vitaliimak
+(#518) DAT-17414 upgrade docker compose to v2 @jnewton03
+(#503) [DAT-15502] Add version matrix to integration and harness tests @vitaliimak
+(#504) DAT-15502. added the compoud wildcard index(new MongoDB 7 feature) to createIndex test @PavloTytarchuk
+(#502) [DAT-16074] Implement user friendly message for if required dependencies are not available @vitaliimak
+(#510) DAT-15503. added mongodb atlas 7 to the test.yml @PavloTytarchuk
+(#437) DAT 15505 Liquibase Extensions Parent POM @jandroav
+
+## Bug Fixes
+(#538) [DAT-17036] Fix incorrect error @vitaliimak
+(#522) [DAT-17365] Release lock even if update fails on timeout @vitaliimak
+
+**Full Changelog**: liquibase-mongodb-v4.24.0...liquibase-mongodb-4.28.0
 
 #### 4.24.0
 * Support for Liquibase 4.24.0
