@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.liquibase</groupId>
         <artifactId>liquibase-parent-pom</artifactId>
-        <version>0.3.6</version> <!-- Replace with the desired version -->
+        <version>0.4.1</version> <!-- Replace with the desired version -->
     </parent>
 
     <groupId>org.liquibase.ext</groupId>
@@ -36,6 +36,7 @@
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
         <jackson-core.version>2.15.3</jackson-core.version>
         <db.connection.uri>mongodb://localhost:27017/test_db?socketTimeoutMS=100&amp;connectTimeoutMS=100&amp;serverSelectionTimeoutMS=100</db.connection.uri>
+        <liquibase-test-harness.version>1.0.10</liquibase-test-harness.version>
     </properties>
 
     <scm>
@@ -51,19 +52,6 @@
             <artifactId>mongodb-driver-sync</artifactId>
             <version>${mongodb-driver.version}</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.athaydes</groupId>
-            <artifactId>spock-reports</artifactId>
-            <version>2.3.2-groovy-3.0</version>
-            <scope>test</scope>
-            <!-- this avoids affecting your version of Groovy/Spock -->
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!-- // if you don't already have slf4j-api and an implementation of it in the classpath, add this! -->
         <dependency>
