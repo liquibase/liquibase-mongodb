@@ -3,6 +3,8 @@ package liquibase.ext.mongodb.database;
 import com.mongodb.ConnectionString;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.MongoClientSettings.Builder;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.util.StringUtil;
@@ -23,8 +25,14 @@ public class MongoClientDriver implements Driver {
 
     public MongoClient connect(final ConnectionString connectionString) throws DatabaseException {
         final MongoClient client;
+
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(connectionString)
+                .applicationName("Liquibase")
+                .build();
+
         try {
-            client = MongoClients.create(connectionString);
+            client = MongoClients.create(settings);
         } catch (final Exception e) {
             throw new DatabaseException("Connection could not be established to: "
                     + connectionString.getConnectionString(), e);
