@@ -25,6 +25,7 @@ public class MongoClientDriver implements Driver {
         final MongoClient client;
         try {
             client = MongoClients.create(connectionString);
+            // tests
         } catch (final Exception e) {
             throw new DatabaseException("Connection could not be established to: "
                     + connectionString.getConnectionString(), e);
