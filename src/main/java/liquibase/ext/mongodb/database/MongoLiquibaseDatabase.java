@@ -78,7 +78,7 @@ public class MongoLiquibaseDatabase extends AbstractNoSqlDatabase {
     @Override
     public String getDatabaseProductVersion() {
         Document document = getMongoDatabase().runCommand(new Document("buildInfo",1));
-        return document.getString("version");
+        return document.getString("version") != null ? document.getString("version") : "Unknown";
     }
 
     /**
