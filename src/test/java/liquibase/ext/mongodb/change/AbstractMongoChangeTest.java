@@ -30,6 +30,11 @@ public abstract class AbstractMongoChangeTest {
 
     @BeforeEach
     void setUp() {
-        database = new MongoLiquibaseDatabase();
+        database = new MongoLiquibaseDatabase() {
+            @Override
+            public String getDatabaseProductVersion() {
+                return "test";
+            }
+        };
     }
 }

@@ -77,8 +77,15 @@ public class MongoLiquibaseDatabase extends AbstractNoSqlDatabase {
 
     @Override
     public String getDatabaseProductVersion() {
-        Document document = getMongoDatabase().runCommand(new Document("buildInfo",1));
-        return document.getString("version") != null ? document.getString("version") : "Unknown";
+        String unknownVersion = "Unknown";
+        try {
+            Document document = getMongoDatabase().runCommand(new Document("buildInfo", 1));
+            String version = document.getString("version");
+            return version != null ? version : unknownVersion;
+        } catch (Exception unableToDetermineVersion) {
+            Scope.getCurrentScope().getLog(getClass()).warning("Unable to determine mongo database version!", unableToDetermineVersion);
+            return unknownVersion;
+        }
     }
 
     /**
