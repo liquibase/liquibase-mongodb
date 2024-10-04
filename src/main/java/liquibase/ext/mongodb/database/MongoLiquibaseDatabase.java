@@ -33,6 +33,7 @@ import liquibase.ext.mongodb.statement.DropAllCollectionsStatement;
 import liquibase.nosql.database.AbstractNoSqlDatabase;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.Document;
 
 import static liquibase.nosql.executor.NoSqlExecutor.EXECUTOR_NAME;
 
@@ -72,6 +73,12 @@ public class MongoLiquibaseDatabase extends AbstractNoSqlDatabase {
     @Override
     public String getDatabaseProductName() {
         return MONGODB_PRODUCT_NAME;
+    }
+
+    @Override
+    public String getDatabaseProductVersion() {
+        Document document = getMongoDatabase().runCommand(new Document("buildInfo",1));
+        return document.getString("version");
     }
 
     /**
