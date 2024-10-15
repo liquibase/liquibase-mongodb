@@ -20,10 +20,13 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.time.DateUtils;
 import org.bson.Document;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.util.Date;
 import java.util.UUID;
 
 import static java.util.stream.Collectors.toList;
@@ -73,6 +76,24 @@ class BsonUtilsTest {
         assertThat(Document.parse("{\"id\" : UUID(\"cda2d50f-f233-492e-9150-9a09ad1ddb96\")}", DOCUMENT_CODEC).get("id"))
                 //.isEqualTo(UUID.fromString("2e4933f2-0fd5-a2cd-96db-1dad099a5091"))
                 .isEqualTo(uuid1);
+    }
+
+    @SneakyThrows
+    @Test
+    void isoDateTest() {
+        // given
+        Date date = DateUtils.parseDate("01-01-2024-GMT", "dd-MM-yyyy-ZZZ");
+
+        Document document = new Document();
+        document.put("name", "sample-name");
+        document.put("date", date);
+
+        // when
+        String docAsJson = BsonUtils.toJson(document);
+
+        // then
+        assertThat(docAsJson)
+                .isEqualTo("{\"name\": \"sample-name\", \"date\": ISODate(\"2024-01-01T00:00:00.000Z\")}");
     }
 
 }
