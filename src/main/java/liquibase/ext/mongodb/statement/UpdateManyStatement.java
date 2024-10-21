@@ -20,17 +20,24 @@ package liquibase.ext.mongodb.statement;
  * #L%
  */
 
+import java.util.ArrayList;
+import java.util.List;
+import static java.util.Optional.ofNullable;
+
+import org.bson.Document;
+import org.bson.conversions.Bson;
+
 import com.mongodb.client.MongoCollection;
+
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
+import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
+import static liquibase.ext.mongodb.statement.BsonUtils.classOf;
+import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyDocument;
+import static liquibase.ext.mongodb.statement.BsonUtils.orEmptyList;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
 import liquibase.nosql.statement.NoSqlUpdateStatement;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-
-import static java.util.Optional.ofNullable;
-import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
 
 @Getter
 @EqualsAndHashCode(callSuper = true)
@@ -40,12 +47,31 @@ public class UpdateManyStatement extends AbstractCollectionStatement
     public static final String COMMAND_NAME = "updateMany";
 
     private final Bson filter;
-    private final Bson document;
+    private Bson update = null;
+    private List<? extends Bson> aggregation = null;
 
-    public UpdateManyStatement(final String collectionName, final Bson filter, final Bson document) {
+    public UpdateManyStatement(final String collectionName, final String filter, final String update) {
+        super(collectionName);
+        this.filter = orEmptyDocument(filter);
+        Class<?> clazz = classOf(update);
+        
+        if (Document.class.equals(clazz)) {
+            this.update = orEmptyDocument(update);
+        } else if (ArrayList.class.equals(clazz)) {
+            this.aggregation = orEmptyList(update);
+        }
+    }
+
+    public UpdateManyStatement(final String collectionName, final Bson filter, final Bson update) {
         super(collectionName);
         this.filter = filter;
-        this.document = document;
+        this.update = update;
+    }
+
+    public UpdateManyStatement(final String collectionName, final Bson filter, final List<? extends Bson> aggregation) {
+        super(collectionName);
+        this.filter = filter;
+        this.aggregation = aggregation;
     }
 
     @Override
@@ -55,6 +81,14 @@ public class UpdateManyStatement extends AbstractCollectionStatement
 
     @Override
     public String toJs() {
+        String updateString = "{}";
+
+        if (update != null) {
+            updateString = update.toString();
+        } else if (aggregation != null) {
+            updateString = "[" + String.join(",", aggregation.stream().map(u -> u.toString()).toArray(String[]::new)) + "]";
+        }
+
         return
                 SHELL_DB_PREFIX +
                         getCollectionName() +
@@ -63,7 +97,7 @@ public class UpdateManyStatement extends AbstractCollectionStatement
                         "(" +
                         ofNullable(filter).map(Bson::toString).orElse(null) +
                         ", " +
-                        ofNullable(document).map(Bson::toString).orElse(null) +
+                        updateString +
                         ");";
     }
 
@@ -75,6 +109,13 @@ public class UpdateManyStatement extends AbstractCollectionStatement
     @Override
     public int update(final MongoLiquibaseDatabase database) {
         final MongoCollection<Document> collection = database.getMongoDatabase().getCollection(getCollectionName());
-        return (int) collection.updateMany(filter, document).getMatchedCount();
+        
+        if (update != null) {
+            return (int) collection.updateMany(filter, update).getMatchedCount();
+        } else if (aggregation != null) {
+            return (int) collection.updateMany(filter, aggregation).getMatchedCount();
+        }
+
+        return 0;
     }
 }
