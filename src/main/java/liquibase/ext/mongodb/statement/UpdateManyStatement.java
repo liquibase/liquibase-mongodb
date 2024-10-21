@@ -84,9 +84,9 @@ public class UpdateManyStatement extends AbstractCollectionStatement
         String updateString = "{}";
 
         if (update != null) {
-            updateString = update.toString();
+            updateString = update.toBsonDocument().toJson();
         } else if (aggregation != null) {
-            updateString = "[" + String.join(",", aggregation.stream().map(u -> u.toString()).toArray(String[]::new)) + "]";
+            updateString = "[" + String.join(",", aggregation.stream().map(u -> u.toBsonDocument().toJson()).toArray(String[]::new)) + "]";
         }
 
         return
@@ -95,7 +95,7 @@ public class UpdateManyStatement extends AbstractCollectionStatement
                         "." +
                         getCommandName() +
                         "(" +
-                        ofNullable(filter).map(Bson::toString).orElse(null) +
+                        ofNullable(filter).map(f -> f.toBsonDocument().toJson()).orElse(null) +
                         ", " +
                         updateString +
                         ");";
