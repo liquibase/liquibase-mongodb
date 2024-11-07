@@ -7,7 +7,7 @@ on:
 
 jobs:
   release:
-    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@v0.7.8
+    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@main
     secrets: inherit
     with:
       nameSpace: mongodb
