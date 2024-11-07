@@ -1,6 +1,6 @@
 # Liquibase MongoDB Extension
 
-[![Build Status](https://travis-ci.com/liquibase/liquibase-mongodb.svg?branch=master)](https://travis-ci.com/liquibase/liquibase-mongodb)
+[![Build Status](https://github.com/liquibase/liquibase-mongodb/actions/workflows/build-nightly.yml/badge.svg)](https://github.com/liquibase/liquibase-mongodb/actions/workflows/build-nightly.yml)
 
 ## Table of contents
 
