@@ -23,6 +23,7 @@ package liquibase.nosql.executor;
 import liquibase.database.Database;
 import liquibase.exception.ValidationErrors;
 import liquibase.nosql.statement.AbstractNoSqlStatement;
+import liquibase.sql.CallableSql;
 import liquibase.sql.Sql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.AbstractSqlGenerator;
@@ -37,11 +38,17 @@ public class NoSqlGenerator extends AbstractSqlGenerator<AbstractNoSqlStatement>
 
     @Override
     public Sql[] generateSql(AbstractNoSqlStatement statement, Database database, SqlGeneratorChain<AbstractNoSqlStatement> sqlGeneratorChain) {
-        return new Sql[0];
+        CallableSql sql = new CallableSql(statement.toString(), ";", "1");
+        return new Sql[] {sql};
     }
 
     @Override
     public boolean generateStatementsIsVolatile(Database database) {
+        return false;
+    }
+
+    @Override
+    public boolean supports(AbstractNoSqlStatement statement, Database database) {
         return true;
     }
 }
