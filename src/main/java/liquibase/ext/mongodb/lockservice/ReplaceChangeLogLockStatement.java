@@ -20,6 +20,7 @@ package liquibase.ext.mongodb.lockservice;
  * #L%
  */
 
+import com.mongodb.MongoException;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndReplaceOptions;
 import com.mongodb.client.model.ReturnDocument;
@@ -27,18 +28,18 @@ import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.ext.mongodb.statement.AbstractCollectionStatement;
 import liquibase.nosql.statement.NoSqlUpdateStatement;
 import lombok.Getter;
-import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.util.Date;
-import java.util.Optional;
 
 import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_DB_PREFIX;
 
 @Getter
 public class ReplaceChangeLogLockStatement extends AbstractCollectionStatement
-implements NoSqlUpdateStatement<MongoLiquibaseDatabase> {
+        implements NoSqlUpdateStatement<MongoLiquibaseDatabase> {
 
     public static final String COMMAND_NAME = "updateLock";
+    private static final Integer DUPLICATE_KEY_ERROR_CODE = 11000;
 
     private final boolean locked;
 
@@ -65,24 +66,48 @@ implements NoSqlUpdateStatement<MongoLiquibaseDatabase> {
 
     @Override
     public int update(final MongoLiquibaseDatabase database) {
-
-        final MongoChangeLogLock entry = new MongoChangeLogLock(1, new Date()
-                , MongoChangeLogLock.formLockedBy(), locked);
-        final Document inputDocument = new MongoChangeLogLockToDocumentConverter().toDocument(entry);
-        inputDocument.put(MongoChangeLogLock.Fields.locked, locked);
-
-        long qtDocuments = database.getMongoDatabase().getCollection(collectionName).countDocuments();
-        boolean upsert = qtDocuments == 0;
-
-        final Optional<Document> changeLogLock = Optional.ofNullable(
-                database.getMongoDatabase()
-                        .getCollection(collectionName)
-                        .findOneAndReplace(Filters.eq(MongoChangeLogLock.Fields.id,
-                                        entry.getId()), inputDocument,
-                                new FindOneAndReplaceOptions().upsert(upsert).returnDocument(ReturnDocument.AFTER))
+        final MongoChangeLogLock lock = new MongoChangeLogLock(
+                1,
+                new Date(),
+                MongoChangeLogLock.formLockedBy(),
+                locked
         );
-        return changeLogLock.map(e -> 1).orElse(0);
+        if (this.locked) {
+            return this.update(
+                    database,
+                    Filters.and(
+                            Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()),
+                            Filters.eq(MongoChangeLogLock.Fields.locked, false)
+                    ),
+                    lock
+            );
+        }
+        return this.update(
+                database,
+                Filters.and(
+                        Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()),
+                        Filters.eq(MongoChangeLogLock.Fields.locked, true),
+                        Filters.eq(MongoChangeLogLock.Fields.lockedBy, lock.getLockedBy())
+                ),
+                lock
+        );
     }
 
-
+    private int update(final MongoLiquibaseDatabase database, final Bson filters, final MongoChangeLogLock lock) {
+        try {
+            database.getMongoDatabase()
+                    .getCollection(collectionName)
+                    .findOneAndReplace(
+                            filters,
+                            new MongoChangeLogLockToDocumentConverter().toDocument(lock),
+                            new FindOneAndReplaceOptions().upsert(true).returnDocument(ReturnDocument.AFTER)
+                    );
+            return 1;
+        } catch (MongoException e) {
+            if (e.getCode() == DUPLICATE_KEY_ERROR_CODE) {
+                return 0;
+            }
+            throw e;
+        }
+    }
 }
