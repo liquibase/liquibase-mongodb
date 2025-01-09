@@ -19,3 +19,9 @@ databasesUnderTest:
     url: mongodb://lbuser:LiquibasePass1@localhost:27017/lbcat
     username:
     password:
+
+  - name: mongodb
+    version: 8
+    url: mongodb://lbuser:LiquibasePass1@localhost:27018/lbcat
+    username:
+    password:
