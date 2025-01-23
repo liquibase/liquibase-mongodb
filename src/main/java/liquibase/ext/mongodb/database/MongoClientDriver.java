@@ -1,18 +1,29 @@
 package liquibase.ext.mongodb.database;
 
 import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.MongoClientSettings.Builder;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
+import liquibase.util.LiquibaseUtil;
 import liquibase.util.StringUtil;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverPropertyInfo;
+import java.util.Enumeration;
 import java.util.Properties;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.logging.Logger;
 
 public class MongoClientDriver implements Driver {
@@ -28,7 +39,7 @@ public class MongoClientDriver implements Driver {
 
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
-                .applicationName("Liquibase")
+                .applicationName(getFullApplicationName())
                 .build();
 
         try {
@@ -38,6 +49,27 @@ public class MongoClientDriver implements Driver {
                     + connectionString.getConnectionString(), e);
         }
         return client;
+    }
+
+    private String getFullApplicationName() {
+        try {
+            MavenXpp3Reader reader = new MavenXpp3Reader();
+            Model model = reader.read(new FileReader("pom.xml"));
+
+            boolean isCommercial = model.getArtifactId().contains("commercial");
+            String buildVersion = LiquibaseUtil.getBuildVersion();
+            String extVersion = model.getVersion();
+            String appType = isCommercial ? "PRO" : "OSS";
+            String extType = isCommercial ? "ProExt" : "OssExt";
+            URL url = Scope.getCurrentScope().getClassLoader().getResource("META-INF/MANIFEST.MF");
+            Manifest manifest = new Manifest(url.openStream());
+            Attributes attr = manifest.getMainAttributes();
+
+            return String.join("_", "Liquibase", appType, buildVersion, extType, extVersion);
+        } catch (XmlPullParserException | IOException e) {
+            Scope.getCurrentScope().getLog(this.getClass()).warning("Failed to extract application full name for current connection.");
+        }
+        return "";
     }
 
     @Override
