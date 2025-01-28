@@ -34,12 +34,12 @@ jobs:
     strategy:
       matrix:
         java: [8, 11, 17]
-        mongodb: [5, 6, 7]
+        mongodb: [5, 6, 7, 8]
     services:
       mongodb:
         image: mongo:${{ matrix.mongodb }}
         ports:
-          - 27017-27019:27017-27019
+          - 27017-27020:27017-27020
 
     steps:
       - uses: actions/checkout@v4
@@ -107,7 +107,7 @@ jobs:
     strategy:
       matrix:
         java: [ 11, 17 ]
-        mongodb: [5, 6, 7]
+        mongodb: [5, 6, 7, 8]
 
     steps:
       - uses: actions/checkout@v4

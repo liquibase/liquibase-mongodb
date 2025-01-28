@@ -28,3 +28,12 @@ services:
       MONGO_INITDB_DATABASE: lbcat
     volumes:
       - ./init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  mongo-8:
+    image: mongo:8
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_DATABASE: lbcat
+    volumes:
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
