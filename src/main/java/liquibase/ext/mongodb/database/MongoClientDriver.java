@@ -12,18 +12,12 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverPropertyInfo;
-import java.util.Enumeration;
 import java.util.Properties;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 import java.util.logging.Logger;
 
 public class MongoClientDriver implements Driver {
@@ -52,24 +46,21 @@ public class MongoClientDriver implements Driver {
     }
 
     private String getFullApplicationName() {
-        try {
+        try (FileReader fileReader = new FileReader("pom.xml")){
             MavenXpp3Reader reader = new MavenXpp3Reader();
-            Model model = reader.read(new FileReader("pom.xml"));
+            Model model = reader.read(fileReader);
 
             boolean isCommercial = model.getArtifactId().contains("commercial");
             String buildVersion = LiquibaseUtil.getBuildVersion();
             String extVersion = model.getVersion();
             String appType = isCommercial ? "PRO" : "OSS";
             String extType = isCommercial ? "ProExt" : "OssExt";
-            URL url = Scope.getCurrentScope().getClassLoader().getResource("META-INF/MANIFEST.MF");
-            Manifest manifest = new Manifest(url.openStream());
-            Attributes attr = manifest.getMainAttributes();
 
             return String.join("_", "Liquibase", appType, buildVersion, extType, extVersion);
         } catch (XmlPullParserException | IOException e) {
             Scope.getCurrentScope().getLog(this.getClass()).warning("Failed to extract application full name for current connection.");
         }
-        return "";
+        return "Liquibase";
     }
 
     @Override
