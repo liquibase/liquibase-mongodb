@@ -139,12 +139,4 @@ public class MongoLiquibaseDatabase extends AbstractNoSqlDatabase {
         MongoConnection.showErrorMessageIfSomeRequiredDependenciesAreNotPresent(true);
         MongoLiquibaseDatabaseUtil.checkDatabaseAccessibility((MongoConnection) getConnection());
     }
-
-    @Override
-    public String formatStatementForMdc(SqlStatement statement) {
-        String commandMessage = statement.getFormattedStatement();
-        Scope.getCurrentScope().getLog(getClass()).fine("MongoDB command message: " + commandMessage);
-
-        return commandMessage;
-    }
 }
