@@ -32,7 +32,6 @@ import liquibase.ext.mongodb.configuration.MongoConfiguration;
 import liquibase.ext.mongodb.statement.DropAllCollectionsStatement;
 import liquibase.nosql.database.AbstractNoSqlDatabase;
 import liquibase.statement.SqlStatement;
-import liquibase.util.StringUtil;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.Document;
@@ -142,22 +141,9 @@ public class MongoLiquibaseDatabase extends AbstractNoSqlDatabase {
     }
 
     @Override
-    public String formatCommandForMdc(SqlStatement statement) {
-        String commandMessage = statement.toString();
+    public String formatStatementForMdc(SqlStatement statement) {
+        String commandMessage = statement.getFormattedStatement();
         Scope.getCurrentScope().getLog(getClass()).fine("MongoDB command message: " + commandMessage);
-
-        if (StringUtil.isEmpty(commandMessage)) {
-            return null;
-        }
-
-        if (commandMessage.contains("Executing Statement: db.runCommand")) {
-            int startIndex = commandMessage.indexOf("db.runCommand");
-            if (startIndex >= 0) {
-                String formattedCommand = commandMessage.substring(startIndex);
-                Scope.getCurrentScope().getLog(getClass()).fine("Formatted MongoDB command: " + formattedCommand);
-                return formattedCommand;
-            }
-        }
 
         return commandMessage;
     }
