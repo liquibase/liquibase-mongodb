@@ -95,11 +95,6 @@
             <artifactId>json</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-model</artifactId>
-            <version>3.9.9</version>
-        </dependency>
     </dependencies>
 
     <build>
