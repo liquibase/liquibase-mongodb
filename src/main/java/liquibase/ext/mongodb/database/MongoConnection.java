@@ -164,6 +164,9 @@ public class MongoConnection extends AbstractNoSqlConnection {
     }
 
     protected String getAppName(Properties driverProperties, boolean isProExt) {
+        if(driverProperties == null) {
+            return "Liquibase";
+        }
         if(driverProperties.getProperty("appName") != null) {
             return driverProperties.getProperty("appName");
         }
