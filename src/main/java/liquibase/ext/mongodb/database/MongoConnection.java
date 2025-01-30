@@ -37,13 +37,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.Driver;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -144,7 +149,7 @@ public class MongoConnection extends AbstractNoSqlConnection {
 
             this.connectionString = new ConnectionString(resolveRetryWrites(urlWithCredentials));
 
-            this.mongoClient = ((MongoClientDriver) driverObject).connect(connectionString);
+            this.mongoClient = ((MongoClientDriver) driverObject).connect(connectionString, getAppName(driverProperties, false));
 
             final String database = this.connectionString.getDatabase();
             if (database == null) {
@@ -155,6 +160,39 @@ public class MongoConnection extends AbstractNoSqlConnection {
         } catch (final Exception e) {
             throw new DatabaseException("Could not open connection to database: "
                     + ofNullable(connectionString).map(ConnectionString::getDatabase).orElse(url), e);
+        }
+    }
+
+    protected String getAppName(Properties driverProperties, boolean isProExt) {
+        if(driverProperties.getProperty("appName") != null) {
+            return driverProperties.getProperty("appName");
+        }
+        String appType = isProExt ? "PRO_" : "OSS_";
+        String extType = isProExt ? "_ProExt_" : "_OssExt_";
+        Class<?> coreRepresentativeClass = isProExt ? com.datical.liquibase.ext.storedlogic.function.Function.class :
+                liquibase.structure.core.Table.class;
+        return "Liquibase_" + appType + getVersion(coreRepresentativeClass) + extType + getVersion(this.getClass());
+    }
+
+    protected String getVersion(Class<?> clazz) {
+        String className = clazz.getSimpleName() + ".class";
+        String classPath = clazz.getResource(className).toString();
+
+        if (!classPath.startsWith("jar")) {
+            // Class is not from a JAR, but from the file system.
+            return "LOCAL_BUILD";
+        }
+        try (InputStream is = new URL(classPath.substring(0, classPath.indexOf("!")) + "!/META-INF/MANIFEST.MF").openStream()) {
+            Manifest manifest = new Manifest(is);
+            Attributes attributes = manifest.getMainAttributes();
+            String version = attributes.getValue("Implementation-Version");
+            if (version == null) {
+                version = attributes.getValue("Bundle-Version"); //For OSGi bundles
+            }
+            return version;
+        } catch (IOException e) {
+            Scope.getCurrentScope().getLog(this.getClass()).warning("Could not extract version within classPath = " + classPath);
+            return null;
         }
     }
 
