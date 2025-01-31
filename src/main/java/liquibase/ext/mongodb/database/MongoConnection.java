@@ -32,18 +32,24 @@ import liquibase.ext.mongodb.configuration.MongoConfiguration;
 import liquibase.ext.mongodb.statement.BsonUtils;
 import liquibase.logging.Logger;
 import liquibase.nosql.database.AbstractNoSqlConnection;
+import liquibase.util.LiquibaseUtil;
 import liquibase.util.StringUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.Driver;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -144,7 +150,7 @@ public class MongoConnection extends AbstractNoSqlConnection {
 
             this.connectionString = new ConnectionString(resolveRetryWrites(urlWithCredentials));
 
-            this.mongoClient = ((MongoClientDriver) driverObject).connect(connectionString);
+            this.mongoClient = ((MongoClientDriver) driverObject).connect(connectionString, getAppName(driverProperties, false));
 
             final String database = this.connectionString.getDatabase();
             if (database == null) {
@@ -155,6 +161,42 @@ public class MongoConnection extends AbstractNoSqlConnection {
         } catch (final Exception e) {
             throw new DatabaseException("Could not open connection to database: "
                     + ofNullable(connectionString).map(ConnectionString::getDatabase).orElse(url), e);
+        }
+    }
+
+    protected String getAppName(Properties driverProperties, boolean isProExt) {
+        if(driverProperties == null) {
+            return "Liquibase";
+        }
+        if(driverProperties.getProperty("appName") != null) {
+            return driverProperties.getProperty("appName");
+        }
+        String appType = isProExt ? "PRO_" : "OSS_";
+        String extType = isProExt ? "_ProExt_" : "_OssExt_";
+        String buildVersion = LiquibaseUtil.getBuildVersion();
+        return "Liquibase_" + appType + buildVersion + extType + getVersion();
+    }
+
+//
+    protected String getVersion() {
+        String className = this.getClass().getSimpleName() + ".class";
+        URL url = this.getClass().getResource(className);
+        String classPath = url == null ? "" : url.toString();
+
+        if (!classPath.startsWith("jar")) {
+            // Class is not from a JAR, but from the file system.
+            return "LOCAL_BUILD";
+        }
+        try (InputStream is = new URL(classPath.substring(0, classPath.indexOf("!")) + "!/META-INF/MANIFEST.MF").openStream()) {
+            Attributes attributes = new Manifest(is).getMainAttributes();
+            String version = attributes.getValue("Implementation-Version");
+            if (version == null) {
+                version = attributes.getValue("Bundle-Version"); //For OSGi bundles
+            }
+            return version;
+        } catch (IOException e) {
+            Scope.getCurrentScope().getLog(this.getClass()).warning("Could not extract version within classPath = " + classPath);
+            return null;
         }
     }
 

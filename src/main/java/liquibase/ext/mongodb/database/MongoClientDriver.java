@@ -1,10 +1,9 @@
 package liquibase.ext.mongodb.database;
 
 import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.MongoClientSettings.Builder;
 import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.util.StringUtil;
@@ -23,12 +22,13 @@ public class MongoClientDriver implements Driver {
         throw new UnsupportedOperationException("Cannot initiate a SQL Connection for a NoSql DB");
     }
 
-    public MongoClient connect(final ConnectionString connectionString) throws DatabaseException {
+    public MongoClient connect(final ConnectionString connectionString, String appName) throws DatabaseException {
+
         final MongoClient client;
 
         MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
-                .applicationName("Liquibase")
+                .applicationName(appName)
                 .build();
 
         try {
@@ -38,6 +38,10 @@ public class MongoClientDriver implements Driver {
                     + connectionString.getConnectionString(), e);
         }
         return client;
+    }
+
+    public MongoClient connect(final ConnectionString connectionString) throws DatabaseException {
+        return connect(connectionString, "Liquibase");
     }
 
     @Override
