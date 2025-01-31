@@ -32,6 +32,7 @@ import liquibase.ext.mongodb.configuration.MongoConfiguration;
 import liquibase.ext.mongodb.statement.BsonUtils;
 import liquibase.logging.Logger;
 import liquibase.nosql.database.AbstractNoSqlConnection;
+import liquibase.util.LiquibaseUtil;
 import liquibase.util.StringUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -172,22 +173,22 @@ public class MongoConnection extends AbstractNoSqlConnection {
         }
         String appType = isProExt ? "PRO_" : "OSS_";
         String extType = isProExt ? "_ProExt_" : "_OssExt_";
-        Class<?> coreRepresentativeClass = isProExt ? com.datical.liquibase.ext.storedlogic.function.Function.class :
-                liquibase.structure.core.Table.class;
-        return "Liquibase_" + appType + getVersion(coreRepresentativeClass) + extType + getVersion(this.getClass());
+        String buildVersion = LiquibaseUtil.getBuildVersion();
+        return "Liquibase_" + appType + buildVersion + extType + getVersion();
     }
 
-    protected String getVersion(Class<?> clazz) {
-        String className = clazz.getSimpleName() + ".class";
-        String classPath = clazz.getResource(className).toString();
+//
+    protected String getVersion() {
+        String className = this.getClass().getSimpleName() + ".class";
+        URL url = this.getClass().getResource(className);
+        String classPath = url == null ? "" : url.toString();
 
         if (!classPath.startsWith("jar")) {
             // Class is not from a JAR, but from the file system.
             return "LOCAL_BUILD";
         }
         try (InputStream is = new URL(classPath.substring(0, classPath.indexOf("!")) + "!/META-INF/MANIFEST.MF").openStream()) {
-            Manifest manifest = new Manifest(is);
-            Attributes attributes = manifest.getMainAttributes();
+            Attributes attributes = new Manifest(is).getMainAttributes();
             String version = attributes.getValue("Implementation-Version");
             if (version == null) {
                 version = attributes.getValue("Bundle-Version"); //For OSGi bundles
