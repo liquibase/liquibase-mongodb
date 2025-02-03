@@ -19,6 +19,7 @@ import java.util.Properties;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -81,7 +82,7 @@ class MongoConnectionTest {
     @Test
     void getConnectionUserName() {
 
-        when(driverMock.connect(any(ConnectionString.class))).thenReturn(clientMock);
+        when(driverMock.connect(any(ConnectionString.class), anyString())).thenReturn(clientMock);
         when(clientMock.getDatabase(any())).thenReturn(databaseMock);
 
         assertThat(connection.getConnectionUserName()).isEmpty();
@@ -97,7 +98,7 @@ class MongoConnectionTest {
     @Test
     void isClosed() {
 
-        when(driverMock.connect(any(ConnectionString.class))).thenReturn(clientMock);
+        when(driverMock.connect(any(ConnectionString.class), anyString())).thenReturn(clientMock);
         when(clientMock.getDatabase(any())).thenReturn(databaseMock);
 
         assertThat(connection.isClosed()).isTrue();
@@ -116,7 +117,7 @@ class MongoConnectionTest {
     @SneakyThrows
     @Test
     void getCatalog() {
-        when(driverMock.connect(any(ConnectionString.class))).thenReturn(clientMock);
+        when(driverMock.connect(any(ConnectionString.class), anyString())).thenReturn(clientMock);
         when(clientMock.getDatabase(any())).thenReturn(databaseMock);
         when(databaseMock.getName()).thenReturn("test_db");
         when(databaseMock.withCodecRegistry(any())).thenReturn(databaseMock);
@@ -136,7 +137,7 @@ class MongoConnectionTest {
     @SneakyThrows
     @Test
     void open() {
-        when(driverMock.connect(any(ConnectionString.class))).thenReturn(clientMock);
+        when(driverMock.connect(any(ConnectionString.class), anyString())).thenReturn(clientMock);
         when(clientMock.getDatabase(any())).thenReturn(databaseMock);
         when(databaseMock.withCodecRegistry(any())).thenReturn(databaseMock);
 
@@ -147,7 +148,7 @@ class MongoConnectionTest {
         assertThat(connection.getConnectionUserName()).isEmpty();
         assertThat(connection.getURL()).isEqualTo("localhost:27017");
 
-        verify(driverMock).connect(any(ConnectionString.class));
+        verify(driverMock).connect(any(ConnectionString.class), anyString());
         verify(clientMock).getDatabase(any());
         verify(databaseMock).withCodecRegistry(any());
         verifyNoMoreInteractions(driverMock, clientMock, databaseMock);
@@ -161,7 +162,7 @@ class MongoConnectionTest {
         assertThat(connection.getConnectionUserName()).isEqualTo("user1");
         assertThat(connection.getURL()).isEqualTo("localhost:27017");
 
-        verify(driverMock, times(2)).connect(any(ConnectionString.class));
+        verify(driverMock, times(2)).connect(any(ConnectionString.class), anyString());
         verify(clientMock, times(2)).getDatabase(any());
         verify(databaseMock, times(2)).withCodecRegistry(any());
         verifyNoMoreInteractions(driverMock, clientMock, databaseMock);
@@ -178,7 +179,7 @@ class MongoConnectionTest {
         assertThat(connection.getConnectionUserName()).isEqualTo("user2");
         assertThat(connection.getURL()).isEqualTo("mongodb1.example.com:27317,mongodb2.example.com:27017");
 
-        verify(driverMock, times(3)).connect(any(ConnectionString.class));
+        verify(driverMock, times(3)).connect(any(ConnectionString.class), anyString());
         verify(clientMock, times(3)).getDatabase(any());
         verify(databaseMock, times(3)).withCodecRegistry(any());
         verifyNoMoreInteractions(driverMock, clientMock, databaseMock);
@@ -194,7 +195,7 @@ class MongoConnectionTest {
         assertThat(connection.getConnectionUserName()).isEqualTo("user3");
         assertThat(connection.getURL()).isEqualTo("localhost:27017");
 
-        verify(driverMock, times(4)).connect(any(ConnectionString.class));
+        verify(driverMock, times(4)).connect(any(ConnectionString.class), anyString());
         verify(clientMock, times(4)).getDatabase(any());
         verify(databaseMock, times(4)).withCodecRegistry(any());
         verifyNoMoreInteractions(driverMock, clientMock, databaseMock);
