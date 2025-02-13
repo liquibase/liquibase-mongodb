@@ -22,6 +22,8 @@ package liquibase.ext.mongodb.statement;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoDatabase;
+import liquibase.Scope;
+import liquibase.executor.jvm.JdbcExecutor;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
 import lombok.AllArgsConstructor;
@@ -30,6 +32,7 @@ import lombok.Getter;
 import org.bson.Document;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.nonNull;
 
@@ -43,12 +46,20 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
     public static final String OK = "ok";
     public static final String WRITE_ERRORS = "writeErrors";
 
+    // Fields for tracking affected documents
+    private static final String N = "n";
+    private static final String N_MODIFIED = "nModified";
+    private static final String N_REMOVED = "nRemoved";
+    private static final String CREATE = "create";
+    private static final String DROP = "drop";
+
     @Getter
     protected final Document command;
 
     @Override
     public void execute(final MongoLiquibaseDatabase database) {
-        run(database);
+        Document response = run(database);
+        updateRowsAffected(response);
     }
 
     public Document run(final MongoLiquibaseDatabase database) {
@@ -82,6 +93,80 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
                 || nonNull(writeErrors) && !writeErrors.isEmpty()) {
             throw new MongoException("Command failed. The full response is " + responseDocument.toJson());
         }
+    }
+
+    /**
+     * Updates the rows affected count in the Liquibase scope based on MongoDB command response
+     */
+    protected void updateRowsAffected(Document response) {
+        AtomicInteger rowsAffected = Scope.getCurrentScope().get(JdbcExecutor.ROWS_AFFECTED_SCOPE_KEY, AtomicInteger.class);
+        Boolean shouldUpdateRowsAffected = Scope.getCurrentScope().get(JdbcExecutor.SHOULD_UPDATE_ROWS_AFFECTED_SCOPE_KEY, Boolean.class);
+
+        if (rowsAffected != null && Boolean.TRUE.equals(shouldUpdateRowsAffected)) {
+            int count = extractAffectedCount(response);
+            if (count > -1) {
+                rowsAffected.addAndGet(count);
+            }
+        }
+    }
+
+    /**
+     * Extracts the number of affected documents from MongoDB command response
+     */
+    protected int extractAffectedCount(Document response) {
+        // For collection-level operations
+        if (isCollectionOperation()) {
+            Double ok = response.get(OK) instanceof Integer ?
+                    (double) response.getInteger(OK) :
+                    response.getDouble(OK);
+            if (ok.equals(1.0d)) {
+                return 1;
+            }
+            return 0;
+        }
+
+        // For insert operations
+        Integer nInserted = response.getInteger(N);
+        if (nInserted != null) {
+            return nInserted;
+        }
+
+        // For update operations
+        Integer nModified = response.getInteger(N_MODIFIED);
+        if (nModified != null) {
+            return nModified;
+        }
+
+        // For delete operations
+        Integer nRemoved = response.getInteger(N_REMOVED);
+        if (nRemoved != null) {
+            return nRemoved;
+        }
+
+        // For generic operations
+        Integer n = response.getInteger(N);
+        if (n != null) {
+            return n;
+        }
+
+        // Default successful operation count
+        Double ok = response.get(OK) instanceof Integer ?
+                (double) response.getInteger(OK) :
+                response.getDouble(OK);
+        if (ok.equals(1.0d)) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    protected boolean isCollectionOperation() {
+        if (command == null) return false;
+
+        return command.containsKey(CREATE) ||
+                command.containsKey(DROP) ||
+                command.containsKey("createIndexes") ||
+                command.containsKey("dropIndexes");
     }
 
     @Override

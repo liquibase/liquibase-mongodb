@@ -26,6 +26,7 @@ import liquibase.changelog.ChangeLogHistoryServiceFactory;
 import liquibase.database.Database;
 import liquibase.exception.DatabaseException;
 import liquibase.executor.AbstractExecutor;
+import liquibase.executor.jvm.JdbcExecutor;
 import liquibase.ext.mongodb.changelog.MongoHistoryService;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.logging.Logger;
@@ -40,6 +41,7 @@ import liquibase.statement.core.UpdateChangeSetChecksumStatement;
 import liquibase.statement.core.UpdateStatement;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -181,8 +183,22 @@ public class NoSqlExecutor extends AbstractExecutor {
 
     @Override
     public void execute(final SqlStatement sql) throws DatabaseException {
-        disableRowAffectedMessage();
-        this.execute(sql, emptyList());
+        Map<String, Object> scopeValues = new HashMap<>();
+        scopeValues.put(JdbcExecutor.ROWS_AFFECTED_SCOPE_KEY, new AtomicInteger(0));
+        scopeValues.put(JdbcExecutor.SHOULD_UPDATE_ROWS_AFFECTED_SCOPE_KEY, true);
+
+        try {
+            Scope.child(scopeValues, () -> {
+                disableRowAffectedMessage();
+                this.execute(sql, emptyList());
+                return null;
+            });
+        } catch (Exception e) {
+            if (e instanceof DatabaseException) {
+                throw (DatabaseException) e;
+            }
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
