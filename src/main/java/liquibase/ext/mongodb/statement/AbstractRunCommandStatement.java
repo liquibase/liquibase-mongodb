@@ -116,10 +116,10 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
     protected int extractAffectedCount(Document response) {
         // For collection-level operations
         if (isCollectionOperation()) {
-            Double ok = response.get(OK) instanceof Integer ?
+            double ok = response.get(OK) instanceof Integer ?
                     (double) response.getInteger(OK) :
                     response.getDouble(OK);
-            if (ok.equals(1.0d)) {
+            if (ok == 1.0d) {
                 return 1;
             }
             return 0;
@@ -150,10 +150,10 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
         }
 
         // Default successful operation count
-        Double ok = response.get(OK) instanceof Integer ?
+        double ok = response.get(OK) instanceof Integer ?
                 (double) response.getInteger(OK) :
                 response.getDouble(OK);
-        if (ok.equals(1.0d)) {
+        if (ok == 1.0d) {
             return 1;
         }
 
