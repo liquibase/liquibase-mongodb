@@ -184,7 +184,7 @@ public class NoSqlExecutor extends AbstractExecutor {
     @Override
     public void execute(final SqlStatement sql) throws DatabaseException {
         Map<String, Object> scopeValues = new HashMap<>();
-        scopeValues.put(JdbcExecutor.ROWS_AFFECTED_SCOPE_KEY, new AtomicInteger(0));
+        scopeValues.putIfAbsent(JdbcExecutor.ROWS_AFFECTED_SCOPE_KEY, new AtomicInteger(0));
         scopeValues.put(JdbcExecutor.SHOULD_UPDATE_ROWS_AFFECTED_SCOPE_KEY, true);
 
         try {
