@@ -125,10 +125,10 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
             return 0;
         }
 
-        // For insert operations
-        Integer nInserted = response.getInteger(N);
-        if (nInserted != null) {
-            return nInserted;
+        // For all operations that return 'n'
+        Integer n = response.getInteger(N);
+        if (n != null) {
+            return n;
         }
 
         // For update operations
@@ -141,20 +141,6 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
         Integer nRemoved = response.getInteger(N_REMOVED);
         if (nRemoved != null) {
             return nRemoved;
-        }
-
-        // For generic operations
-        Integer n = response.getInteger(N);
-        if (n != null) {
-            return n;
-        }
-
-        // Default successful operation count
-        double ok = response.get(OK) instanceof Integer ?
-                (double) response.getInteger(OK) :
-                response.getDouble(OK);
-        if (ok == 1.0d) {
-            return 1;
         }
 
         return 0;
