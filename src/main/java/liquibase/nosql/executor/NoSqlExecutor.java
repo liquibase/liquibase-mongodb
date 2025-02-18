@@ -53,6 +53,8 @@ import static java.util.Optional.ofNullable;
 @NoArgsConstructor
 public class NoSqlExecutor extends AbstractExecutor {
 
+    public static final AtomicInteger GLOBAL_ROWS_AFFECTED = new AtomicInteger(0);
+
     public static final String EXECUTOR_NAME = "jdbc";
     private final Logger log = Scope.getCurrentScope().getLog(getClass());
 
@@ -168,7 +170,7 @@ public class NoSqlExecutor extends AbstractExecutor {
      * @throws DatabaseException in case of a failure
      */
     public void execute(final UpdateStatement updateStatement) throws DatabaseException {
-        if(updateStatement.getNewColumnValues().containsKey("MD5SUM")
+        if (updateStatement.getNewColumnValues().containsKey("MD5SUM")
                 && updateStatement.getNewColumnValues().get("MD5SUM") == null) {
             try {
                 Scope.getCurrentScope().getSingleton(ChangeLogHistoryServiceFactory.class)
@@ -183,16 +185,16 @@ public class NoSqlExecutor extends AbstractExecutor {
 
     @Override
     public void execute(final SqlStatement sql) throws DatabaseException {
-        Map<String, Object> scopeValues = new HashMap<>();
-        scopeValues.putIfAbsent(JdbcExecutor.ROWS_AFFECTED_SCOPE_KEY, new AtomicInteger(0));
-        scopeValues.put(JdbcExecutor.SHOULD_UPDATE_ROWS_AFFECTED_SCOPE_KEY, true);
-
         try {
+            Map<String, Object> scopeValues = new HashMap<>();
+            scopeValues.put(JdbcExecutor.ROWS_AFFECTED_SCOPE_KEY, GLOBAL_ROWS_AFFECTED);
+            scopeValues.put(JdbcExecutor.SHOULD_UPDATE_ROWS_AFFECTED_SCOPE_KEY, true);
+
             Scope.child(scopeValues, () -> {
-                disableRowAffectedMessage();
                 this.execute(sql, emptyList());
                 return null;
             });
+
         } catch (Exception e) {
             if (e instanceof DatabaseException) {
                 throw (DatabaseException) e;
@@ -215,7 +217,7 @@ public class NoSqlExecutor extends AbstractExecutor {
             ChangeLogHistoryService changeLogHistoryService = Scope.getCurrentScope().getSingleton(ChangeLogHistoryServiceFactory.class)
                     .getChangeLogService(getDatabase());
             if (changeLogHistoryService instanceof MongoHistoryService) {
-                ((MongoHistoryService)changeLogHistoryService).updateCheckSum(((UpdateChangeSetChecksumStatement) sql).getChangeSet());
+                ((MongoHistoryService) changeLogHistoryService).updateCheckSum(((UpdateChangeSetChecksumStatement) sql).getChangeSet());
             } else {
                 throw new DatabaseException("Could not execute as we are not in a MongoDB");
             }

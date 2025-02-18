@@ -25,17 +25,22 @@ import com.mongodb.client.MongoDatabase;
 import liquibase.Scope;
 import liquibase.executor.jvm.JdbcExecutor;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
+import liquibase.nosql.executor.NoSqlExecutor;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.nonNull;
 
+@Slf4j
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
@@ -99,13 +104,16 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
      * Updates the rows affected count in the Liquibase scope based on MongoDB command response
      */
     protected void updateRowsAffected(Document response) {
-        AtomicInteger rowsAffected = Scope.getCurrentScope().get(JdbcExecutor.ROWS_AFFECTED_SCOPE_KEY, AtomicInteger.class);
-        Boolean shouldUpdateRowsAffected = Scope.getCurrentScope().get(JdbcExecutor.SHOULD_UPDATE_ROWS_AFFECTED_SCOPE_KEY, Boolean.class);
+        AtomicInteger rowsAffected = NoSqlExecutor.GLOBAL_ROWS_AFFECTED;
+        int count = extractAffectedCount(response);
 
-        if (rowsAffected != null && Boolean.TRUE.equals(shouldUpdateRowsAffected)) {
-            int count = extractAffectedCount(response);
-            if (count > -1) {
-                rowsAffected.addAndGet(count);
+        if (count > -1) {
+            Map<String, Object> scopeValues = new HashMap<>();
+            scopeValues.put(JdbcExecutor.ROWS_AFFECTED_SCOPE_KEY, rowsAffected);
+            try {
+                Scope.child(scopeValues, () -> null);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -114,7 +122,6 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
      * Extracts the number of affected documents from MongoDB command response
      */
     protected int extractAffectedCount(Document response) {
-        // For collection-level operations
         if (isCollectionOperation()) {
             double ok = response.get(OK) instanceof Integer ?
                     (double) response.getInteger(OK) :
