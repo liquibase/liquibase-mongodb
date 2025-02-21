@@ -30,17 +30,14 @@ import liquibase.nosql.statement.NoSqlExecuteStatement;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.nonNull;
+import static liquibase.executor.jvm.JdbcExecutor.SHOULD_UPDATE_ROWS_AFFECTED_SCOPE_KEY;
 
-@Slf4j
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
@@ -51,12 +48,9 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
     public static final String OK = "ok";
     public static final String WRITE_ERRORS = "writeErrors";
 
-    // Fields for tracking affected documents
-    private static final String N = "n";
-    private static final String N_MODIFIED = "nModified";
-    private static final String N_REMOVED = "nRemoved";
-    private static final String CREATE = "create";
-    private static final String DROP = "drop";
+    public static final String N = "n";
+    public static final String N_MODIFIED = "nModified";
+    public static final String N_REMOVED = "nRemoved";
 
     @Getter
     protected final Document command;
@@ -90,76 +84,49 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
      * Check the response and throw an appropriate exception if the command was not successful
      */
     protected void checkResponse(final Document responseDocument) throws MongoException {
-        final Double ok = responseDocument.get(OK) instanceof Integer ? (double) responseDocument.getInteger(OK) :
-                responseDocument.getDouble(OK);
+        final Double ok = responseDocument.get(OK) instanceof Integer
+                ? (double) responseDocument.getInteger(OK)
+                : responseDocument.getDouble(OK);
+
         final List<Document> writeErrors = responseDocument.getList(WRITE_ERRORS, Document.class);
 
-        if (nonNull(ok) && !ok.equals(1.0d)
-                || nonNull(writeErrors) && !writeErrors.isEmpty()) {
+        if ((nonNull(ok) && !ok.equals(1.0d))
+                || (nonNull(writeErrors) && !writeErrors.isEmpty())) {
             throw new MongoException("Command failed. The full response is " + responseDocument.toJson());
         }
     }
 
-    /**
-     * Updates the rows affected count in the Liquibase scope based on MongoDB command response
-     */
     protected void updateRowsAffected(Document response) {
-        AtomicInteger rowsAffected = NoSqlExecutor.GLOBAL_ROWS_AFFECTED;
-        int count = extractAffectedCount(response);
+        int affectedCount = extractAffectedCount(response);
+        if (affectedCount <= 0) {
+            return;
+        }
 
-        if (count > -1) {
-            Map<String, Object> scopeValues = new HashMap<>();
-            scopeValues.put(JdbcExecutor.ROWS_AFFECTED_SCOPE_KEY, rowsAffected);
-            try {
-                Scope.child(scopeValues, () -> null);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        AtomicInteger scopeRowsAffected = Scope.getCurrentScope().get(JdbcExecutor.ROWS_AFFECTED_SCOPE_KEY, AtomicInteger.class);
+        if (scopeRowsAffected == null) {
+            scopeRowsAffected = NoSqlExecutor.GLOBAL_ROWS_AFFECTED;
+        }
+        Boolean shouldUpdate = Scope.getCurrentScope().get(SHOULD_UPDATE_ROWS_AFFECTED_SCOPE_KEY, Boolean.TRUE);
+        if (scopeRowsAffected != null && Boolean.TRUE.equals(shouldUpdate)) {
+            scopeRowsAffected.addAndGet(affectedCount);
+            Scope.getCurrentScope().getLog(getClass()).fine("Added " + affectedCount + " to ROWS_AFFECTED_SCOPE_KEY; new total=" + scopeRowsAffected.get());
         }
     }
 
-    /**
-     * Extracts the number of affected documents from MongoDB command response
-     */
     protected int extractAffectedCount(Document response) {
-        if (isCollectionOperation()) {
-            double ok = response.get(OK) instanceof Integer ?
-                    (double) response.getInteger(OK) :
-                    response.getDouble(OK);
-            if (ok == 1.0d) {
-                return 1;
-            }
-            return 0;
+        if (response.containsKey(N)) {
+            return response.getInteger(N, 0);
         }
-
-        // For all operations that return 'n'
-        Integer n = response.getInteger(N);
-        if (n != null) {
-            return n;
+        // Then 'nModified' (some updates)
+        if (response.containsKey(N_MODIFIED)) {
+            return response.getInteger(N_MODIFIED, 0);
         }
-
-        // For update operations
-        Integer nModified = response.getInteger(N_MODIFIED);
-        if (nModified != null) {
-            return nModified;
+        // Then 'nRemoved'
+        if (response.containsKey(N_REMOVED)) {
+            return response.getInteger(N_REMOVED, 0);
         }
-
-        // For delete operations
-        Integer nRemoved = response.getInteger(N_REMOVED);
-        if (nRemoved != null) {
-            return nRemoved;
-        }
-
+        // or 0 for commands that do not return anything about affected docs
         return 0;
-    }
-
-    protected boolean isCollectionOperation() {
-        if (command == null) return false;
-
-        return command.containsKey(CREATE) ||
-                command.containsKey(DROP) ||
-                command.containsKey("createIndexes") ||
-                command.containsKey("dropIndexes");
     }
 
     @Override
