@@ -106,7 +106,7 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
             scopeRowsAffected = NoSqlExecutor.GLOBAL_ROWS_AFFECTED;
         }
         Boolean shouldUpdate = Scope.getCurrentScope().get(SHOULD_UPDATE_ROWS_AFFECTED_SCOPE_KEY, Boolean.TRUE);
-        if (scopeRowsAffected != null && Boolean.TRUE.equals(shouldUpdate)) {
+        if (Boolean.TRUE.equals(shouldUpdate)) {
             scopeRowsAffected.addAndGet(affectedCount);
             Scope.getCurrentScope().getLog(getClass()).fine("Added " + affectedCount + " to ROWS_AFFECTED_SCOPE_KEY; new total=" + scopeRowsAffected.get());
         }
