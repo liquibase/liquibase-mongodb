@@ -84,13 +84,13 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
      * Check the response and throw an appropriate exception if the command was not successful
      */
     protected void checkResponse(final Document responseDocument) throws MongoException {
-        final Double ok = responseDocument.get(OK) instanceof Integer
+        final double ok = responseDocument.get(OK) instanceof Integer
                 ? (double) responseDocument.getInteger(OK)
                 : responseDocument.getDouble(OK);
 
         final List<Document> writeErrors = responseDocument.getList(WRITE_ERRORS, Document.class);
 
-        if (!ok.equals(1.0d) || nonNull(writeErrors) && !writeErrors.isEmpty()) {
+        if (ok != 1.0d || nonNull(writeErrors) && !writeErrors.isEmpty()) {
             throw new MongoException("Command failed. The full response is " + responseDocument.toJson());
         }
     }
