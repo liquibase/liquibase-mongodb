@@ -78,8 +78,7 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
                 responseDocument.getDouble(OK);
         final List<Document> writeErrors = responseDocument.getList(WRITE_ERRORS, Document.class);
 
-        if (nonNull(ok) && !ok.equals(1.0d)
-                || nonNull(writeErrors) && !writeErrors.isEmpty()) {
+        if (!ok.equals(1.0d) || nonNull(writeErrors) && !writeErrors.isEmpty()) {
             throw new MongoException("Command failed. The full response is " + responseDocument.toJson());
         }
     }
