@@ -22,7 +22,10 @@ package liquibase.ext.mongodb.statement;
 
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoDatabase;
+import liquibase.Scope;
+import liquibase.executor.jvm.JdbcExecutor;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
+import liquibase.nosql.executor.NoSqlExecutor;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -30,8 +33,10 @@ import lombok.Getter;
 import org.bson.Document;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Objects.nonNull;
+import static liquibase.executor.jvm.JdbcExecutor.SHOULD_UPDATE_ROWS_AFFECTED_SCOPE_KEY;
 
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -43,12 +48,17 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
     public static final String OK = "ok";
     public static final String WRITE_ERRORS = "writeErrors";
 
+    public static final String N = "n";
+    public static final String N_MODIFIED = "nModified";
+    public static final String N_REMOVED = "nRemoved";
+
     @Getter
     protected final Document command;
 
     @Override
     public void execute(final MongoLiquibaseDatabase database) {
-        run(database);
+        Document response = run(database);
+        updateRowsAffected(response);
     }
 
     public Document run(final MongoLiquibaseDatabase database) {
@@ -74,13 +84,48 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
      * Check the response and throw an appropriate exception if the command was not successful
      */
     protected void checkResponse(final Document responseDocument) throws MongoException {
-        final Double ok = responseDocument.get(OK) instanceof Integer ? (double) responseDocument.getInteger(OK) :
-                responseDocument.getDouble(OK);
+        final double ok = responseDocument.get(OK) instanceof Integer
+                ? (double) responseDocument.getInteger(OK)
+                : responseDocument.getDouble(OK);
+
         final List<Document> writeErrors = responseDocument.getList(WRITE_ERRORS, Document.class);
 
-        if (!ok.equals(1.0d) || nonNull(writeErrors) && !writeErrors.isEmpty()) {
+        if (ok != 1.0d || nonNull(writeErrors) && !writeErrors.isEmpty()) {
             throw new MongoException("Command failed. The full response is " + responseDocument.toJson());
         }
+    }
+
+    protected void updateRowsAffected(Document response) {
+        int affectedCount = extractAffectedCount(response);
+        if (affectedCount <= 0) {
+            return;
+        }
+
+        AtomicInteger scopeRowsAffected = Scope.getCurrentScope().get(JdbcExecutor.ROWS_AFFECTED_SCOPE_KEY, AtomicInteger.class);
+        if (scopeRowsAffected == null) {
+            scopeRowsAffected = NoSqlExecutor.GLOBAL_ROWS_AFFECTED;
+        }
+        Boolean shouldUpdate = Scope.getCurrentScope().get(SHOULD_UPDATE_ROWS_AFFECTED_SCOPE_KEY, Boolean.TRUE);
+        if (Boolean.TRUE.equals(shouldUpdate)) {
+            scopeRowsAffected.addAndGet(affectedCount);
+            Scope.getCurrentScope().getLog(getClass()).fine("Added " + affectedCount + " to ROWS_AFFECTED_SCOPE_KEY; new total=" + scopeRowsAffected.get());
+        }
+    }
+
+    protected int extractAffectedCount(Document response) {
+        if (response.containsKey(N)) {
+            return response.getInteger(N, 0);
+        }
+        // Then 'nModified' (some updates)
+        if (response.containsKey(N_MODIFIED)) {
+            return response.getInteger(N_MODIFIED, 0);
+        }
+        // Then 'nRemoved'
+        if (response.containsKey(N_REMOVED)) {
+            return response.getInteger(N_REMOVED, 0);
+        }
+        // or 0 for commands that do not return anything about affected docs
+        return 0;
     }
 
     @Override
