@@ -1,1 +1,3 @@
 liquibase.nosql.executor.NoSqlGenerator
+liquibase.nosql.executor.ReplaceChangeLogLockSqlGenerator
+liquibase.nosql.executor.AdjustChangeLogLockCollectionSqlGenerator
