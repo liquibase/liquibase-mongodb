@@ -46,7 +46,7 @@ public abstract class NoSqlSnapshotGenerator implements SnapshotGenerator {
             return null;
         }
 
-        if (shouldAddTo(example.getClass(), snapshot)) {
+        if (shouldAddTo(snapshot)) {
             if (addsTo() != null) {
                 for (Class<? extends DatabaseObject> addType : addsTo()) {
                     if (addType.isAssignableFrom(example.getClass())) {
@@ -58,7 +58,7 @@ public abstract class NoSqlSnapshotGenerator implements SnapshotGenerator {
         return chainResponse;
     }
 
-    protected boolean shouldAddTo(Class<? extends DatabaseObject> databaseObjectType, DatabaseSnapshot snapshot) {
+    protected boolean shouldAddTo(DatabaseSnapshot snapshot) {
         return (defaultFor != null) && snapshot.getSnapshotControl().shouldInclude(defaultFor);
     }
 
