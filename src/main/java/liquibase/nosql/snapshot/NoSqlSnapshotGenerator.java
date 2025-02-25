@@ -9,33 +9,76 @@ import liquibase.snapshot.SnapshotGenerator;
 import liquibase.snapshot.SnapshotGeneratorChain;
 import liquibase.structure.DatabaseObject;
 
-import java.util.ResourceBundle;
+public abstract class NoSqlSnapshotGenerator implements SnapshotGenerator {
 
-import static liquibase.plugin.Plugin.PRIORITY_SPECIALIZED;
-
-public class NoSqlSnapshotGenerator implements SnapshotGenerator {
-    private static final ResourceBundle mongoBundle = ResourceBundle.getBundle("liquibase/i18n/liquibase-mongo");
+    private final Class<? extends DatabaseObject> defaultFor;
+    private Class<? extends DatabaseObject>[] addsTo;
+    protected NoSqlSnapshotGenerator (Class<? extends DatabaseObject> defaultFor, Class<? extends DatabaseObject>[] addsTo) {
+        this.defaultFor = defaultFor;
+        this.addsTo = addsTo;
+    }
 
     @Override
     public int getPriority(Class<? extends DatabaseObject> objectType, Database database) {
         if (database instanceof MongoLiquibaseDatabase) {
-            return PRIORITY_SPECIALIZED;
+            if ((defaultFor != null) && defaultFor.isAssignableFrom(objectType)) {
+                return PRIORITY_DEFAULT;
+            }
+            if (addsTo() != null) {
+                for (Class<? extends DatabaseObject> type : addsTo()) {
+                    if (type.isAssignableFrom(objectType)) {
+                        return PRIORITY_ADDITIONAL;
+                    }
+                }
+            }
         }
         return PRIORITY_NONE;
     }
 
     @Override
-    public <T extends DatabaseObject> T snapshot(T example, DatabaseSnapshot snapshot, SnapshotGeneratorChain chain) throws DatabaseException, InvalidExampleException {
-        throw new DatabaseException(String.format(mongoBundle.getString("command.unsupported"), "db-doc, diff*, generate-changelog, and snapshot*"));
+    public DatabaseObject snapshot(DatabaseObject example, DatabaseSnapshot snapshot, SnapshotGeneratorChain chain) throws DatabaseException, InvalidExampleException {
+        if ((defaultFor != null) && defaultFor.isAssignableFrom(example.getClass())) {
+            return snapshotObject(example, snapshot);
+        }
+
+        DatabaseObject chainResponse = chain.snapshot(example, snapshot);
+        if (chainResponse == null) {
+            return null;
+        }
+
+        if (shouldAddTo(example.getClass(), snapshot)) {
+            if (addsTo() != null) {
+                for (Class<? extends DatabaseObject> addType : addsTo()) {
+                    if (addType.isAssignableFrom(example.getClass())) {
+                        if (chainResponse != null) {
+                            addTo(chainResponse, snapshot);
+                        }
+                    }
+                }
+            }
+        }
+        return chainResponse;
     }
+
+    protected boolean shouldAddTo(Class<? extends DatabaseObject> databaseObjectType, DatabaseSnapshot snapshot) {
+        return (defaultFor != null) && snapshot.getSnapshotControl().shouldInclude(defaultFor);
+    }
+
+    protected abstract DatabaseObject snapshotObject(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException;
+
+    protected abstract void addTo(DatabaseObject foundObject, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException;
 
     @Override
     public Class<? extends DatabaseObject>[] addsTo() {
-        return new Class[0];
+        return addsTo;
     }
 
     @Override
     public Class<? extends SnapshotGenerator>[] replaces() {
         return new Class[0];
+    }
+
+    protected Class<? extends DatabaseObject> defaultFor() {
+        return defaultFor;
     }
 }
