@@ -93,12 +93,8 @@ public abstract class AbstractNoSqlHistoryService<D extends AbstractNoSqlDatabas
         return (D) getDatabase();
     }
 
-    public NoSqlExecutor getExecutor() throws DatabaseException {
-        Executor executor = Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(NoSqlExecutor.EXECUTOR_NAME, getDatabase());
-        if (executor instanceof LoggingExecutor) {
-            throw new DatabaseException(String.format(mongoBundle.getString("command.unsupported"), "*sql"));
-        }
-        return (NoSqlExecutor) executor ;
+    public Executor getExecutor() throws DatabaseException {
+        return Scope.getCurrentScope().getSingleton(ExecutorService.class).getExecutor(NoSqlExecutor.EXECUTOR_NAME, getDatabase());
     }
 
     @Override

@@ -134,9 +134,13 @@ public class MongoHistoryService extends AbstractNoSqlHistoryService<MongoLiquib
         final Bson filter = new Document();
         final Bson sort = Sorts.ascending(MongoRanChangeSet.Fields.orderExecuted);
 
-        return getExecutor()
-                .queryForList(new FindAllStatement(getDatabaseChangeLogTableName(), filter, sort), Document.class)
-                .stream().map(Document.class::cast).map(getConverter()::fromDocument).collect(Collectors.toList());
+        List<Document> ranChangesets = getExecutor().queryForList(
+                new FindAllStatement(getDatabaseChangeLogTableName(), filter, sort),
+                Document.class
+        );
+        return ranChangesets.stream()
+                .map(getConverter()::fromDocument)
+                .collect(Collectors.toList());
     }
 
     @Override
