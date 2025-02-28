@@ -77,7 +77,7 @@ jobs:
       run: |
         VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
         mvn deploy:deploy-file \
-        -Dfile="./artifacts/liquibase-mongodb-$VERSION.jar" \
+        -Dfile="liquibase-mongodb-$VERSION.jar" \
         -DgroupId=org.liquibase.ext \
         -DartifactId=liquibase-mongodb \
         -Dversion=master-SNAPSHOT \
