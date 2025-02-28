@@ -7,57 +7,83 @@ on:
       - 'main'
 
 jobs:
-  setup:
-    name: Setup
+  build:
+    name: Build
     runs-on: ubuntu-22.04
-    outputs:
-      timeStamp: ${{ steps.get-timestamp.outputs.timeStamp }}
-      latestMergeSha: ${{ steps.get-sha.outputs.latestMergeSha }}
-      setupSuccessful: "true"
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Get Latest Merge Commit SHA
-        id: get-sha
-        run: |
-          latest_merge_sha=`(git rev-parse --short HEAD)`
-          echo "latestMergeSha=${latest_merge_sha}" >> $GITHUB_OUTPUT
-
-      - name: Get Timestamp
-        id: get-timestamp
-        run: |
-          timestamp=`(date +'%Y-%m-%d %H:%M:%S %Z')`
-          echo "timeStamp=${timestamp}" >> $GITHUB_OUTPUT
-
-  build-and-publish:
-    name: Build & Publish
-    runs-on: ubuntu-22.04
-    needs: setup
     permissions:
       contents: read
       packages: write
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GIT_USERNAME: "liquibot"
+      GIT_PASSWORD: ${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }}
+      
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Java for publishing to GitHub Repository
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
-          server-id: liquibase
 
-        # Publish master-SNAPSHOT version to GPM
-      - name: Version Artifact as master-SNAPSHOT
-        run: mvn versions:set "-DnewVersion=master-SNAPSHOT"
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Publish master-SNAPSHOT
-        run: mvn -B clean deploy -DskipTests=true "-Dbuild.repository.owner=liquibase" "-Dbuild.repository.name=liquibase-mongodb" "-Dbuild.branch=master" "-Dbuild.number=${{ github.run_number }}" "-Dbuild.commit=${{ needs.setup.outputs.latestMergeSha }}" "-Dbuild.timestamp=${{ needs.setup.outputs.timeStamp }}"
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: 'temurin'
+        cache: 'maven'
 
-        # Publish <commitsha>-SNAPSHOT version to GPM
-      - name: Version Artifact as commit-SNAPSHOT
-        run: mvn versions:set -DnewVersion="${{ needs.setup.outputs.latestMergeSha }}-SNAPSHOT"
+      #look for dependencies in maven
+    - name: maven-settings-xml-action
+      uses: whelk-io/maven-settings-xml-action@v22
+      with:
+        repositories: |
+          [
+            {
+              "id": "liquibase",
+              "url": "https://maven.pkg.github.com/liquibase/liquibase",
+              "releases": {
+                "enabled": "true"
+              },
+              "snapshots": {
+                "enabled": "true",
+                "updatePolicy": "always"
+              }
+            },
+            {
+              "id": "liquibase-pro",
+              "url": "https://maven.pkg.github.com/liquibase/liquibase-pro",
+              "releases": {
+                "enabled": "true"
+              },
+              "snapshots": {
+                "enabled": "true",
+                "updatePolicy": "always"
+              }
+            }
+          ]
+        servers: |
+          [
+            {
+              "id": "liquibase",
+              "username": "liquibot",
+              "password": "${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }}"
+            },
+            {
+              "id": "liquibase-pro",
+              "username": "liquibot",
+              "password": "${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }}"
+            }
+          ]
 
-      - name: Publish commit-SNAPSHOT
-        run: mvn -B clean deploy -pl '!liquibase-dist' -DskipTests=true "-Dbuild.repository.owner=liquibase" "-Dbuild.repository.name=liquibase-mongodb" "-Dbuild.branch=master" "-Dbuild.number=${{ github.run_number }}" "-Dbuild.commit=${{ needs.setup.outputs.latestMergeSha }}" "-Dbuild.timestamp=${{ needs.setup.outputs.timeStamp }}"
+    - name: Publish to GitHub Packages
+      run: |
+        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        mvn deploy:deploy-file \
+        -Dfile="./artifacts/liquibase-mongodb-$VERSION.jar" \
+        -DgroupId=org.liquibase.ext \
+        -DartifactId=liquibase-mongodb \
+        -Dversion=master-SNAPSHOT \
+        -Dpackaging=jar \
+        -DrepositoryId=liquibase \
+        -Durl=https://maven.pkg.github.com/${{ github.repository }} \
+        -Dusername=liquibot \
+        -Dpassword=${{ env.GIT_PASSWORD }}   
+           
