@@ -163,7 +163,7 @@ jobs:
             ]
 
       - name: Build Cache
-        uses: actions/cache@v4.2.1
+        uses: actions/cache@v4.2.2
         with:
           key: build-${{ github.run_number }}-${{ github.run_attempt }}
           path: |
