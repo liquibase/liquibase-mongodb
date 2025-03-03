@@ -144,11 +144,6 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
     public abstract String getRunCommandName();
 
     @Override
-    public String getFormattedStatement(Database database) {
-        return toJs().replaceFirst(";$", "");
-    }
-
-    @Override
     public String toJs() {
         return SHELL_DB_PREFIX
                 + getCommandName()
