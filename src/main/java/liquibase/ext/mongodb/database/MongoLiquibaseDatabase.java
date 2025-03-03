@@ -31,7 +31,6 @@ import liquibase.executor.ExecutorService;
 import liquibase.ext.mongodb.configuration.MongoConfiguration;
 import liquibase.ext.mongodb.statement.DropAllCollectionsStatement;
 import liquibase.nosql.database.AbstractNoSqlDatabase;
-import liquibase.statement.SqlStatement;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.Document;
