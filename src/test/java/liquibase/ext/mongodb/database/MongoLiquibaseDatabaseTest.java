@@ -153,6 +153,6 @@ class MongoLiquibaseDatabaseTest {
         when(mongoCursor.hasNext()).thenReturn(false);
 
         assertThatExceptionOfType(DatabaseException.class)
-                .isThrownBy(() -> database.checkDatabaseConnection());
+                .isThrownBy(() ->         database.checkDatabaseConnection());
     }
 }
