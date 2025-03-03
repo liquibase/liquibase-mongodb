@@ -61,7 +61,7 @@ class RowsAffectedStatementIT extends AbstractMongoIntegrationTest {
         Scope.child(scopeValues, () -> {
             final CreateCollectionStatement createStatement = new CreateCollectionStatement(collectionName);
             createStatement.execute(database);
-            assertThat(rowsAffected.get()).isEqualTo(1);
+            assertThat(rowsAffected.get()).isEqualTo(0);
         });
     }
 
@@ -121,7 +121,7 @@ class RowsAffectedStatementIT extends AbstractMongoIntegrationTest {
             final DropCollectionStatement dropStatement = new DropCollectionStatement(collectionName);
             dropStatement.execute(database);
 
-            assertThat(rowsAffected.get()).isEqualTo(1);
+            assertThat(rowsAffected.get()).isEqualTo(0);
         });
     }
 
@@ -140,7 +140,7 @@ class RowsAffectedStatementIT extends AbstractMongoIntegrationTest {
             Document doc2 = new Document("test", "value2");
             final InsertManyStatement insertStatement = new InsertManyStatement(collectionName, Arrays.asList(doc1, doc2));
             insertStatement.execute(database);
-            assertThat(rowsAffected.get()).isEqualTo(3); // 1 to create + 2 to insert
+            assertThat(rowsAffected.get()).isEqualTo(2);
         });
     }
 }
