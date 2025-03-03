@@ -24,6 +24,7 @@ import liquibase.database.Database;
 import liquibase.exception.ValidationErrors;
 import liquibase.nosql.statement.AbstractNoSqlStatement;
 import liquibase.sql.Sql;
+import liquibase.sql.UnparsedSql;
 import liquibase.sqlgenerator.SqlGeneratorChain;
 import liquibase.sqlgenerator.core.AbstractSqlGenerator;
 
@@ -37,7 +38,14 @@ public class NoSqlGenerator extends AbstractSqlGenerator<AbstractNoSqlStatement>
 
     @Override
     public Sql[] generateSql(AbstractNoSqlStatement statement, Database database, SqlGeneratorChain<AbstractNoSqlStatement> sqlGeneratorChain) {
-        return new Sql[0];
+        try {
+            String formattedJs = statement.toJs().replaceFirst(";$", "");
+            return new Sql[] { new UnparsedSql(formattedJs) };
+        } catch (Exception e) {
+            liquibase.Scope.getCurrentScope().getLog(getClass()).warning(
+                "Failed to format NoSQL statement: " + e.getMessage());
+            return new Sql[0];
+        }
     }
 
     @Override
