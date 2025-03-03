@@ -23,10 +23,12 @@ package liquibase.ext.mongodb.statement;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoDatabase;
 import liquibase.Scope;
+import liquibase.database.Database;
 import liquibase.executor.jvm.JdbcExecutor;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.nosql.executor.NoSqlExecutor;
 import liquibase.nosql.statement.NoSqlExecuteStatement;
+import liquibase.statement.SqlStatement;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -142,7 +144,7 @@ public abstract class AbstractRunCommandStatement extends AbstractMongoStatement
     public abstract String getRunCommandName();
 
     @Override
-    public String getFormattedStatement() {
+    public String getFormattedStatement(Database database) {
         return toJs().replaceFirst(";$", "");
     }
 
