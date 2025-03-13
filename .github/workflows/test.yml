@@ -270,5 +270,5 @@ jobs:
             -DrepositoryId=liquibase \
             -Durl=https://maven.pkg.github.com/${{ github.repository }} \
             -Dusername=liquibot \
-            -Dpassword=${{ env.GIT_PASSWORD }}   
+            -Dpassword=${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }} 
                 
