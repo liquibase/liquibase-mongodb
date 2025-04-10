@@ -79,7 +79,7 @@ public class MongoHistoryService extends AbstractNoSqlHistoryService<MongoLiquib
 
     @Override
     public boolean supports(final Database database) {
-        return MongoLiquibaseDatabase.MONGODB_PRODUCT_NAME.equals(database.getDatabaseProductName());
+        return database instanceof MongoLiquibaseDatabase;
     }
 
     @Override
