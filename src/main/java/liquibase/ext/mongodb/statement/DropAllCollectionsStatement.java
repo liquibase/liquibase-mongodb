@@ -42,9 +42,14 @@ public class DropAllCollectionsStatement extends AbstractMongoStatement implemen
 
     @Override
     public void execute(final MongoLiquibaseDatabase database) {
-        new ListCollectionNamesStatement().queryForList(database).stream()
+        getListCollectionNamesStatement().queryForList(database).stream()
             .map(DropCollectionStatement::new)
             .forEach((Consumer<? super DropCollectionStatement>) s -> s.execute(database));
+    }
+    
+    // This method is extracted to make testing easier
+    protected ListCollectionNamesStatement getListCollectionNamesStatement() {
+        return new ListCollectionNamesStatement();
     }
 
 }
