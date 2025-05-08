@@ -56,7 +56,7 @@ public class MongoLockService extends AbstractNoSqlLockService<MongoLiquibaseDat
 
     @Override
     public boolean supports(final Database database) {
-        return MongoLiquibaseDatabase.MONGODB_PRODUCT_NAME.equals(database.getDatabaseProductName());
+        return database instanceof MongoLiquibaseDatabase;
     }
 
     @Override
