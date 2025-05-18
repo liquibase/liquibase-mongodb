@@ -1,5 +1,10 @@
 name: Build and Test
 
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
 on:
   workflow_dispatch:
   pull_request_target:
@@ -29,8 +34,8 @@ jobs:
     name: Integration Test - Java ${{ matrix.java }} MongoDB ${{ matrix.mongodb }}
     runs-on: ubuntu-latest
     env:
-      LIQUIBOT_TOKEN: ${{ secrets.LIQUIBOT_PAT }}
-      GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+      LIQUIBOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       matrix:
         java: [8, 11, 17]
@@ -85,12 +90,12 @@ jobs:
               {
                 "id": "liquibase-pro",
                 "username": "liquibot",
-                "password": "${{ secrets.LIQUIBOT_PAT }}"
+                "password": "${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }}"
               },
               {
                 "id": "liquibase",
                 "username": "liquibot",
-                "password": "${{ secrets.LIQUIBOT_PAT }}"
+                "password": "${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }}"
               }
             ]
 
@@ -102,8 +107,8 @@ jobs:
     name: Harness Tests - Java ${{ matrix.java }} MongoDB ${{ matrix.mongodb }}
     runs-on: ubuntu-latest
     env:
-      LIQUIBOT_TOKEN: ${{ secrets.LIQUIBOT_PAT }}
-      GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+      LIQUIBOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       matrix:
         java: [ 11, 17 ]
@@ -153,12 +158,12 @@ jobs:
               {
                 "id": "liquibase-pro",
                 "username": "liquibot",
-                "password": "${{ secrets.LIQUIBOT_PAT }}"
+                "password": "${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }}"
               },
               {
                 "id": "liquibase",
                 "username": "liquibot",
-                "password": "${{ secrets.LIQUIBOT_PAT }}"
+                "password": "${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }}"
               }
             ]
 
