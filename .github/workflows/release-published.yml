@@ -5,10 +5,15 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+  id-token: write
+
 jobs:
   release:
     uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@main
     secrets: inherit
     with:
       nameSpace: mongodb
-
