@@ -4,28 +4,33 @@ name: "Nightly build"
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 7 * * 1-5'
+    - cron: "0 7 * * 1-5"
+
+permissions:
+  contents: read
+  pull-requests: write
+  packages: read
 
 jobs:
-    nightly-build:
-      uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@main
-      with:
-        nightly: true
-      secrets: inherit
+  nightly-build:
+    uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@main
+    with:
+      nightly: true
+    secrets: inherit
 
-    mongo-atlas-tests:
-     name: MongoDB Atlas 8 Test
-     runs-on: ubuntu-latest
+  mongo-atlas-tests:
+    name: MongoDB Atlas 8 Test
+    runs-on: ubuntu-latest
 
-     steps:
-       - name: Checkout
-         uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-       - name: Harness Foundational Test Suite Run on Atlas 8
-         run: mvn -Dtest="HarnessNoSqlCompatibility" -DconfigFile=/harness-config-cloud.yml  -DdbName=mongodb -DdbUsername=${{secrets.TH_DB_ADMIN}} -DdbPassword=${{secrets.TH_DB_PASSWD}} -DdbUrl='${{secrets.TH_MONGO_ATLAS_URL}}' clean package
+      - name: Harness Foundational Test Suite Run on Atlas 8
+        run: mvn -Dtest="HarnessNoSqlCompatibility" -DconfigFile=/harness-config-cloud.yml  -DdbName=mongodb -DdbUsername=${{secrets.TH_DB_ADMIN}} -DdbPassword=${{secrets.TH_DB_PASSWD}} -DdbUrl='${{secrets.TH_MONGO_ATLAS_URL}}' clean package
 
-       - name: Archive Mongo Atlas Test Results
-         uses: actions/upload-artifact@v4
-         with:
-           name: mongodb-test-results
-           path: build/spock-reports
+      - name: Archive Mongo Atlas Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: mongodb-test-results
+          path: build/spock-reports

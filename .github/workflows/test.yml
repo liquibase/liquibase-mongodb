@@ -1,5 +1,10 @@
 name: Build and Test
 
+permissions:
+  contents: write
+  pull-requests: write
+  packages: read
+
 on:
   workflow_dispatch:
   pull_request_target:
@@ -8,12 +13,7 @@ on:
       - reopened
       - synchronize
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
-
   authorize:
     environment: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository && 'external' || 'internal' }}
     runs-on: ubuntu-latest
@@ -29,8 +29,8 @@ jobs:
     name: Integration Test - Java ${{ matrix.java }} MongoDB ${{ matrix.mongodb }}
     runs-on: ubuntu-latest
     env:
-      LIQUIBOT_TOKEN: ${{ secrets.LIQUIBOT_PAT }}
-      GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+      LIQUIBOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       matrix:
         java: [8, 11, 17]
@@ -48,8 +48,8 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
-          distribution: 'temurin'
-          cache: 'maven'
+          distribution: "temurin"
+          cache: "maven"
 
       # look for dependencies in maven
       - name: maven-settings-xml-action
@@ -85,15 +85,14 @@ jobs:
               {
                 "id": "liquibase-pro",
                 "username": "liquibot",
-                "password": "${{ secrets.LIQUIBOT_PAT }}"
+                "password": "${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }}"
               },
               {
                 "id": "liquibase",
                 "username": "liquibot",
-                "password": "${{ secrets.LIQUIBOT_PAT }}"
+                "password": "${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }}"
               }
             ]
-
 
       - name: Integration Test - Java ${{ matrix.java }}
         run: mvn -B clean test verify -Prun-its --file pom.xml
@@ -102,11 +101,11 @@ jobs:
     name: Harness Tests - Java ${{ matrix.java }} MongoDB ${{ matrix.mongodb }}
     runs-on: ubuntu-latest
     env:
-      LIQUIBOT_TOKEN: ${{ secrets.LIQUIBOT_PAT }}
-      GITHUB_TOKEN: ${{ secrets.BOT_TOKEN }}
+      LIQUIBOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       matrix:
-        java: [ 11, 17 ]
+        java: [11, 17]
         mongodb: [5, 6, 7, 8]
 
     steps:
@@ -116,8 +115,8 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
-          distribution: 'temurin'
-          cache: 'maven'
+          distribution: "temurin"
+          cache: "maven"
 
       # look for dependencies in maven
       - name: maven-settings-xml-action
@@ -153,12 +152,12 @@ jobs:
               {
                 "id": "liquibase-pro",
                 "username": "liquibot",
-                "password": "${{ secrets.LIQUIBOT_PAT }}"
+                "password": "${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }}"
               },
               {
                 "id": "liquibase",
                 "username": "liquibot",
-                "password": "${{ secrets.LIQUIBOT_PAT }}"
+                "password": "${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }}"
               }
             ]
 
@@ -200,8 +199,8 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'temurin'
-          cache: 'maven'
+          distribution: "temurin"
+          cache: "maven"
 
       - name: maven-settings-xml-action
         uses: whelk-io/maven-settings-xml-action@v22
@@ -250,14 +249,14 @@ jobs:
         with:
           name: liquibase-mongodb-artifacts
           path: ./artifacts
-  
+
       - name: Verify liquibase-mongodb-artifacts
         run: |
           ls -la ./artifacts
-  
+
       - name: Extract project version
         run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-  
+
       - name: Publish to GitHub Packages
         run: |
           VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -270,5 +269,4 @@ jobs:
             -DrepositoryId=liquibase \
             -Durl=https://maven.pkg.github.com/${{ github.repository }} \
             -Dusername=liquibot \
-            -Dpassword=${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }} 
-                
+            -Dpassword=${{ secrets.LIQUIBOT_PAT_GPM_ACCESS }}
