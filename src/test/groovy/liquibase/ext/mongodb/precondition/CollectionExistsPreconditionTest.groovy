@@ -1,17 +1,12 @@
 package liquibase.ext.mongodb.precondition
 
-import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
-import liquibase.Scope
 import liquibase.changelog.ChangeSet
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.changelog.visitor.ChangeExecListener
 import liquibase.exception.PreconditionErrorException
 import liquibase.exception.PreconditionFailedException
-import liquibase.ext.mongodb.database.MongoConnection
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase
-import liquibase.ext.mongodb.statement.CountCollectionByNameStatement
-import liquibase.nosql.executor.NoSqlExecutor
 import org.bson.Document
 import spock.lang.Specification
 
@@ -21,24 +16,28 @@ class CollectionExistsPreconditionTest extends Specification {
     def changeLog = Mock(DatabaseChangeLog)
     def changeSet = Mock(ChangeSet)
     def changeExecListener = Mock(ChangeExecListener)
-    def mongoConnection = Mock(MongoConnection)
     def mongoDatabase = Mock(MongoDatabase)
-    def mongoCollection = Mock(MongoCollection)
-    def scope = Mock(Scope)
     
     def setup() {
-        Scope.getCurrentScope() >> scope
-        database.getMongoConnection() >> mongoConnection
-        mongoConnection.getDatabase() >> mongoDatabase
-        database.execute(_ as CountCollectionByNameStatement) >> { CountCollectionByNameStatement statement ->
-            if (statement.collectionName == "existingCollection") {
-                return 1L
-            } else if (statement.collectionName == "nonExistingCollection") {
-                return 0L
-            } else if (statement.collectionName == "errorCollection") {
-                throw new Exception("Test exception")
+        database.getMongoDatabase() >> mongoDatabase
+        mongoDatabase.runCommand(_ as Document) >> { Document command ->
+            if (command.get("listCollections") == 1) {
+                def filter = command.get("filter", Document.class)
+                def collectionName = filter?.getString("name")
+                
+                if (collectionName == "existingCollection") {
+                    return new Document("cursor", new Document("firstBatch", [new Document("name", "existingCollection")]))
+                        .append("ok", 1)
+                } else if (collectionName == "nonExistingCollection") {
+                    return new Document("cursor", new Document("firstBatch", []))
+                        .append("ok", 1)
+                } else if (collectionName == "errorCollection") {
+                    throw new Exception("Test exception")
+                }
+                return new Document("cursor", new Document("firstBatch", []))
+                    .append("ok", 1)
             }
-            return 0L
+            return new Document("ok", 1)
         }
     }
     

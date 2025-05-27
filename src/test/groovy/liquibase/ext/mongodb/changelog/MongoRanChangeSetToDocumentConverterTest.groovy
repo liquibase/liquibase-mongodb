@@ -39,9 +39,9 @@ class MongoRanChangeSetToDocumentConverterTest extends Specification {
             "Test comment",               // comments
             new ContextExpression("test"),// contexts
             null,                         // labels
-            "deployment1",                // deploymentId
-            1                             // orderExecuted
+            "deployment1"                 // deploymentId
         )
+        ranChangeSet.setOrderExecuted(1)
         
         when:
         def document = converter.toDocument(ranChangeSet)
@@ -49,7 +49,7 @@ class MongoRanChangeSetToDocumentConverterTest extends Specification {
         then:
         document instanceof Document
         document.getString(MongoRanChangeSet.Fields.fileName) == "changelog.xml"
-        document.getString(MongoRanChangeSet.Fields.id) == "001"
+        document.getString(MongoRanChangeSet.Fields.changeSetId) == "001"
         document.getString(MongoRanChangeSet.Fields.author) == "testAuthor"
         document.getString(MongoRanChangeSet.Fields.tag) == "v1.0"
         document.getString(MongoRanChangeSet.Fields.execType) == "EXECUTED"
@@ -76,9 +76,9 @@ class MongoRanChangeSetToDocumentConverterTest extends Specification {
             null,                         // comments
             null,                         // contexts
             null,                         // labels
-            null,                         // deploymentId
-            1                             // orderExecuted
+            null                          // deploymentId
         )
+        ranChangeSet.setOrderExecuted(1)
         
         when:
         def document = converter.toDocument(ranChangeSet)
@@ -86,7 +86,7 @@ class MongoRanChangeSetToDocumentConverterTest extends Specification {
         then:
         document instanceof Document
         document.getString(MongoRanChangeSet.Fields.fileName) == "changelog.xml"
-        document.getString(MongoRanChangeSet.Fields.id) == "001"
+        document.getString(MongoRanChangeSet.Fields.changeSetId) == "001"
         document.getString(MongoRanChangeSet.Fields.author) == "testAuthor"
         document.getString(MongoRanChangeSet.Fields.tag) == null
         document.getString(MongoRanChangeSet.Fields.execType) == "EXECUTED"
@@ -103,7 +103,7 @@ class MongoRanChangeSetToDocumentConverterTest extends Specification {
         def date = new Date()
         def document = new Document()
         document.put(MongoRanChangeSet.Fields.fileName, "changelog.xml")
-        document.put(MongoRanChangeSet.Fields.id, "001")
+        document.put(MongoRanChangeSet.Fields.changeSetId, "001")
         document.put(MongoRanChangeSet.Fields.author, "testAuthor")
         document.put(MongoRanChangeSet.Fields.md5sum, "abc123")
         document.put(MongoRanChangeSet.Fields.dateExecuted, date)
@@ -140,7 +140,7 @@ class MongoRanChangeSetToDocumentConverterTest extends Specification {
         def date = new Date()
         def document = new Document()
         document.put(MongoRanChangeSet.Fields.fileName, "changelog.xml")
-        document.put(MongoRanChangeSet.Fields.id, "001")
+        document.put(MongoRanChangeSet.Fields.changeSetId, "001")
         document.put(MongoRanChangeSet.Fields.author, "testAuthor")
         document.put(MongoRanChangeSet.Fields.dateExecuted, date)
         document.put(MongoRanChangeSet.Fields.execType, "EXECUTED")

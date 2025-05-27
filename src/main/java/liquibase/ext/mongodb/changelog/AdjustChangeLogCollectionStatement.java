@@ -45,7 +45,7 @@ public class AdjustChangeLogCollectionStatement extends RunCommandStatement {
 
     @Override
     public String getCommandName() {
-        return COMMAND_NAME;
+        return "adjustDatabaseChangelogCollection";
     }
 
     @Override

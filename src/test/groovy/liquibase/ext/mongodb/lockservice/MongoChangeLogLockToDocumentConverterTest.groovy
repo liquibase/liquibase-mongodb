@@ -24,9 +24,9 @@ class MongoChangeLogLockToDocumentConverterTest extends Specification {
         
         def lock = new MongoChangeLogLock(
             1,                  // id
-            true,               // locked
+            date,               // lockGranted
             "test-host",        // lockedBy
-            date                // lockGranted
+            true                // locked
         )
         
         when:
@@ -44,9 +44,9 @@ class MongoChangeLogLockToDocumentConverterTest extends Specification {
         given:
         def lock = new MongoChangeLogLock(
             1,                  // id
-            false,              // locked
+            null,               // lockGranted
             null,               // lockedBy
-            null                // lockGranted
+            false               // locked
         )
         
         when:

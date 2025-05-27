@@ -21,14 +21,16 @@ class CreateChangeLogLockCollectionStatementTest extends Specification {
         statement.execute(database)
         
         then:
-        1 * mongoDatabase.createCollection(collectionName)
-        1 * mongoDatabase.getCollection(collectionName) >> { throw new RuntimeException("Test mock should not proceed to insertion") }
+        1 * mongoDatabase.runCommand({ Document cmd ->
+            cmd.getString("create") == collectionName
+        }) >> new Document("ok", 1)
     }
     
     def "should have correct command name"() {
         expect:
         def statement = new CreateChangeLogLockCollectionStatement("DATABASECHANGELOGLOCK")
-        statement.getCommandName() == "createDatabaseChangelogLockCollection"
+        statement.getCommandName() == "runCommand"
+        statement.getRunCommandName() == "create"
     }
     
     def "should build correct command document"() {
@@ -41,6 +43,6 @@ class CreateChangeLogLockCollectionStatementTest extends Specification {
         
         then:
         command instanceof Document
-        command.getString("createDatabaseChangelogLockCollection") == collectionName
+        command.getString("create") == collectionName
     }
 }

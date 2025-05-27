@@ -31,7 +31,7 @@ public class AdjustChangeLogLockCollectionStatement extends RunCommandStatement 
 
     public static String OPTIONS = "{ collMod: \"%s\"," + CreateChangeLogLockCollectionStatement.VALIDATOR + "}";
 
-    public static final String COMMAND_NAME = "adjustChangeLogLockCollection";
+    public static final String COMMAND_NAME = "adjustDatabaseChangelogLockCollection";
 
     @Getter
     private final String collectionName;

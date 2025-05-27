@@ -108,4 +108,9 @@ public class CreateChangeLogCollectionStatement extends CreateCollectionStatemen
     public CreateChangeLogCollectionStatement(final String collectionName) {
         super(collectionName, (String) null);
     }
+    
+    @Override
+    public String getCommandName() {
+        return "createDatabaseChangelogCollection";
+    }
 }

@@ -1,12 +1,15 @@
 package liquibase.ext.mongodb.precondition
 
+import com.mongodb.client.MongoCollection
+import com.mongodb.client.MongoDatabase
 import liquibase.changelog.ChangeSet
 import liquibase.changelog.DatabaseChangeLog
 import liquibase.changelog.visitor.ChangeExecListener
 import liquibase.exception.PreconditionErrorException
 import liquibase.exception.PreconditionFailedException
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase
-import liquibase.ext.mongodb.statement.CountDocumentsInCollectionStatement
+import org.bson.Document
+import org.bson.conversions.Bson
 import spock.lang.Specification
 
 class DocumentExistsPreconditionTest extends Specification {
@@ -15,6 +18,13 @@ class DocumentExistsPreconditionTest extends Specification {
     def changeLog = Mock(DatabaseChangeLog)
     def changeSet = Mock(ChangeSet)
     def changeExecListener = Mock(ChangeExecListener)
+    def mongoDatabase = Mock(MongoDatabase)
+    def mongoCollection = Mock(MongoCollection)
+    
+    def setup() {
+        database.getMongoDatabase() >> mongoDatabase
+        mongoDatabase.getCollection(_) >> mongoCollection
+    }
     
     def "should have correct name"() {
         given:
@@ -51,7 +61,7 @@ class DocumentExistsPreconditionTest extends Specification {
         def precondition = new DocumentExistsPrecondition()
         precondition.setCollectionName("users")
         precondition.setFilter('{"username": "johndoe"}')
-        database.execute(_ as CountDocumentsInCollectionStatement) >> 1L
+        mongoCollection.countDocuments(_ as Bson) >> 1L
         
         when:
         precondition.check(database, changeLog, changeSet, changeExecListener)
@@ -65,7 +75,7 @@ class DocumentExistsPreconditionTest extends Specification {
         def precondition = new DocumentExistsPrecondition()
         precondition.setCollectionName("users")
         precondition.setFilter('{"username": "nonexistent"}')
-        database.execute(_ as CountDocumentsInCollectionStatement) >> 0L
+        mongoCollection.countDocuments(_ as Bson) >> 0L
         
         when:
         precondition.check(database, changeLog, changeSet, changeExecListener)
@@ -79,7 +89,7 @@ class DocumentExistsPreconditionTest extends Specification {
         def precondition = new DocumentExistsPrecondition()
         precondition.setCollectionName("users")
         precondition.setFilter(null)
-        database.execute(_ as CountDocumentsInCollectionStatement) >> 5L
+        mongoCollection.countDocuments(null) >> 5L
         
         when:
         precondition.check(database, changeLog, changeSet, changeExecListener)
@@ -93,7 +103,7 @@ class DocumentExistsPreconditionTest extends Specification {
         def precondition = new DocumentExistsPrecondition()
         precondition.setCollectionName("users")
         precondition.setFilter('{"username": "error"}')
-        database.execute(_ as CountDocumentsInCollectionStatement) >> { throw new Exception("Test exception") }
+        mongoCollection.countDocuments(_ as Bson) >> { throw new Exception("Test exception") }
         
         when:
         precondition.check(database, changeLog, changeSet, changeExecListener)
@@ -107,7 +117,7 @@ class DocumentExistsPreconditionTest extends Specification {
         def precondition = new DocumentExistsPrecondition()
         
         expect:
-        precondition.getSerializedObjectNamespace() == "http://www.liquibase.org/xml/ns/dbchangelog"
+        precondition.getSerializedObjectNamespace() == "http://www.liquibase.org/xml/ns/dbchangelog-ext"
     }
     
     def "should set and get collection name"() {
