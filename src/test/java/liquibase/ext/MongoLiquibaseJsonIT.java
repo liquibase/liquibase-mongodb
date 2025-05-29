@@ -74,8 +74,8 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                 .returns(ChangeSet.ExecType.EXECUTED, RanChangeSet::getExecType)
                 .returns("createCollection collectionName=person", RanChangeSet::getDescription)
                 .returns("Create person collection", RanChangeSet::getComments)
-                .returns(true, c -> c.getContextExpression().isEmpty())
-                .returns(true, c -> c.getLabels().isEmpty())
+                .returns(true, c -> c.getContextExpression() == null || c.getContextExpression().isEmpty())
+                .returns(true, c -> c.getLabels() == null || c.getLabels().isEmpty())
                 .returns(true, c -> c.getDeploymentId().matches("^[0-9]{10}$"))
                 .returns(1, RanChangeSet::getOrderExecuted)
                 .returns(LiquibaseUtil.getBuildVersion(), RanChangeSet::getLiquibaseVersion);
@@ -90,8 +90,8 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                 .returns(ChangeSet.ExecType.EXECUTED, RanChangeSet::getExecType)
                 .returns("insertOne collectionName=person; insertMany collectionName=person", RanChangeSet::getDescription)
                 .returns("Populate person table", RanChangeSet::getComments)
-                .returns(true, c -> c.getContextExpression().isEmpty())
-                .returns(true, c -> c.getLabels().isEmpty())
+                .returns(true, c -> c.getContextExpression() == null || c.getContextExpression().isEmpty())
+                .returns(true, c -> c.getLabels() == null || c.getLabels().isEmpty())
                 .returns(true, c -> c.getDeploymentId().matches("^[0-9]{10}$"))
                 .returns(2, RanChangeSet::getOrderExecuted)
                 .returns(LiquibaseUtil.getBuildVersion(), RanChangeSet::getLiquibaseVersion);
@@ -114,8 +114,8 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                 .returns(ChangeSet.ExecType.EXECUTED, RanChangeSet::getExecType)
                 .returns("createCollection collectionName=person", RanChangeSet::getDescription)
                 .returns("Create person collection", RanChangeSet::getComments)
-                .returns(true, c -> c.getContextExpression().isEmpty())
-                .returns(true, c -> c.getLabels().isEmpty())
+                .returns(true, c -> c.getContextExpression() == null || c.getContextExpression().isEmpty())
+                .returns(true, c -> c.getLabels() == null || c.getLabels().isEmpty())
                 .returns(true, c -> c.getDeploymentId().matches("^[0-9]{10}$"))
                 .returns(1, RanChangeSet::getOrderExecuted)
                 .returns(LiquibaseUtil.getBuildVersion(), RanChangeSet::getLiquibaseVersion);
@@ -130,8 +130,8 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
                 .returns(ChangeSet.ExecType.EXECUTED, RanChangeSet::getExecType)
                 .returns("insertOne collectionName=person; insertMany collectionName=person", RanChangeSet::getDescription)
                 .returns("Populate person table", RanChangeSet::getComments)
-                .returns(true, c -> c.getContextExpression().isEmpty())
-                .returns(true, c -> c.getLabels().isEmpty())
+                .returns(true, c -> c.getContextExpression() == null || c.getContextExpression().isEmpty())
+                .returns(true, c -> c.getLabels() == null || c.getLabels().isEmpty())
                 .returns(true, c -> c.getDeploymentId().matches("^[0-9]{10}$"))
                 .returns(2, RanChangeSet::getOrderExecuted)
                 .returns(LiquibaseUtil.getBuildVersion(), RanChangeSet::getLiquibaseVersion);
