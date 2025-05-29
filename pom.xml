@@ -164,7 +164,6 @@
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>run-its</id>
