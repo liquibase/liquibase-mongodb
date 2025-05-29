@@ -2,7 +2,6 @@ package liquibase.nosql.database
 
 import liquibase.CatalogAndSchema
 import liquibase.database.DatabaseConnection
-import liquibase.exception.DatabaseException
 import liquibase.statement.DatabaseFunction
 import liquibase.structure.DatabaseObject
 import spock.lang.Specification
@@ -415,10 +414,10 @@ class AbstractNoSqlDatabaseTest extends Specification {
         
         when:
         database.setConnection(connection)
+        connection.getURL() >> "test://localhost/db"
         result = database.toString()
         
         then:
-        1 * connection.getURL() >> "test://localhost/db"
         result == "TestDB : test://localhost/db"
     }
     

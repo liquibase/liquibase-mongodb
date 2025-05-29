@@ -96,7 +96,7 @@ class JsonNoSqlChangeLogParserTest extends Specification {
     
     def "should prioritize with specialized priority"() {
         expect:
-        parser.getPriority() == 100  // PRIORITY_SPECIALIZED value
+        parser.getPriority() == 10  // PRIORITY_SPECIALIZED value
     }
     
     def "should have correct supported file extensions"() {

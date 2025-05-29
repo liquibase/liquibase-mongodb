@@ -16,12 +16,12 @@ class InsertOneStatementTest extends Specification {
         
         then:
         statement.getCommand().getString("insert") == collectionName
-        statement.getDocuments().size() == 1
-        statement.getDocuments()[0] instanceof Document
-        statement.getDocuments()[0].getString("name") == "test"
-        statement.getDocuments()[0].getInteger("value") == 123
-        statement.getOptions() instanceof Document
-        statement.getOptions().getBoolean("ordered") == true
+        def documents = statement.getCommand().getList("documents", Document.class)
+        documents.size() == 1
+        documents[0] instanceof Document
+        documents[0].getString("name") == "test"
+        documents[0].getInteger("value") == 123
+        statement.getCommand().getBoolean("ordered") == true
     }
     
     def "should create InsertOneStatement with Document"() {
@@ -35,12 +35,12 @@ class InsertOneStatementTest extends Specification {
         
         then:
         statement.getCommand().getString("insert") == collectionName
-        statement.getDocuments().size() == 1
-        statement.getDocuments()[0] instanceof Document
-        statement.getDocuments()[0].getString("name") == "test"
-        statement.getDocuments()[0].getInteger("value") == 123
-        statement.getOptions() instanceof Document
-        statement.getOptions().getBoolean("ordered") == true
+        def documents = statement.getCommand().getList("documents", Document.class)
+        documents.size() == 1
+        documents[0] instanceof Document
+        documents[0].getString("name") == "test"
+        documents[0].getInteger("value") == 123
+        statement.getCommand().getBoolean("ordered") == true
     }
     
     def "should create InsertOneStatement with Document without options"() {
@@ -53,12 +53,11 @@ class InsertOneStatementTest extends Specification {
         
         then:
         statement.getCommand().getString("insert") == collectionName
-        statement.getDocuments().size() == 1
-        statement.getDocuments()[0] instanceof Document
-        statement.getDocuments()[0].getString("name") == "test"
-        statement.getDocuments()[0].getInteger("value") == 123
-        statement.getOptions() instanceof Document
-        statement.getOptions().isEmpty()
+        def documents = statement.getCommand().getList("documents", Document.class)
+        documents.size() == 1
+        documents[0] instanceof Document
+        documents[0].getString("name") == "test"
+        documents[0].getInteger("value") == 123
     }
     
     def "should handle empty or null documents"() {
@@ -70,11 +69,10 @@ class InsertOneStatementTest extends Specification {
         
         then:
         statement.getCommand().getString("insert") == collectionName
-        statement.getDocuments().size() == 1
-        statement.getDocuments()[0] instanceof Document
-        statement.getDocuments()[0].isEmpty()
-        statement.getOptions() instanceof Document
-        statement.getOptions().isEmpty()
+        def documents = statement.getCommand().getList("documents", Document.class)
+        documents.size() == 1
+        documents[0] instanceof Document
+        documents[0].isEmpty()
     }
     
     def "should extend InsertManyStatement"() {

@@ -278,6 +278,64 @@
           }
         ]
       }
+    },
+    {
+      "changeSet": {
+        "id": "9",
+        "author": "alex",
+        "preConditions": [
+          {
+            "onFail": "CONTINUE"
+          },
+          {
+            "collectionExists": {
+              "collectionName": "results"
+            }
+          }
+        ],
+        "comment": "Will be inserted as collection exists",
+        "changes": [
+          {
+            "insertOne": {
+              "collectionName": "results",
+              "document": {
+                "$rawJson": {
+                  "info": "expectedCollectionResultsExists"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "changeSet": {
+        "id": "10",
+        "author": "alex",
+        "preConditions": [
+          {
+            "onFail": "CONTINUE"
+          },
+          {
+            "collectionExists": {
+              "collectionName": "results1"
+            }
+          }
+        ],
+        "comment": "Will be inserted as collection exists",
+        "changes": [
+          {
+            "insertOne": {
+              "collectionName": "results",
+              "document": {
+                "$rawJson": {
+                  "info": "expectedCollectionResults1NotExists"
+                }
+              }
+            }
+          }
+        ]
+      }
     }
   ]
 }

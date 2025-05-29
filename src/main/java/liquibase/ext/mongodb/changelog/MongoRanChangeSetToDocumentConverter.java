@@ -55,10 +55,14 @@ public class MongoRanChangeSetToDocumentConverter extends AbstractNoSqlItemToDoc
                         .map(s -> ChangeSet.ExecType.valueOf((String) s)).orElse(null),
                 (String) document.get(MongoRanChangeSet.Fields.description),
                 (String) document.get(MongoRanChangeSet.Fields.comments),
-                new ContextExpression((String)document.get(MongoRanChangeSet.Fields.contexts)),
+                ofNullable(document.get(MongoRanChangeSet.Fields.contexts))
+                        .map(s -> new ContextExpression((String) s))
+                        .orElse(null),
                 // not parsed out
                 null,
-                new Labels((String)document.get(MongoRanChangeSet.Fields.labels)),
+                ofNullable(document.get(MongoRanChangeSet.Fields.labels))
+                        .map(s -> new Labels((String) s))
+                        .orElse(null),
                 (String) document.get(MongoRanChangeSet.Fields.deploymentId),
                 (Integer) ofNullable(document.get(MongoRanChangeSet.Fields.orderExecuted)).orElse(null),
                 (String) document.get(MongoRanChangeSet.Fields.liquibase)
@@ -85,9 +89,11 @@ public class MongoRanChangeSetToDocumentConverter extends AbstractNoSqlItemToDoc
 
         StringBuilder contextExpressionString = new StringBuilder();
         boolean notFirstContext = false;
-        for (ContextExpression inheritableContext : inheritableContexts) {
-            appendContext(contextExpressionString, inheritableContext.toString(), notFirstContext);
-            notFirstContext = true;
+        if (inheritableContexts != null) {
+            for (ContextExpression inheritableContext : inheritableContexts) {
+                appendContext(contextExpressionString, inheritableContext.toString(), notFirstContext);
+                notFirstContext = true;
+            }
         }
         appendContext(contextExpressionString, contextExpression.toString(), notFirstContext);
 

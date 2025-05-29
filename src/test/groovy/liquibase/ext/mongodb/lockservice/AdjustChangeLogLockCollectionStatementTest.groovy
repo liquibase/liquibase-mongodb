@@ -15,18 +15,17 @@ class AdjustChangeLogLockCollectionStatementTest extends Specification {
         
         def database = Mock(MongoLiquibaseDatabase)
         def mongoDatabase = Mock(MongoDatabase)
-        def mongoCollection = Mock(MongoCollection)
         
         database.getMongoDatabase() >> mongoDatabase
-        mongoDatabase.getCollection(collectionName) >> mongoCollection
+        database.getSupportsValidator() >> true
         
         when:
         statement.execute(database)
         
         then:
-        1 * mongoCollection.createIndex({ Document doc -> doc.containsKey("id") })
-        1 * mongoCollection.createIndex({ Document doc -> doc.containsKey("locked") })
-        1 * mongoCollection.createIndex({ Document doc -> doc.containsKey("lockGranted") })
+        1 * mongoDatabase.runCommand({ Document doc -> 
+            doc.getString("collMod") == collectionName && doc.get("validator") != null 
+        }) >> new Document("ok", 1.0)
     }
     
     def "should have correct command name"() {
@@ -45,6 +44,7 @@ class AdjustChangeLogLockCollectionStatementTest extends Specification {
         
         then:
         command instanceof Document
-        command.getString("adjustDatabaseChangelogLockCollection") == collectionName
+        command.getString("collMod") == collectionName
+        command.get("validator") != null
     }
 }

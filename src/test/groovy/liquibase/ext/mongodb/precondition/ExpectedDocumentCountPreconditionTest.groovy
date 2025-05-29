@@ -1,5 +1,6 @@
 package liquibase.ext.mongodb.precondition
 
+import com.mongodb.client.MongoCollection
 import liquibase.Scope
 import liquibase.changelog.ChangeSet
 import liquibase.changelog.DatabaseChangeLog
@@ -10,6 +11,7 @@ import liquibase.ext.mongodb.database.MongoConnection
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase
 import liquibase.ext.mongodb.statement.CountDocumentsInCollectionStatement
 import org.bson.Document
+import org.bson.conversions.Bson
 import spock.lang.Specification
 
 class ExpectedDocumentCountPreconditionTest extends Specification {
@@ -20,22 +22,15 @@ class ExpectedDocumentCountPreconditionTest extends Specification {
     def changeExecListener = Mock(ChangeExecListener)
     def mongoConnection = Mock(MongoConnection)
     def mongoDatabase = Mock(com.mongodb.client.MongoDatabase)
+    def mongoCollection = Mock(MongoCollection)
     def scope = Mock(Scope)
     
     def setup() {
         Scope.getCurrentScope() >> scope
-        database.getMongoConnection() >> mongoConnection
-        mongoConnection.getDatabase() >> mongoDatabase
-        database.execute(_ as CountDocumentsInCollectionStatement) >> { CountDocumentsInCollectionStatement statement ->
-            if (statement.collectionName == "emptyCollection") {
-                return 0L
-            } else if (statement.collectionName == "populatedCollection") {
-                return 10L
-            } else if (statement.collectionName == "errorCollection") {
-                throw new Exception("Test exception")
-            }
-            return 0L
-        }
+        database.getMongoDatabase() >> mongoDatabase
+        mongoDatabase.getCollection("emptyCollection") >> mongoCollection
+        mongoDatabase.getCollection("populatedCollection") >> mongoCollection
+        mongoDatabase.getCollection("errorCollection") >> mongoCollection
     }
     
     def "should have correct name"() {
@@ -73,6 +68,7 @@ class ExpectedDocumentCountPreconditionTest extends Specification {
         def precondition = new ExpectedDocumentCountPrecondition()
         precondition.setCollectionName("emptyCollection")
         precondition.setExpectedCount(0L)
+        mongoCollection.countDocuments(_ as Bson) >> 0L
         
         when:
         precondition.check(database, changeLog, changeSet, changeExecListener)
@@ -87,6 +83,7 @@ class ExpectedDocumentCountPreconditionTest extends Specification {
         precondition.setCollectionName("populatedCollection")
         precondition.setFilter('{"status": "active"}')
         precondition.setExpectedCount(10L)
+        mongoCollection.countDocuments(_ as Bson) >> 10L
         
         when:
         precondition.check(database, changeLog, changeSet, changeExecListener)
@@ -100,6 +97,7 @@ class ExpectedDocumentCountPreconditionTest extends Specification {
         def precondition = new ExpectedDocumentCountPrecondition()
         precondition.setCollectionName("populatedCollection")
         precondition.setExpectedCount(5L)
+        mongoCollection.countDocuments(_ as Bson) >> 10L
         
         when:
         precondition.check(database, changeLog, changeSet, changeExecListener)
@@ -113,6 +111,7 @@ class ExpectedDocumentCountPreconditionTest extends Specification {
         def precondition = new ExpectedDocumentCountPrecondition()
         precondition.setCollectionName("errorCollection")
         precondition.setExpectedCount(0L)
+        mongoCollection.countDocuments(_ as Bson) >> { throw new Exception("Test exception") }
         
         when:
         precondition.check(database, changeLog, changeSet, changeExecListener)

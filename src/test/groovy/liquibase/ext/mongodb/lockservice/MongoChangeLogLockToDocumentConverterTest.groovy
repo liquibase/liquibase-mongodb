@@ -42,9 +42,10 @@ class MongoChangeLogLockToDocumentConverterTest extends Specification {
     
     def "should handle null values when converting to Document"() {
         given:
+        def defaultDate = new Date(0)
         def lock = new MongoChangeLogLock(
             1,                  // id
-            null,               // lockGranted
+            defaultDate,        // lockGranted
             null,               // lockedBy
             false               // locked
         )
@@ -56,8 +57,8 @@ class MongoChangeLogLockToDocumentConverterTest extends Specification {
         document instanceof Document
         document.getInteger(MongoChangeLogLock.Fields.id) == 1
         document.getBoolean(MongoChangeLogLock.Fields.locked) == false
-        document.getString(MongoChangeLogLock.Fields.lockedBy) == null
-        document.getDate(MongoChangeLogLock.Fields.lockGranted) == null
+        !document.containsKey(MongoChangeLogLock.Fields.lockedBy) || document.get(MongoChangeLogLock.Fields.lockedBy) == null
+        document.getDate(MongoChangeLogLock.Fields.lockGranted) == defaultDate
     }
     
     def "should convert Document to MongoChangeLogLock"() {
@@ -82,9 +83,12 @@ class MongoChangeLogLockToDocumentConverterTest extends Specification {
     
     def "should handle null values when converting from Document"() {
         given:
+        def defaultDate = new Date(0)
         def document = new Document()
         document.put(MongoChangeLogLock.Fields.id, 1)
         document.put(MongoChangeLogLock.Fields.locked, false)
+        document.put(MongoChangeLogLock.Fields.lockGranted, defaultDate)
+        document.put(MongoChangeLogLock.Fields.lockedBy, null)
         
         when:
         def lock = converter.fromDocument(document)
@@ -94,6 +98,6 @@ class MongoChangeLogLockToDocumentConverterTest extends Specification {
         lock.getId() == 1
         lock.getLocked() == false
         lock.getLockedBy() == null
-        lock.getLockGranted() == null
+        lock.getLockGranted() == defaultDate
     }
 }

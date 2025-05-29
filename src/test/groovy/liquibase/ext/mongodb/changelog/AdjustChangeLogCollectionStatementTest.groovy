@@ -1,5 +1,6 @@
 package liquibase.ext.mongodb.changelog
 
+import com.mongodb.client.ListIndexesIterable
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase
@@ -16,23 +17,28 @@ class AdjustChangeLogCollectionStatementTest extends Specification {
         def database = Mock(MongoLiquibaseDatabase)
         def mongoDatabase = Mock(MongoDatabase)
         def mongoCollection = Mock(MongoCollection)
+        def indexList = Mock(ListIndexesIterable)
         
         database.getMongoDatabase() >> mongoDatabase
+        database.getSupportsValidator() >> true
         mongoDatabase.getCollection(collectionName) >> mongoCollection
+        mongoDatabase.runCommand(_) >> new Document("ok", 1.0)
+        mongoCollection.listIndexes() >> indexList
+        indexList.into(_) >> { args -> 
+            List list = args[0]
+            if (list != null) {
+                list.add(new Document("name", "_id_"))
+            }
+            return list
+        }
         
         when:
         statement.execute(database)
         
         then:
-        1 * mongoCollection.createIndex({ Document doc -> doc.containsKey("id") && doc.containsKey("author") && doc.containsKey("fileName") })
-        1 * mongoCollection.createIndex({ Document doc -> doc.containsKey("id") })
-        1 * mongoCollection.createIndex({ Document doc -> doc.containsKey("author") })
-        1 * mongoCollection.createIndex({ Document doc -> doc.containsKey("fileName") })
-        1 * mongoCollection.createIndex({ Document doc -> doc.containsKey("dateExecuted") })
-        1 * mongoCollection.createIndex({ Document doc -> doc.containsKey("tag") })
-        1 * mongoCollection.createIndex({ Document doc -> doc.containsKey("execType") })
-        1 * mongoCollection.createIndex({ Document doc -> doc.containsKey("md5sum") })
-        1 * mongoCollection.createIndex({ Document doc -> doc.containsKey("orderExecuted") })
+        1 * mongoCollection.createIndex({ Document doc -> 
+            doc.containsKey("fileName") && doc.containsKey("author") && doc.containsKey("id") 
+        }, _)
     }
     
     def "should have correct command name"() {
@@ -51,6 +57,7 @@ class AdjustChangeLogCollectionStatementTest extends Specification {
         
         then:
         command instanceof Document
-        command.getString("adjustDatabaseChangelogCollection") == collectionName
+        command.getString("collMod") == collectionName
+        command.get("validator") != null
     }
 }

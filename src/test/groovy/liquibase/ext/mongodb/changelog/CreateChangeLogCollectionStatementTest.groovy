@@ -22,7 +22,9 @@ class CreateChangeLogCollectionStatementTest extends Specification {
         statement.execute(database)
         
         then:
-        1 * mongoDatabase.createCollection(collectionName)
+        1 * mongoDatabase.runCommand({ Document doc -> 
+            doc.getString("create") == collectionName
+        }) >> new Document("ok", 1.0d)
     }
     
     def "should have correct command name"() {
@@ -41,6 +43,6 @@ class CreateChangeLogCollectionStatementTest extends Specification {
         
         then:
         command instanceof Document
-        command.getString("createDatabaseChangelogCollection") == collectionName
+        command.getString("create") == collectionName
     }
 }

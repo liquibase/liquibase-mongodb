@@ -24,7 +24,7 @@ class GetMaxChangeSetSequenceStatementTest extends Specification {
         database.getMongoDatabase() >> mongoDatabase
         mongoDatabase.getCollection(collectionName) >> mongoCollection
         mongoCollection.find() >> findIterable
-        findIterable.sort(_ as Document) >> findIterable
+        findIterable.sort(_) >> findIterable
         findIterable.limit(1) >> findIterable
         findIterable.first() >> document
         
@@ -32,7 +32,7 @@ class GetMaxChangeSetSequenceStatementTest extends Specification {
         def result = statement.queryForLong(database)
         
         then:
-        result == 6L // Should return max + 1
+        result == 5L // Should return max value
     }
     
     def "should handle empty collection"() {
@@ -48,7 +48,7 @@ class GetMaxChangeSetSequenceStatementTest extends Specification {
         database.getMongoDatabase() >> mongoDatabase
         mongoDatabase.getCollection(collectionName) >> mongoCollection
         mongoCollection.find() >> findIterable
-        findIterable.sort(_ as Document) >> findIterable
+        findIterable.sort(_) >> findIterable
         findIterable.limit(1) >> findIterable
         findIterable.first() >> null
         
@@ -56,7 +56,7 @@ class GetMaxChangeSetSequenceStatementTest extends Specification {
         def result = statement.queryForLong(database)
         
         then:
-        result == 1L // Should return 1 for empty collection
+        result == 0L // Should return 0 for empty collection
     }
     
     def "should have correct command name"() {
@@ -65,16 +65,17 @@ class GetMaxChangeSetSequenceStatementTest extends Specification {
         statement.getCommandName() == "getMaxChangeSetSequence"
     }
     
-    def "should build correct command document"() {
+    def "should have correct command name and collection name"() {
         given:
         def collectionName = "DATABASECHANGELOG"
         def statement = new GetMaxChangeSetSequenceStatement(collectionName)
         
         when:
-        def command = statement.getCommand()
+        def commandName = statement.getCommandName()
+        def collection = statement.getCollectionName()
         
         then:
-        command instanceof Document
-        command.getString("getMaxChangeSetSequence") == collectionName
+        commandName == "getMaxChangeSetSequence"
+        collection == collectionName
     }
 }

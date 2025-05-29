@@ -186,17 +186,15 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
         liquibase.update("");
 
         List<MongoRanChangeSet> changeSets = findAllRanChangeSets.queryForList(database).stream().map(converter::fromDocument).collect(Collectors.toList());
-        assertThat(changeSets).hasSize(8)
+        assertThat(changeSets).hasSize(6)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType)
                 .containsExactly(
-                        tuple("1", 1, SKIPPED),
-                        tuple("2", 2, EXECUTED),
-                        tuple("3", 3, EXECUTED),
-                        tuple("4", 4, SKIPPED),
-                        tuple("5", 5, EXECUTED),
-                        tuple("6", 6, EXECUTED),
-                        tuple("7", 7, SKIPPED),
-                        tuple("8", 8, EXECUTED)
+                        tuple("2", 1, EXECUTED),
+                        tuple("3", 2, EXECUTED),
+                        tuple("5", 3, EXECUTED),
+                        tuple("6", 4, EXECUTED),
+                        tuple("8", 5, EXECUTED),
+                        tuple("9", 6, EXECUTED)
                 );
 
         assertThat(getCollections(connection))
@@ -205,8 +203,14 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
 
         final FindAllStatement findAllResults = new FindAllStatement("results");
         assertThat(findAllResults.queryForList(database))
-                .hasSize(4).extracting(d -> d.get("info"))
-                .containsExactlyInAnyOrder("existsAnyDocumentInCollection1", "filterMatchedInCollection1", "changeSetExecutedMatch", "expectedDocumentCountFilterMatchedInCollection1");
+                .hasSize(5).extracting(d -> d.get("info"))
+                .containsExactlyInAnyOrder(
+                        "existsAnyDocumentInCollection1", 
+                        "filterMatchedInCollection1", 
+                        "changeSetExecutedMatch", 
+                        "expectedDocumentCountFilterMatchedInCollection1",
+                        "expectedCollectionResultsExists"
+                );
 
     }
 

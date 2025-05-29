@@ -89,7 +89,7 @@ class DocumentExistsPreconditionTest extends Specification {
         def precondition = new DocumentExistsPrecondition()
         precondition.setCollectionName("users")
         precondition.setFilter(null)
-        mongoCollection.countDocuments(null) >> 5L
+        mongoCollection.countDocuments(_ as Bson) >> 5L
         
         when:
         precondition.check(database, changeLog, changeSet, changeExecListener)
