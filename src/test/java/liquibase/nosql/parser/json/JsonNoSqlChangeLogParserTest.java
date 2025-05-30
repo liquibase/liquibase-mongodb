@@ -40,7 +40,7 @@ class JsonNoSqlChangeLogParserTest {
 
     @Test
     void getPriority() {
-        assertThat(parser.getPriority()).isEqualTo(10);
+        assertThat(parser.getPriority()).isEqualTo(100);
     }
 
     @Test

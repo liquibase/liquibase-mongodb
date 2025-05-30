@@ -48,7 +48,8 @@ public class DropIndexStatement extends AbstractRunCommandStatement
     }
 
     public DropIndexStatement(final String collectionName, final String keys) {
-        this(collectionName, orEmptyDocument(keys));
+        super(toCommand(RUN_COMMAND_NAME, collectionName, 
+            keys.contains("{") ? combine(orEmptyDocument(keys)) : new Document(INDEX, keys)));
     }
 
     @Override
