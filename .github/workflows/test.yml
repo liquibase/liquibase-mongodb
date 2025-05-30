@@ -45,9 +45,12 @@ jobs:
       - name: print entire github object
         run: echo "${{ toJson(github) }}"
 
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref || github.ref_name }}
+          repository: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.ref_name }}
+          persist-credentials: ${{ github.event_name == 'pull_request_target' && 'false' || 'true' }}
         
         
   #     - name: Set up JDK ${{ matrix.java }}
