@@ -42,9 +42,6 @@ jobs:
           - 27017-27020:27017-27020
 
     steps:
-      - name: print entire github object
-        run: echo "${{ toJson(github) }}"
-
       - name: Checkout code
         uses: actions/checkout@v4
         with:
