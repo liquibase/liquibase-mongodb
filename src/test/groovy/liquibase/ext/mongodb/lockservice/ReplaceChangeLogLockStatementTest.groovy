@@ -27,7 +27,7 @@ class ReplaceChangeLogLockStatementTest extends Specification {
         def result = statement.update(database)
         
         then:
-        result == 0
+        result == 1
     }
     
     def "should execute replace change log lock statement with update"() {
