@@ -38,10 +38,10 @@ class AdjustChangeLogLockCollectionStatementIT extends AbstractMongoIntegrationT
         AdjustChangeLogLockCollectionStatement adjustChangeLogLockCollectionStatement =
                 new AdjustChangeLogLockCollectionStatement(LOCK_COLLECTION_NAME);
 
-        assertThat(adjustChangeLogLockCollectionStatement.getCommandName()).isEqualTo("adjustChangeLogLockCollection");
+        assertThat(adjustChangeLogLockCollectionStatement.getCommandName()).isEqualTo("adjustDatabaseChangelogLockCollection");
         assertThat(adjustChangeLogLockCollectionStatement.getCollectionName()).isEqualTo(LOCK_COLLECTION_NAME);
         assertThat(adjustChangeLogLockCollectionStatement.toJs()).isEqualTo(
-                "db.adjustChangeLogLockCollection({\"collMod\": \"lockCollection\", \"validator\": " +
+                "db.adjustDatabaseChangelogLockCollection({\"collMod\": \"lockCollection\", \"validator\": " +
                         "{\"$jsonSchema\": {\"bsonType\": \"object\", \"description\": \"Database Lock Collection\", " +
                         "\"required\": [\"_id\", \"locked\"], \"properties\": {" +
                         "\"_id\": {\"bsonType\": \"int\", \"description\": \"Unique lock identifier\"}, " +

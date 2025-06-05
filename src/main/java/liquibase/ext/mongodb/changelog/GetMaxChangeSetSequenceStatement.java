@@ -36,7 +36,7 @@ import static liquibase.ext.mongodb.statement.AbstractRunCommandStatement.SHELL_
 public class GetMaxChangeSetSequenceStatement extends AbstractCollectionStatement
         implements NoSqlQueryForLongStatement<MongoLiquibaseDatabase> {
 
-    public static final String COMMAND_NAME = "maxSequence";
+    public static final String COMMAND_NAME = "getMaxChangeSetSequence";
 
     public GetMaxChangeSetSequenceStatement(final String collectionName) {
         super(collectionName);

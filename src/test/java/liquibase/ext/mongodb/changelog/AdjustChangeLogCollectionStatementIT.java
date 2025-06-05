@@ -33,9 +33,9 @@ class AdjustChangeLogCollectionStatementIT extends AbstractMongoIntegrationTest 
         AdjustChangeLogCollectionStatement adjustChangeLogCollectionStatement =
                 new AdjustChangeLogCollectionStatement(LOG_COLLECTION_NAME);
 
-        assertThat(adjustChangeLogCollectionStatement.getCommandName()).isEqualTo("runCommand");
+        assertThat(adjustChangeLogCollectionStatement.getCommandName()).isEqualTo("adjustDatabaseChangelogCollection");
         assertThat(adjustChangeLogCollectionStatement.getCollectionName()).isEqualTo(LOG_COLLECTION_NAME);
-        assertThat(adjustChangeLogCollectionStatement.toJs()).isEqualTo("db.runCommand({" +
+        assertThat(adjustChangeLogCollectionStatement.toJs()).isEqualTo("db.adjustDatabaseChangelogCollection({" +
                 "\"collMod\": \"historyLogCollection\", \"validator\": {" +
                 "\"$jsonSchema\": {\"bsonType\": \"object\", \"description\": \"Database Change Log Table.\", " +
                 "\"required\": [\"id\", \"author\", \"fileName\", \"execType\"], " +
