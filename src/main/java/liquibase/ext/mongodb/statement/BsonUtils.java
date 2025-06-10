@@ -22,7 +22,9 @@ package liquibase.ext.mongodb.statement;
 
 import com.mongodb.DBRefCodecProvider;
 import com.mongodb.MongoClientSettings;
+
 import lombok.NoArgsConstructor;
+
 import org.bson.Document;
 import org.bson.UuidRepresentation;
 import org.bson.codecs.*;
@@ -30,13 +32,17 @@ import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
+
 import static liquibase.util.StringUtil.trimToNull;
 import static lombok.AccessLevel.PRIVATE;
+
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import org.bson.conversions.Bson;
 
 @NoArgsConstructor(access = PRIVATE)
 public final class BsonUtils {
@@ -74,6 +80,16 @@ public final class BsonUtils {
                         .map(s -> Document.parse(s, DOCUMENT_CODEC))
                         .map(d -> d.getList(ITEMS, Document.class, new ArrayList<>()))
                         .orElseGet(ArrayList::new)
+        );
+    }
+
+    public static Class<?> classOf(final String json) {
+        return (
+                ofNullable(trimToNull(json))
+                        .map(jn -> "{ " + ITEMS + ": " + jn + "}")
+                        .map(s -> Document.parse(s, DOCUMENT_CODEC))
+                        .map(d -> d.get(ITEMS).getClass())
+                        .orElse(null)
         );
     }
 
