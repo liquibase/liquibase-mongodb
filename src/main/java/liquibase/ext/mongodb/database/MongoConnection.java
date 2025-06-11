@@ -226,7 +226,8 @@ public class MongoConnection extends AbstractNoSqlConnection {
 
         if (nonNull(driverProperties)) {
 
-            final Optional<String> user = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("user"))).map(MongoConnection::encode);
+            final Optional<String> user = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("user")))
+                    .map(MongoConnection::encode).map(encodedUserName -> encodedUserName.replace("+", "%20"));
             final Optional<String> password = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("password"))).map(MongoConnection::encode);
 
             if (user.isPresent()) {
