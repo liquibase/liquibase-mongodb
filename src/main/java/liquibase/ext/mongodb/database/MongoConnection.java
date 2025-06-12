@@ -37,6 +37,7 @@ import liquibase.util.StringUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -226,9 +227,9 @@ public class MongoConnection extends AbstractNoSqlConnection {
 
         if (nonNull(driverProperties)) {
 
-            final Optional<String> user = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("user")))
+            final Optional<String> user = Optional.ofNullable(StringUtils.trimToNull(driverProperties.getProperty("user")))
                     .map(MongoConnection::encode).map(encodedUserName -> encodedUserName.replace("+", "%20"));
-            final Optional<String> password = Optional.ofNullable(StringUtil.trimToNull(driverProperties.getProperty("password"))).map(MongoConnection::encode);
+            final Optional<String> password = Optional.ofNullable(StringUtils.trimToNull(driverProperties.getProperty("password"))).map(MongoConnection::encode);
 
             if (user.isPresent()) {
                 // injects credentials
