@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   dry-run-attach-artifact-to-release:
-    uses: liquibase/build-logic/.github/workflows/extension-attach-artifact-release.yml@main
+    uses: liquibase/build-logic/.github/workflows/extension-attach-artifact-release.yml@DAT-20199
     secrets: inherit
     with:
       dry_run: true
@@ -22,7 +22,7 @@ jobs:
 
   dry-run-get-draft-release:
     needs: dry-run-attach-artifact-to-release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     outputs:
       dry_run_release_id: ${{ steps.get_draft_release_id.outputs.release_id }}
     steps:
@@ -54,7 +54,7 @@ jobs:
 
   dry-run-release-published:
     needs: dry-run-get-draft-release
-    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@main
+    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@DAT-20199
     secrets: inherit
     with:
       dry_run: true
@@ -63,7 +63,7 @@ jobs:
       deployToMavenCentral: false
 
   cleanup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     if: always()
     needs: [dry-run-get-draft-release, dry-run-release-published]
     permissions:
@@ -104,7 +104,7 @@ jobs:
 
   notify:
     if: failure()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     needs:
       [
         dry-run-attach-artifact-to-release,

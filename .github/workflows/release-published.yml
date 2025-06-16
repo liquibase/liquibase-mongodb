@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   release:
-    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@main
+    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@DAT-20199
     secrets: inherit
     with:
       nameSpace: mongodb
