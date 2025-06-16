@@ -4,7 +4,7 @@ on:
     types: [opened, labeled, unlabeled, synchronize, reopened]
 jobs:
   label:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     permissions:
       issues: write
       pull-requests: write

@@ -13,14 +13,14 @@ permissions:
 
 jobs:
   nightly-build:
-    uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@main
+    uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@DAT-20199
     with:
       nightly: true
     secrets: inherit
 
   mongo-atlas-tests:
     name: MongoDB Atlas 8 Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
 
     steps:
       - name: Checkout

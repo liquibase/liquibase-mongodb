@@ -16,18 +16,18 @@ on:
 jobs:
   authorize:
     environment: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository && 'external' || 'internal' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
       - run: true
 
   build-test:
     needs: authorize
-    uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@main
+    uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@DAT-20199
     secrets: inherit
 
   integration-tests:
     name: Integration Test - Java ${{ matrix.java }} MongoDB ${{ matrix.mongodb }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     env:
       LIQUIBOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -105,7 +105,7 @@ jobs:
 
   harness-tests:
     name: Harness Tests - Java ${{ matrix.java }} MongoDB ${{ matrix.mongodb }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     env:
       LIQUIBOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -196,7 +196,7 @@ jobs:
 
   publish-master-snapshot-to-gpm:
     name: Deploy to GitHub Package Registry
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     needs: build-test
     steps:
       - uses: actions/checkout@v4
