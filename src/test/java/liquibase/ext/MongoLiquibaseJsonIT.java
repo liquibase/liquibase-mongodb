@@ -35,14 +35,11 @@ import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 import static liquibase.changelog.ChangeSet.ExecType.EXECUTED;
-import static liquibase.changelog.ChangeSet.ExecType.SKIPPED;
 import static liquibase.ext.mongodb.TestUtils.getCollections;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -191,13 +188,10 @@ class MongoLiquibaseJsonIT extends AbstractMongoIntegrationTest {
         assertThat(changeSets).hasSize(5)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType)
                 .containsExactly(
-//                        tuple("1", 1, SKIPPED),
                         tuple("2", 1, EXECUTED),
                         tuple("3", 2, EXECUTED),
-//                        tuple("4", 4, SKIPPED),
                         tuple("5", 3, EXECUTED),
                         tuple("6", 4, EXECUTED),
-//                        tuple("7", 7, SKIPPED),
                         tuple("8", 5, EXECUTED)
                 );
 

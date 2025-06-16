@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static liquibase.changelog.ChangeSet.ExecType.EXECUTED;
-import static liquibase.changelog.ChangeSet.ExecType.SKIPPED;
 import static liquibase.ext.mongodb.TestUtils.getCollections;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -253,16 +252,12 @@ class MongoLiquibaseIT extends AbstractMongoIntegrationTest {
         assertThat(changeSets).hasSize(6)
                 .extracting(MongoRanChangeSet::getId, MongoRanChangeSet::getOrderExecuted, MongoRanChangeSet::getExecType, MongoRanChangeSet::getLastCheckSum)
                 .containsExactly(
-//                        tuple("1", 1, SKIPPED, CheckSum.parse("9:af9b299cda217428f9d082b71472c7c2")),
                         tuple("2", 1, EXECUTED, CheckSum.parse("9:dea86a555a8faa2df648fc3d5b0a26ab")),
                         tuple("3", 2, EXECUTED, CheckSum.parse("9:ff63cd85bae75ff9e0e2ad0a5c0fcfbb")),
-//                        tuple("4", 4, SKIPPED, CheckSum.parse("9:ca49926fc39cda00c50129a8913ae9d6")),
                         tuple("5", 3, EXECUTED, CheckSum.parse("9:2faf448db2581b8c55d525c099c73386")),
                         tuple("6", 4, EXECUTED, CheckSum.parse("9:8b8761856542aa6d6794d7bd177a3426")),
-//                        tuple("7", 7, SKIPPED, CheckSum.parse("9:a6ad2c0fa2dc8baf57bd109bad14daeb")),
                         tuple("8", 5, EXECUTED, CheckSum.parse("9:fbb6bb7c3c51c5a4f1c8b5a1b87a1815")),
                         tuple("9", 6, EXECUTED, CheckSum.parse("9:cb4e4e196d3181666e273cbbc5fa6472"))
-//                        tuple("10", 10, SKIPPED, CheckSum.parse("9:7e2e9cf0382c328297856300dcb391eb"))
                 );
 
         assertThat(getCollections(connection))
