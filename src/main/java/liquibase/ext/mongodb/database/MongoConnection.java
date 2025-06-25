@@ -132,6 +132,11 @@ public class MongoConnection extends AbstractNoSqlConnection {
     }
 
     @Override
+    public String getVisibleUrl() {
+        return connectionString.getConnectionString();
+    }
+
+    @Override
     public String getConnectionUserName() {
         return ofNullable(this.connectionString).map(ConnectionString::getCredential)
                 .map(MongoCredential::getUserName).orElse("");
