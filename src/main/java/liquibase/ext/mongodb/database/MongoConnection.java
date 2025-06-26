@@ -131,6 +131,17 @@ public class MongoConnection extends AbstractNoSqlConnection {
         return String.join(",", ofNullable(this.connectionString).map(ConnectionString::getHosts).orElse(Collections.emptyList()));
     }
 
+    /**
+     *
+     * Return the connection string for display purposes
+     *
+     * @return   String
+     *
+     */
+    public String getVisibleUrl() {
+        return connectionString.getConnectionString();
+    }
+
     @Override
     public String getConnectionUserName() {
         return ofNullable(this.connectionString).map(ConnectionString::getCredential)
