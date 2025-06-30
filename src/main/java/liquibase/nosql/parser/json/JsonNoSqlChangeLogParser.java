@@ -14,7 +14,9 @@ import liquibase.Labels;
 import liquibase.Scope;
 import liquibase.changelog.ChangeLogParameters;
 import liquibase.changelog.DatabaseChangeLog;
+import liquibase.database.Database;
 import liquibase.exception.ChangeLogParseException;
+import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.logging.Logger;
 import liquibase.parser.ChangeLogParser;
 import liquibase.parser.core.ParsedNode;
@@ -52,6 +54,10 @@ public class JsonNoSqlChangeLogParser implements ChangeLogParser {
      */
     @Override
     public boolean supports(String changeLogFile, ResourceAccessor resourceAccessor) {
+        Database database = Scope.getCurrentScope().getDatabase();
+        if (!(database instanceof MongoLiquibaseDatabase)) {
+            return false;
+        }
         for (String extension : getSupportedFileExtensions()) {
             if (changeLogFile.toLowerCase().endsWith("." + extension)) {
                 return true;
