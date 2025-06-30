@@ -55,7 +55,7 @@ public class JsonNoSqlChangeLogParser implements ChangeLogParser {
     @Override
     public boolean supports(String changeLogFile, ResourceAccessor resourceAccessor) {
         Database database = Scope.getCurrentScope().getDatabase();
-        if (!(database instanceof MongoLiquibaseDatabase)) {
+        if (database != null && !(database instanceof MongoLiquibaseDatabase)) {
             return false;
         }
         for (String extension : getSupportedFileExtensions()) {
