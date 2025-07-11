@@ -269,4 +269,11 @@ class MongoConnectionTest {
         verifyNoMoreInteractions(driverMock, clientMock, databaseMock);
     }
 
+    @SneakyThrows
+    @Test
+    void getVisibleUrlWithNullConnectionString() {
+        connection.setConnectionString(null);
+        assertThat(connection.getVisibleUrl()).isEmpty();
+    }
+
 }

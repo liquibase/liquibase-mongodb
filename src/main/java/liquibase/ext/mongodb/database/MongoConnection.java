@@ -138,8 +138,10 @@ public class MongoConnection extends AbstractNoSqlConnection {
      * @return   String
      *
      */
+    @Override
     public String getVisibleUrl() {
-        return connectionString.getConnectionString();
+        return ofNullable(connectionString).map(ConnectionString::getConnectionString)
+                .orElseGet(super::getVisibleUrl);
     }
 
     @Override
