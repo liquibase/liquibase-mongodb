@@ -10,6 +10,7 @@ permissions:
   contents: read
   pull-requests: write
   packages: read
+  id-token: write # Required for OIDC authentication
 
 jobs:
   nightly-build:
@@ -26,8 +27,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configure AWS credentials for vault access
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.LIQUIBASE_VAULT_OIDC_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Get secrets from vault
+        id: vault-secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: |
+            ,/vault/liquibase
+          parse-json-secrets: true
+
       - name: Harness Foundational Test Suite Run on Atlas 8
-        run: mvn -Dtest="HarnessNoSqlCompatibility" -DconfigFile=/harness-config-cloud.yml  -DdbName=mongodb -DdbUsername=${{secrets.TH_DB_ADMIN}} -DdbPassword=${{secrets.TH_DB_PASSWD}} -DdbUrl='${{secrets.TH_MONGO_ATLAS_URL}}' clean package
+        run: mvn -Dtest="HarnessNoSqlCompatibility" -DconfigFile=/harness-config-cloud.yml  -DdbName=mongodb -DdbUsername=${{env.TH_DB_ADMIN}} -DdbPassword=${{env.TH_DB_PASSWD}} -DdbUrl='${{env.TH_MONGO_ATLAS_URL}}' clean package
 
       - name: Archive Mongo Atlas Test Results
         uses: actions/upload-artifact@v4
