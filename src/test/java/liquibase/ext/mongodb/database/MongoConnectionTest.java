@@ -3,6 +3,7 @@ package liquibase.ext.mongodb.database;
 import com.mongodb.ConnectionString;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import liquibase.GlobalConfiguration;
 import liquibase.exception.DatabaseException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,6 +95,24 @@ class MongoConnectionTest {
 
         connection.open("mongodb://user1:pass1@localhost:27017/test_db", driverMock, null);
         assertThat(connection.getConnectionUserName()).isEqualTo("user1");
+
+        Properties driverProperties = new Properties();
+
+        String userName = "CN=ldap-test-user,OU=AADDC Users,DC=ldaps,DC=liquibase,DC=net";
+        String password = "superSecretPass!2#";
+        String urlUserName = getEncodedString(userName);
+        String urlPassword = getEncodedString(password);
+        driverProperties.put("user", userName);
+        driverProperties.put("password", password);
+        connection.open("mongodb://localhost:27017/test_db", driverMock, driverProperties);
+        assertThat(connection.getConnectionUserName()).isEqualTo(userName);
+        assertThat(connection.getConnectionString().getConnectionString()).contains(urlUserName);
+        assertThat(connection.getConnectionString().getConnectionString()).contains(urlPassword);
+    }
+
+    //Actual transforms form MongoConnection class
+    private String getEncodedString(String raw) throws UnsupportedEncodingException {
+        return URLEncoder.encode(raw, GlobalConfiguration.FILE_ENCODING.getCurrentValue().name()).replace("+", "%20");
     }
 
     @SneakyThrows

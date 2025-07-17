@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static liquibase.changelog.ChangeSet.ExecType.EXECUTED;
-import static liquibase.changelog.ChangeSet.ExecType.SKIPPED;
 import static liquibase.ext.mongodb.TestUtils.getCollections;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
