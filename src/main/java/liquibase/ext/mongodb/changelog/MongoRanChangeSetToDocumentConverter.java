@@ -7,11 +7,9 @@ import liquibase.changelog.ChangeSet;
 import liquibase.nosql.changelog.AbstractNoSqlItemToDocumentConverter;
 import org.bson.Document;
 
-import java.util.Collection;
 import java.util.Date;
 
 import static java.util.Optional.ofNullable;
-import static liquibase.sqlgenerator.core.MarkChangeSetRanGenerator.*;
 
 public class MongoRanChangeSetToDocumentConverter extends AbstractNoSqlItemToDocumentConverter<MongoRanChangeSet, Document> {
 
@@ -63,51 +61,5 @@ public class MongoRanChangeSetToDocumentConverter extends AbstractNoSqlItemToDoc
                 (Integer) ofNullable(document.get(MongoRanChangeSet.Fields.orderExecuted)).orElse(null),
                 (String) document.get(MongoRanChangeSet.Fields.liquibase)
         );
-    }
-
-    /**
-     * TODO: raise with liquibase to move into {@link Labels} class
-     */
-    public String buildLabels(Labels labels) {
-        if (labels == null || labels.isEmpty()) {
-            return null;
-        }
-        return labels.toString();
-    }
-
-    /**
-     * TODO: raise with liquibase to move into {@link ContextExpression} class
-     */
-    public String buildFullContext(final ContextExpression contextExpression, final Collection<ContextExpression> inheritableContexts) {
-        if ((contextExpression == null) || contextExpression.isEmpty()) {
-            return null;
-        }
-
-        StringBuilder contextExpressionString = new StringBuilder();
-        boolean notFirstContext = false;
-        for (ContextExpression inheritableContext : inheritableContexts) {
-            appendContext(contextExpressionString, inheritableContext.toString(), notFirstContext);
-            notFirstContext = true;
-        }
-        appendContext(contextExpressionString, contextExpression.toString(), notFirstContext);
-
-        return contextExpressionString.toString();
-    }
-
-    /**
-     * TODO: raise with liquibase to move into {@link ContextExpression} class
-     */
-    private void appendContext(StringBuilder contextExpression, String contextToAppend, boolean notFirstContext) {
-        boolean complexExpression = contextToAppend.contains(COMMA) || contextToAppend.contains(WHITESPACE);
-        if (notFirstContext) {
-            contextExpression.append(AND);
-        }
-        if (complexExpression) {
-            contextExpression.append(OPEN_BRACKET);
-        }
-        contextExpression.append(contextToAppend);
-        if (complexExpression) {
-            contextExpression.append(CLOSE_BRACKET);
-        }
     }
 }
