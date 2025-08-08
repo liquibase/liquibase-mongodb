@@ -4,8 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.util.Properties;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class MongoClientDriverTest {
@@ -31,16 +33,26 @@ class MongoClientDriverTest {
 
     @Test
     void getMajorVersion() {
-        assertThat(mongoClientDriver.getMajorVersion()).isEqualTo(0);
+        assertThat(mongoClientDriver.getMajorVersion()).isZero();
     }
 
     @Test
     void getMinorVersion() {
-        assertThat(mongoClientDriver.getMinorVersion()).isEqualTo(0);
+        assertThat(mongoClientDriver.getMinorVersion()).isZero();
     }
 
     @Test
     void jdbcCompliant() {
         assertThat(mongoClientDriver.jdbcCompliant()).isFalse();
+    }
+
+    @Test
+    @SuppressWarnings("resource")
+    void shouldThrowExceptionIfConnectWithUrlAndProperties() {
+        final Properties properties = new Properties();
+
+        assertThatThrownBy(() -> mongoClientDriver.connect("url", properties))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessage("Cannot initiate a SQL Connection for a NoSql DB");
     }
 }
