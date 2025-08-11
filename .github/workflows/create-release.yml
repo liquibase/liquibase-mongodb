@@ -13,6 +13,7 @@ permissions:
   statuses: read
   actions: read
   security-events: write
+  id-token: write
 
 jobs:
   create-release:

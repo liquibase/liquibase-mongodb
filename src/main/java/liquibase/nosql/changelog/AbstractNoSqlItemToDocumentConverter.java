@@ -47,10 +47,11 @@ public abstract class AbstractNoSqlItemToDocumentConverter<I, D>  {
             contextExpression.append(AND);
         }
         if (complexExpression) {
-            contextExpression
-                    .append(OPEN_BRACKET)
-                    .append(contextToAppend)
-                    .append(CLOSE_BRACKET);
+            contextExpression.append(OPEN_BRACKET);
+        }
+        contextExpression.append(contextToAppend);
+        if (complexExpression) {
+            contextExpression.append(CLOSE_BRACKET);
         }
     }
 }
