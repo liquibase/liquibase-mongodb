@@ -111,7 +111,7 @@ public class ReplaceChangeLogLockStatement extends AbstractCollectionStatement
 
     private int update(final MongoLiquibaseDatabase database, final Bson filters, final MongoChangeLogLock lock, final boolean upsert) {
         try {
-            var result = database.getMongoDatabase()
+            Object result = database.getMongoDatabase()
                     .getCollection(collectionName)
                     .findOneAndReplace(
                             filters,
