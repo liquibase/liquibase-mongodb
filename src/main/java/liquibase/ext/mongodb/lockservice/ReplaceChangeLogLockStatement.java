@@ -73,15 +73,30 @@ public class ReplaceChangeLogLockStatement extends AbstractCollectionStatement
                 locked
         );
         if (this.locked) {
-            return this.update(
+            // Try to acquire lock with conditional update (no upsert)
+            int result = this.update(
                     database,
                     Filters.and(
                             Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()),
                             Filters.eq(MongoChangeLogLock.Fields.locked, false)
                     ),
-                    lock
+                    lock,
+                    false
             );
+            
+            // If no document was updated, try to create initial lock document
+            if (result == 0) {
+                return this.update(
+                        database,
+                        Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()),
+                        lock,
+                        true
+                );
+            }
+            return result;
         }
+        
+        // Release lock - no upsert needed as document must exist
         return this.update(
                 database,
                 Filters.and(
@@ -89,20 +104,21 @@ public class ReplaceChangeLogLockStatement extends AbstractCollectionStatement
                         Filters.eq(MongoChangeLogLock.Fields.locked, true),
                         Filters.eq(MongoChangeLogLock.Fields.lockedBy, lock.getLockedBy())
                 ),
-                lock
+                lock,
+                false
         );
     }
 
-    private int update(final MongoLiquibaseDatabase database, final Bson filters, final MongoChangeLogLock lock) {
+    private int update(final MongoLiquibaseDatabase database, final Bson filters, final MongoChangeLogLock lock, final boolean upsert) {
         try {
-            database.getMongoDatabase()
+            var result = database.getMongoDatabase()
                     .getCollection(collectionName)
                     .findOneAndReplace(
                             filters,
                             new MongoChangeLogLockToDocumentConverter().toDocument(lock),
-                            new FindOneAndReplaceOptions().upsert(true).returnDocument(ReturnDocument.AFTER)
+                            new FindOneAndReplaceOptions().upsert(upsert).returnDocument(ReturnDocument.AFTER)
                     );
-            return 1;
+            return result != null ? 1 : 0;
         } catch (MongoException e) {
             if (e.getCode() == DUPLICATE_KEY_ERROR_CODE) {
                 return 0;
