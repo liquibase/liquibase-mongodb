@@ -72,37 +72,59 @@ public class ReplaceChangeLogLockStatement extends AbstractCollectionStatement
                 MongoChangeLogLock.formLockedBy(),
                 locked
         );
+        
+        // Check if document exists first
+        long documentCount = database.getMongoDatabase()
+                .getCollection(collectionName)
+                .countDocuments(Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()));
+        
+        if (documentCount == 0) {
+            // No document exists, create it with upsert and simple filter (DocumentDB compatible)
+            return this.update(
+                    database,
+                    Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()),
+                    lock,
+                    true
+            );
+        }
+        
+        // Document exists, perform conditional update without upsert
         if (this.locked) {
+            // Try to acquire lock - only if currently unlocked
             return this.update(
                     database,
                     Filters.and(
                             Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()),
                             Filters.eq(MongoChangeLogLock.Fields.locked, false)
                     ),
-                    lock
+                    lock,
+                    false
+            );
+        } else {
+            // Try to release lock - only if locked by same host
+            return this.update(
+                    database,
+                    Filters.and(
+                            Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()),
+                            Filters.eq(MongoChangeLogLock.Fields.locked, true),
+                            Filters.eq(MongoChangeLogLock.Fields.lockedBy, lock.getLockedBy())
+                    ),
+                    lock,
+                    false
             );
         }
-        return this.update(
-                database,
-                Filters.and(
-                        Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()),
-                        Filters.eq(MongoChangeLogLock.Fields.locked, true),
-                        Filters.eq(MongoChangeLogLock.Fields.lockedBy, lock.getLockedBy())
-                ),
-                lock
-        );
     }
 
-    private int update(final MongoLiquibaseDatabase database, final Bson filters, final MongoChangeLogLock lock) {
+    private int update(final MongoLiquibaseDatabase database, final Bson filters, final MongoChangeLogLock lock, final boolean upsert) {
         try {
-            database.getMongoDatabase()
+            Object result = database.getMongoDatabase()
                     .getCollection(collectionName)
                     .findOneAndReplace(
                             filters,
                             new MongoChangeLogLockToDocumentConverter().toDocument(lock),
-                            new FindOneAndReplaceOptions().upsert(true).returnDocument(ReturnDocument.AFTER)
+                            new FindOneAndReplaceOptions().upsert(upsert).returnDocument(ReturnDocument.AFTER)
                     );
-            return 1;
+            return result != null ? 1 : 0;
         } catch (MongoException e) {
             if (e.getCode() == DUPLICATE_KEY_ERROR_CODE) {
                 return 0;
