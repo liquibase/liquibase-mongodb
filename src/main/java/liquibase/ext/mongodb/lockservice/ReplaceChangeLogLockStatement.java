@@ -72,9 +72,26 @@ public class ReplaceChangeLogLockStatement extends AbstractCollectionStatement
                 MongoChangeLogLock.formLockedBy(),
                 locked
         );
+        
+        // Check if document exists first
+        long documentCount = database.getMongoDatabase()
+                .getCollection(collectionName)
+                .countDocuments(Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()));
+        
+        if (documentCount == 0) {
+            // No document exists, create it with upsert and simple filter (DocumentDB compatible)
+            return this.update(
+                    database,
+                    Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()),
+                    lock,
+                    true
+            );
+        }
+        
+        // Document exists, perform conditional update without upsert
         if (this.locked) {
-            // Try to acquire lock with conditional update (no upsert)
-            int result = this.update(
+            // Try to acquire lock - only if currently unlocked
+            return this.update(
                     database,
                     Filters.and(
                             Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()),
@@ -83,30 +100,19 @@ public class ReplaceChangeLogLockStatement extends AbstractCollectionStatement
                     lock,
                     false
             );
-            
-            // If no document was updated, try to create initial lock document
-            if (result == 0) {
-                return this.update(
-                        database,
-                        Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()),
-                        lock,
-                        true
-                );
-            }
-            return result;
+        } else {
+            // Try to release lock - only if locked by same host
+            return this.update(
+                    database,
+                    Filters.and(
+                            Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()),
+                            Filters.eq(MongoChangeLogLock.Fields.locked, true),
+                            Filters.eq(MongoChangeLogLock.Fields.lockedBy, lock.getLockedBy())
+                    ),
+                    lock,
+                    false
+            );
         }
-        
-        // Release lock - no upsert needed as document must exist
-        return this.update(
-                database,
-                Filters.and(
-                        Filters.eq(MongoChangeLogLock.Fields.id, lock.getId()),
-                        Filters.eq(MongoChangeLogLock.Fields.locked, true),
-                        Filters.eq(MongoChangeLogLock.Fields.lockedBy, lock.getLockedBy())
-                ),
-                lock,
-                false
-        );
     }
 
     private int update(final MongoLiquibaseDatabase database, final Bson filters, final MongoChangeLogLock lock, final boolean upsert) {
