@@ -45,7 +45,7 @@ jobs:
         run: mvn -Dtest="HarnessNoSqlCompatibility" -DconfigFile=/harness-config-cloud.yml  -DdbName=mongodb -DdbUsername=${{env.TH_DB_ADMIN}} -DdbPassword=${{env.TH_DB_PASSWD}} -DdbUrl='${{env.TH_MONGO_ATLAS_URL}}' clean package
 
       - name: Archive Mongo Atlas Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: mongodb-test-results
           path: build/spock-reports
