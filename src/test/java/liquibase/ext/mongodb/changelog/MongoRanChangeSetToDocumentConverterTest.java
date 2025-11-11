@@ -78,6 +78,7 @@ class MongoRanChangeSetToDocumentConverterTest {
                 .returns("cs4", MongoRanChangeSet::getId)
                 .returns("Alex", MongoRanChangeSet::getAuthor)
                 .returns("liquibase/file.xml", MongoRanChangeSet::getChangeLog)
+                .returns("liquibase/file.xml", MongoRanChangeSet::getStoredChangeLog)
                 .returns(dateExecuted, MongoRanChangeSet::getDateExecuted)
                 .returns(100, MongoRanChangeSet::getOrderExecuted)
                 .returns(ChangeSet.ExecType.EXECUTED, MongoRanChangeSet::getExecType)
