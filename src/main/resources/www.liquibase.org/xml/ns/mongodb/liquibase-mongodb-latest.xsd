@@ -140,5 +140,20 @@
             <xsd:attribute name="collectionName" type="xsd:string" use="required"/>
         </xsd:complexType>
     </xsd:element>
-    
+
+    <xsd:element name="updateMany">
+
+        <xsd:complexType>
+
+            <xsd:all>
+                <xsd:element name="filter" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+                <xsd:element name="update" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+            </xsd:all>
+
+            <xsd:attribute name="collectionName" type="xsd:string" use="required"/>
+
+        </xsd:complexType>
+
+    </xsd:element>
+
 </xsd:schema>
