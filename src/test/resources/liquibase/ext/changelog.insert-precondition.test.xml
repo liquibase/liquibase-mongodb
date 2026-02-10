@@ -25,14 +25,11 @@
         http://www.liquibase.org/xml/ns/mongodb http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd">
 
     <changeSet id="1" author="alex">
-
         <preConditions onFail="CONTINUE" onError="HALT">
             <mongodb:documentExists collectionName="collection1"/>
         </preConditions>
         <comment>Will be SKIPPED due to precondition</comment>
-
         <mongodb:insertOne collectionName="results">
-
             <mongodb:document>
                 <!--@formatter:off-->
                 {
@@ -40,9 +37,7 @@
                 }
                 <!--@formatter:on-->
             </mongodb:document>
-
         </mongodb:insertOne>
-
     </changeSet>
 
     <changeSet id="2" author="alex">
