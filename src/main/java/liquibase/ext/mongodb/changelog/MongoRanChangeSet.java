@@ -39,7 +39,7 @@ public class MongoRanChangeSet extends RanChangeSet {
     public MongoRanChangeSet(final String changeLog, final String id, final String author, final CheckSum lastCheckSum, final Date dateExecuted
             , final String tag, final ChangeSet.ExecType execType, final String description, final String comments, final ContextExpression contextExpression, final Collection<ContextExpression> inheritableContexts
             , final Labels labels, final String deploymentId, final Integer orderExecuted, final String liquibase) {
-        super(changeLog, id, author, lastCheckSum, dateExecuted, tag, execType, description, comments, contextExpression, labels, deploymentId);
+        super(changeLog, id, author, lastCheckSum, dateExecuted, tag, execType, description, comments, contextExpression, labels, deploymentId, changeLog);
         super.setOrderExecuted(orderExecuted);
         super.setLiquibaseVersion(liquibase);
         this.inheritableContexts = inheritableContexts;
