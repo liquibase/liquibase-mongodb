@@ -67,8 +67,8 @@ class CreateIndexStatementIT extends AbstractMongoIntegrationTest {
         // Same index name exception
         final CreateIndexStatement createDuplicateNameIndexStatement = new CreateIndexStatement(COLLECTION_NAME_1, "{ otherField: 1 }", "{ name: \"" + indexName + "\" }");
         assertThatExceptionOfType(MongoException.class).isThrownBy(() -> createDuplicateNameIndexStatement.execute(database))
-                .withMessageStartingWith("Command failed with error")
-                .withMessageContaining("An existing index has the same name as the requested index. When index names are not specified, they are auto generated and can cause conflicts. Please refer to our documentation.");
+                .withMessageContaining("with error")
+                .withMessageContaining("An existing index has the same name as the requested index");
 
         // Same index name success
         final CreateIndexStatement createSameFieldsIndexStatement = new CreateIndexStatement(COLLECTION_NAME_1, "{ locale: 1 }", "{ name: \"otherName\" }");

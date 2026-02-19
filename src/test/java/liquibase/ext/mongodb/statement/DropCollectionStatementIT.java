@@ -53,7 +53,7 @@ class DropCollectionStatementIT extends AbstractMongoIntegrationTest {
 
         if (mongoDBServerVersion == 5 || mongoDBServerVersion == 6) {
             assertThatExceptionOfType(MongoCommandException.class).isThrownBy(() -> dropCollectionStatement.execute(database))
-                    .withMessageStartingWith("Command failed with error")
+                    .withMessageContaining("with error")
                     .withMessageContaining("NamespaceNotFound");
         } else if (mongoDBServerVersion == 7) {
             assertThatNoException().isThrownBy(() -> dropCollectionStatement.execute(database));

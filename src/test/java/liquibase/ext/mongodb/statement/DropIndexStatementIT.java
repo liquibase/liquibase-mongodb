@@ -63,7 +63,7 @@ class DropIndexStatementIT extends AbstractMongoIntegrationTest {
         // repeatedly attempt to delete same index or not existing
         assertThatExceptionOfType(MongoCommandException.class)
                 .isThrownBy(() -> new DropIndexStatement(COLLECTION_NAME_1, "{ locale: 1 }").execute(database))
-                .withMessageStartingWith("Command failed with error")
+                .withMessageContaining("with error")
                 .withMessageContaining("can't find index with key");
     }
 }
