@@ -293,7 +293,7 @@ jobs:
             ]
 
       - name: Download liquibase-mongodb-artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: liquibase-mongodb-artifacts
           path: ./artifacts
