@@ -158,7 +158,7 @@ Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for details on our code of cond
 <a name="license"></a>
 ## License
 
-This project is licensed under the Functional Source License, Version 1.1, ALv2 Future License (FSL-1.1-ALv2) - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the Functional Source License, Version 1.1, ALv2 Future License (FSL-1.1-ALv2) - see the [LICENSE.txt](LICENSE.txt) file for details
 
 
 
