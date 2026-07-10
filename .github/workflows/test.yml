@@ -71,7 +71,7 @@ jobs:
 
       # look for dependencies in maven
       - name: Set up Maven settings.xml
-        uses: liquibase/build-logic/.github/actions/setup-maven-settings@340d1d4186987be31469448474a1230d4bb04e85 # main
+        uses: liquibase/build-logic/.github/actions/setup-maven-settings@5e72097ceac12e1cc70fa6306e9d39f1b9bf1334 # main
         with:
           gpm-token: ${{ env.LIQUIBOT_PAT_GPM_ACCESS }}
           releases-enabled: 'false'
@@ -118,7 +118,7 @@ jobs:
 
       # look for dependencies in maven
       - name: Set up Maven settings.xml
-        uses: liquibase/build-logic/.github/actions/setup-maven-settings@340d1d4186987be31469448474a1230d4bb04e85 # main
+        uses: liquibase/build-logic/.github/actions/setup-maven-settings@5e72097ceac12e1cc70fa6306e9d39f1b9bf1334 # main
         with:
           gpm-token: ${{ env.LIQUIBOT_PAT_GPM_ACCESS }}
           releases-enabled: 'false'
