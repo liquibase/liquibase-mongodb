@@ -6,3 +6,4 @@ liquibase.ext.mongodb.change.DropIndexChange
 liquibase.ext.mongodb.change.InsertManyChange
 liquibase.ext.mongodb.change.InsertOneChange
 liquibase.ext.mongodb.change.RunCommandChange
+liquibase.ext.mongodb.change.UpdateManyChange
