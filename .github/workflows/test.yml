@@ -47,6 +47,7 @@ jobs:
           repository: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.ref_name }}
           persist-credentials: ${{ github.event_name == 'pull_request_target' && 'false' || 'true' }}
+          allow-unsafe-pr-checkout: true
         
       - name: Configure AWS credentials for vault access
         uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
@@ -94,6 +95,7 @@ jobs:
           repository: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.ref_name }}
           persist-credentials: ${{ github.event_name == 'pull_request_target' && 'false' || 'true' }}
+          allow-unsafe-pr-checkout: true
 
       - name: Configure AWS credentials for vault access
         uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
