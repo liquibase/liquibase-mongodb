@@ -108,6 +108,10 @@ public abstract class AbstractNoSqlHistoryService<D extends AbstractNoSqlDatabas
         this.serviceInitialized = false;
         this.hasDatabaseChangeLogTable = null;
         this.adjustedChangeLogTable = FALSE;
+        // Cached MAX(orderExecuted), incremented in memory by getNextSequenceValue() and never
+        // recomputed by init(), so it has to be dropped here or it would survive a reset and hand
+        // out sequence values based on a stale read of the changelog collection.
+        this.lastChangeSetSequenceValue = null;
     }
 
     @Override
