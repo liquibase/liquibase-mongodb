@@ -37,7 +37,7 @@ class NoSqlGeneratorTest {
 
         Sql firstGeneratedSql = generatedSqls[0];
         assertThat(firstGeneratedSql.toSql())
-                .isEqualTo("db.runCommand({\"insert\": \"sample-collection\", \"documents\": [{\"sample-key\": \"sample-value\"}]});");
+                .isEqualTo("db.runCommand({\"insert\": \"sample-collection\", \"documents\": [{\"sample-key\": \"sample-value\"}]})");
     }
 
     @Test
