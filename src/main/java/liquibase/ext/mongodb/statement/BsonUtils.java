@@ -28,6 +28,8 @@ import org.bson.UuidRepresentation;
 import org.bson.codecs.*;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.json.JsonMode;
+import org.bson.json.JsonWriterSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +80,14 @@ public final class BsonUtils {
     }
 
     public static String toJson(final Document document) {
-        return ofNullable(document).map(Document::toJson).orElse(null);
+        return ofNullable(document)
+                .map(doc -> {
+                    JsonWriterSettings writerSettings = JsonWriterSettings.builder()
+                            .outputMode(JsonMode.SHELL)
+                            .build();
+                    return doc.toJson(writerSettings);
+                })
+                .orElse(null);
     }
 
     public static Document toCommand(final String commandName, final Object commandValue, final Document options) {

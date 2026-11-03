@@ -9,6 +9,7 @@ import liquibase.exception.LockException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.executor.Executor;
 import liquibase.executor.ExecutorService;
+import liquibase.executor.LoggingExecutor;
 import liquibase.ext.mongodb.database.MongoConnection;
 import liquibase.ext.mongodb.database.MongoLiquibaseDatabase;
 import liquibase.ext.mongodb.statement.CountCollectionByNameStatement;
@@ -37,6 +38,7 @@ import java.util.Date;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static liquibase.ext.mongodb.lockservice.MongoLockService.LOCK_OPERATION_SUCCESSFUL;
 import static liquibase.nosql.executor.NoSqlExecutor.EXECUTOR_NAME;
 import static liquibase.plugin.Plugin.PRIORITY_SPECIALIZED;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +52,9 @@ class MongoLockServiceTest {
 
     @Mock
     protected NoSqlExecutor executorMock;
+
+    @Mock
+    protected LoggingExecutor loggingExecutorMock;
 
     @Mock
     protected MongoConnection connectionMock;
@@ -341,6 +346,7 @@ class MongoLockServiceTest {
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
         verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verify(executorMock, times(0)).queryForList(any(FindAllStatement.class), eq(Document.class));
+        verify(executorMock, times(1)).comment(any(String.class));
 
         verifyNoMoreInteractions(executorMock);
 
@@ -405,6 +411,7 @@ class MongoLockServiceTest {
         verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
+        verify(executorMock, times(1)).comment(any(String.class));
         verifyNoMoreInteractions(executorMock);
 
         assertThat(lockService.getHasDatabaseChangeLogLockTable()).isTrue();
@@ -471,6 +478,7 @@ class MongoLockServiceTest {
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
         verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
+        verify(executorMock, times(1)).comment(any(String.class));
         verifyNoMoreInteractions(executorMock);
 
         assertThat(lockService.getHasDatabaseChangeLogLockTable()).isTrue();
@@ -497,6 +505,7 @@ class MongoLockServiceTest {
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
         verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
+        verify(executorMock, times(1)).comment(any(String.class));
         verifyNoMoreInteractions(executorMock);
 
         assertThat(lockService.getHasDatabaseChangeLogLockTable()).isTrue();
@@ -523,10 +532,36 @@ class MongoLockServiceTest {
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
         verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
+        verify(executorMock, times(1)).comment(any(String.class));
         verifyNoMoreInteractions(executorMock);
 
         assertThat(lockService.getHasDatabaseChangeLogLockTable()).isTrue();
         assertThat(lockService.hasChangeLogLock()).isFalse();
+    }
+
+    @SneakyThrows
+    @Test
+    void replaceLockWhenLoggingExecutorActive() {
+        // given
+        Scope.getCurrentScope()
+                .getSingleton(ExecutorService.class)
+                .setExecutor(EXECUTOR_NAME, database, loggingExecutorMock);
+
+        Scope.getCurrentScope()
+                .getSingleton(ExecutorService.class)
+                .setExecutor("logging", database, loggingExecutorMock);
+
+        lockService.setDatabase(database);
+
+        // when
+        int lockResult = lockService.replaceLock(true);
+
+        // then
+        assertThat(lockResult)
+                .isEqualTo(LOCK_OPERATION_SUCCESSFUL);
+
+        verify(loggingExecutorMock)
+                .update(any(ReplaceChangeLogLockStatement.class));
     }
 
     @SneakyThrows
@@ -547,6 +582,7 @@ class MongoLockServiceTest {
 
         verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
+        verify(executorMock, times(1)).comment(any(String.class));
         verifyNoMoreInteractions(executorMock);
 
         assertThat(lockService.getHasDatabaseChangeLogLockTable()).isTrue();
@@ -571,6 +607,7 @@ class MongoLockServiceTest {
 
         verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
+        verify(executorMock, times(1)).comment(any(String.class));
         verifyNoMoreInteractions(executorMock);
 
         assertThat(lockService.getHasDatabaseChangeLogLockTable()).isTrue();
@@ -643,6 +680,7 @@ class MongoLockServiceTest {
         verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).execute(any(AdjustChangeLogLockCollectionStatement.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
+        verify(executorMock, times(1)).comment(any(String.class));
         verifyNoMoreInteractions(executorMock);
 
         assertThat(lockService.getHasDatabaseChangeLogLockTable()).isTrue();
@@ -671,6 +709,7 @@ class MongoLockServiceTest {
         verify(executorMock, times(1)).queryForLong(any(CountCollectionByNameStatement.class));
         verify(executorMock, times(1)).queryForObject(any(SelectChangeLogLockStatement.class), eq(Document.class));
         verify(executorMock, times(1)).update(any(ReplaceChangeLogLockStatement.class));
+        verify(executorMock, times(1)).comment(any(String.class));
         verifyNoMoreInteractions(executorMock);
 
         assertThat(lockService.getHasDatabaseChangeLogLockTable()).isTrue();
