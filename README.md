@@ -50,6 +50,12 @@ Provides a helper to run specified database commands. This is the preferred meth
 * [__adminCommand__](https://docs.mongodb.com/manual/reference/method/db.adminCommand/#db.adminCommand) - 
 Provides a helper to run specified database commands against the admin database
 
+You can use `update-sql` command at command line also. When you run the update-sql command, a changelog file that includes db.runCommand s will be created.
+
+```bash
+liquibase update-sql --changelog-file=example-changelog.xml
+```
+
 <a name="connection-string"></a>
 ## Connection String Formats
 

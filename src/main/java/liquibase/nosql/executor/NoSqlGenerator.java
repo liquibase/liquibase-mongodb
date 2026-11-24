@@ -50,6 +50,11 @@ public class NoSqlGenerator extends AbstractSqlGenerator<AbstractNoSqlStatement>
 
     @Override
     public boolean generateStatementsIsVolatile(Database database) {
+        return false;
+    }
+
+    @Override
+    public boolean supports(AbstractNoSqlStatement statement, Database database) {
         return true;
     }
 }
