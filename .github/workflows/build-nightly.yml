@@ -28,13 +28,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Get the harness DB admin credentials from vault
-        uses: liquibase/build-logic/.github/actions/setup-aws-vault@2003fece51886ec69cda3df1cb4520b3ceeb2e0c # main
+        uses: liquibase/build-logic/.github/actions/setup-aws-vault@6e9cd7ae7956e31d3381e247f25de68f306ba80c # main
         with:
           group: th-db-shared-admin
           role-arn: ${{ secrets.VAULT_GROUPED_TH_DB_SHARED_ADMIN_ROLE_ARN }}
 
       - name: Get the Mongo Atlas URL from vault
-        uses: liquibase/build-logic/.github/actions/setup-aws-vault@2003fece51886ec69cda3df1cb4520b3ceeb2e0c # main
+        uses: liquibase/build-logic/.github/actions/setup-aws-vault@6e9cd7ae7956e31d3381e247f25de68f306ba80c # main
         with:
           group: th-endpoint-mongo-atlas-shared
           role-arn: ${{ secrets.VAULT_GROUPED_TH_ENDPOINT_MONGO_ATLAS_SHARED_ROLE_ARN }}
